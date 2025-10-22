@@ -1,0 +1,41 @@
+dl {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 4px 0 0;
+}
+
+dt {
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+dd {
+  margin: 0;
+  color: var(--app-text);
+}
+
+.fields .full-width {
+  grid-column: 1 / -1;
+}
+
+.fields mat-form-field {
+  width: 100%;
+}
+
+mat-dialog-content {
+  padding: 18px 24px 8px;
+}
+
+mat-dialog-actions {
+  padding: 10px 24px 22px;
+}
+
+@media (width <= 700px) {
+  .fields,
+  dl {
+    grid-template-columns: 1fr;
+  }
+}

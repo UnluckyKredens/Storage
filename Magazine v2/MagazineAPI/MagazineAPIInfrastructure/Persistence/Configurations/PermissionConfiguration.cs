@@ -1,0 +1,52 @@
+using MagazineAPIDomain.Authorization;
+using MagazineAPIDomain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace MagazineAPInfrastructure.Persistence.Configurations;
+
+public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+{
+    public void Configure(EntityTypeBuilder<Permission> builder)
+    {
+        builder.ToTable("Permissions");
+
+        builder.HasKey(permission => permission.Id);
+
+        builder.Property(permission => permission.Id)
+            .ValueGeneratedOnAdd();
+
+        builder.Property(permission => permission.Code)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(permission => permission.Name)
+            .HasMaxLength(150)
+            .IsRequired();
+
+        builder.Property(permission => permission.Description)
+            .HasMaxLength(500);
+
+        builder.HasIndex(permission => permission.Code)
+            .IsUnique();
+
+        builder.HasData(
+            new Permission { Id = PermissionIds.ProductsRead, Code = PermissionCodes.ProductsRead, Name = "Podgląd produktów", Description = "Wyświetlanie katalogu i szczegółów produktów." },
+            new Permission { Id = PermissionIds.ProductsManage, Code = PermissionCodes.ProductsManage, Name = "Zarządzanie produktami", Description = "Dodawanie, edycja i wycofywanie produktów." },
+            new Permission { Id = PermissionIds.InventoryRead, Code = PermissionCodes.InventoryRead, Name = "Podgląd stanów", Description = "Wyświetlanie stanów i rezerwacji magazynowych." },
+            new Permission { Id = PermissionIds.InventoryManage, Code = PermissionCodes.InventoryManage, Name = "Zarządzanie stanami", Description = "Bezpośrednia edycja stanów magazynowych." },
+            new Permission { Id = PermissionIds.WarehousesRead, Code = PermissionCodes.WarehousesRead, Name = "Podgląd magazynów", Description = "Wyświetlanie magazynów oraz lokalizacji." },
+            new Permission { Id = PermissionIds.WarehousesManage, Code = PermissionCodes.WarehousesManage, Name = "Zarządzanie magazynami", Description = "Dodawanie i edycja magazynów oraz lokalizacji." },
+            new Permission { Id = PermissionIds.ContractorsRead, Code = PermissionCodes.ContractorsRead, Name = "Podgląd kontrahentów", Description = "Wyświetlanie dostawców i odbiorców." },
+            new Permission { Id = PermissionIds.ContractorsManage, Code = PermissionCodes.ContractorsManage, Name = "Zarządzanie kontrahentami", Description = "Dodawanie i edycja kontrahentów." },
+            new Permission { Id = PermissionIds.UsersRead, Code = PermissionCodes.UsersRead, Name = "Podgląd użytkowników", Description = "Wyświetlanie kont użytkowników." },
+            new Permission { Id = PermissionIds.UsersManage, Code = PermissionCodes.UsersManage, Name = "Zarządzanie użytkownikami", Description = "Edycja i usuwanie kont innych niż administratorzy." },
+            new Permission { Id = PermissionIds.DictionariesManage, Code = PermissionCodes.DictionariesManage, Name = "Zarządzanie słownikami", Description = "Edycja kategorii i jednostek miary." },
+            new Permission { Id = PermissionIds.ShipmentsRead, Code = PermissionCodes.ShipmentsRead, Name = "Podgląd wysyłek", Description = "Wyświetlanie wysyłek między magazynami." },
+            new Permission { Id = PermissionIds.ShipmentsCreate, Code = PermissionCodes.ShipmentsCreate, Name = "Tworzenie wysyłek", Description = "Tworzenie wysyłek z magazynu pracownika." },
+            new Permission { Id = PermissionIds.ShipmentsApprove, Code = PermissionCodes.ShipmentsApprove, Name = "Akceptacja wysyłek", Description = "Akceptowanie wysyłek i przygotowanie WZ." },
+            new Permission { Id = PermissionIds.PurchaseOrdersRead, Code = PermissionCodes.PurchaseOrdersRead, Name = "Podgląd zamówień zewnętrznych", Description = "Wyświetlanie zamówień do magazynu od dostawców." },
+            new Permission { Id = PermissionIds.PurchaseOrdersCreate, Code = PermissionCodes.PurchaseOrdersCreate, Name = "Tworzenie zamówień zewnętrznych", Description = "Tworzenie zamówień do aktywnego magazynu." },
+            new Permission { Id = PermissionIds.PurchaseOrdersApprove, Code = PermissionCodes.PurchaseOrdersApprove, Name = "Akceptacja zamówień zewnętrznych", Description = "Akceptowanie zamówień, faktur i dokumentów przyjęcia." });
+    }
+}

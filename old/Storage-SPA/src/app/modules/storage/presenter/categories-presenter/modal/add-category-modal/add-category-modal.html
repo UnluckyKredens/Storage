@@ -1,0 +1,13 @@
+  <form class="container">
+  <mat-form-field appearance="outline" class="container__field">
+    <mat-label>Category name</mat-label>
+    <input matInput placeholder="{{prevName}}" value="{{prevName}}" [(ngModel)]="newName" [ngModelOptions]="{standalone: true}">
+  </mat-form-field>
+  @if(prevName == '') {
+  <button mat-raised-button (click)="addCategory(newName)">Add</button>
+  }
+  @else {
+      <button mat-raised-button (click)="editCategory(newName)">Edit</button>
+  }
+
+  </form>

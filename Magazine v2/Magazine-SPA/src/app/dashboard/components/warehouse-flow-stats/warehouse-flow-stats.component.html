@@ -1,0 +1,156 @@
+<section class="flow" aria-labelledby="flow-title">
+  <header class="flow-header">
+    <div>
+      <h2 id="flow-title">Przepływ magazynu</h2>
+      <p>Przyjęcia i wydania towaru oraz obieg wysyłek z historii zdarzeń.</p>
+    </div>
+    <div class="period" role="group" aria-label="Okres statystyk">
+      @for (period of periods; track period) {
+        <button
+          type="button"
+          [class.active]="days() === period"
+          [attr.aria-pressed]="days() === period"
+          (click)="selectPeriod(period)"
+        >
+          {{ period }} dni
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (error()) {
+    <p class="flow-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (stats(); as stats) {
+    <div class="kpis">
+      <div class="kpi">
+        <strong>{{ stats.inboundQuantity | number: '1.0-3' }}</strong>
+        <span>Przyjęto</span>
+      </div>
+      <div class="kpi">
+        <strong>{{ stats.outboundQuantity | number: '1.0-3' }}</strong>
+        <span>Wydano</span>
+      </div>
+      <div class="kpi">
+        <strong>{{ stats.netChange > 0 ? '+' : '' }}{{ stats.netChange | number: '1.0-3' }}</strong>
+        <span>Saldo okresu</span>
+      </div>
+      <div class="kpi">
+        <strong>{{ stats.movementCount }}</strong>
+        <span>Ruchów na stanie</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Ruch towaru dziennie</h3>
+        <button type="button" class="link" (click)="showTable.set(!showTable())">
+          {{ showTable() ? 'Pokaż wykres' : 'Pokaż tabelę' }}
+        </button>
+      </div>
+
+      @if (!hasMovements()) {
+        <p class="empty">Brak ruchów magazynowych w wybranym okresie.</p>
+      } @else if (showTable()) {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Dzień</th>
+                <th>Przyjęcia</th>
+                <th>Wydania</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (day of stats.daily; track day.date) {
+                <tr>
+                  <td>{{ day.date | date: 'dd.MM.yyyy' }}</td>
+                  <td>{{ day.inbound | number: '1.0-3' }}</td>
+                  <td>{{ day.outbound | number: '1.0-3' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <apx-chart
+          role="img"
+          [attr.aria-label]="'Wykres przyjęć, wydań i salda z ostatnich ' + stats.days + ' dni'"
+          [series]="series()"
+          [chart]="chart"
+          [colors]="colors"
+          [plotOptions]="plotOptions"
+          [stroke]="stroke"
+          [fill]="fill"
+          [markers]="markers"
+          [dataLabels]="dataLabels"
+          [grid]="grid"
+          [xaxis]="xaxis"
+          [yaxis]="yaxis"
+          [legend]="legend"
+          [tooltip]="tooltip"
+        />
+      }
+    </div>
+
+    <div class="columns">
+      <div class="panel">
+        <div class="panel-head"><h3>Najczęściej ruszane produkty</h3></div>
+        @if (stats.topProducts.length > 0) {
+          <apx-chart
+            role="img"
+            aria-label="Wykres najczęściej ruszanych produktów: przyjęcia i wydania"
+            [series]="productSeries()"
+            [chart]="productChart"
+            [colors]="productColors"
+            [plotOptions]="productPlotOptions"
+            [stroke]="productStroke"
+            [dataLabels]="dataLabels"
+            [grid]="productGrid"
+            [xaxis]="productXaxis()"
+            [yaxis]="productYaxis"
+            [legend]="legend"
+            [tooltip]="productTooltip"
+          />
+        } @else {
+          <p class="empty">Brak danych.</p>
+        }
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Wysyłki w okresie</h3></div>
+        <dl class="shipments">
+          <div>
+            <dt>Utworzone</dt>
+            <dd>{{ stats.shipments.created + stats.shipments.requested }}</dd>
+          </div>
+          <div>
+            <dt>Wysłane</dt>
+            <dd>{{ stats.shipments.approved }}</dd>
+          </div>
+          <div>
+            <dt>Odebrane</dt>
+            <dd>{{ stats.shipments.received }}</dd>
+          </div>
+          <div>
+            <dt>Anulowane</dt>
+            <dd>{{ stats.shipments.cancelled }}</dd>
+          </div>
+          <div>
+            <dt>Średni czas do wysłania</dt>
+            <dd>{{ hours(stats.shipments.averageApprovalHours) }}</dd>
+          </div>
+          <div>
+            <dt>Średni czas do odbioru</dt>
+            <dd>{{ hours(stats.shipments.averageDeliveryHours) }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  }
+</section>
