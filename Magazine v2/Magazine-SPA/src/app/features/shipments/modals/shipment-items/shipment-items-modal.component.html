@@ -1,0 +1,35 @@
+<app-dialog-header [title]="'Pozycje ' + data.shipment.number" />
+
+<mat-dialog-content>
+  <div class="items-summary">
+    <span>{{ data.shipment.sourceWarehouseName }}</span>
+    <strong>→</strong>
+    <span>{{ data.shipment.destinationWarehouseName }}</span>
+    <span class="items-summary__count">Pozycji: {{ data.shipment.items.length }}</span>
+  </div>
+
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>Lp.</th>
+        <th>Produkt</th>
+        <th>SKU</th>
+        <th class="right">Ilość</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of data.shipment.items; track item.id; let index = $index) {
+        <tr>
+          <td>{{ index + 1 }}</td>
+          <td>{{ item.productName }}</td>
+          <td>{{ item.sku }}</td>
+          <td class="right">{{ item.quantity }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zamknij</button>
+</mat-dialog-actions>

@@ -1,0 +1,27 @@
+<app-dialog-header [title]="title" />
+
+@if (data.mode === 'details') {
+  <mat-dialog-content>
+    <dl>
+      <dt>ID</dt>
+      <dd>{{ display(data.row?.id) }}</dd>
+      <dt>Nazwa</dt>
+      <dd>{{ display(data.row?.name) }}</dd>
+      <dt>Symbol</dt>
+      <dd>{{ display(data.row?.symbol) }}</dd>
+    </dl>
+  </mat-dialog-content>
+  <app-close-dialog-actions />
+} @else if (data.mode === 'delete') {
+  <app-delete-dialog-body message="Czy na pewno chcesz usunąć jednostkę miary?" />
+} @else {
+  <form #modalForm="ngForm" (ngSubmit)="save()">
+    <mat-dialog-content>
+      <div class="fields">
+        <app-form-input label="Nazwa" name="name" [(ngModel)]="form.name" required />
+        <app-form-input label="Symbol" name="symbol" [(ngModel)]="form.symbol" required />
+      </div>
+    </mat-dialog-content>
+    <app-form-dialog-actions [saving]="saving" [invalid]="modalForm.invalid" />
+  </form>
+}

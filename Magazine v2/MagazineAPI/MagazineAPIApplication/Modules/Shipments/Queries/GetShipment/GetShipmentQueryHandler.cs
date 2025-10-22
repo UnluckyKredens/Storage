@@ -1,0 +1,43 @@
+using MagazineAPIApplication.Common.Exceptions;
+using MagazineAPIApplication.Common.Security;
+using MagazineAPIDomain.Entities;
+using MagazineAPIDomain.Repositories;
+using Mediator;
+
+namespace MagazineAPIApplication.Modules.Shipments;
+
+public sealed class GetShipmentQueryHandler(
+    IRepository<Shipment> shipmentRepository,
+    IRepository<ShipmentItem> shipmentItemRepository,
+    IRepository<Product> productRepository,
+    IRepository<Warehouse> warehouseRepository,
+    IRepository<User> userRepository,
+    IWarehouseContext warehouseContext) : IQueryHandler<GetShipmentQuery, ShipmentView>
+{
+    public async ValueTask<ShipmentView> Handle(GetShipmentQuery query, CancellationToken cancellationToken)
+    {
+        var shipment = await shipmentRepository.FirstOrDefaultAsync(
+            item => item.Id == query.ShipmentId,
+            cancellationToken)
+            ?? throw new ResourceNotFoundException("Wysyłka nie została znaleziona.");
+
+        if (!warehouseContext.CanAccess(shipment.SourceWarehouseId) &&
+            !warehouseContext.CanAccess(shipment.DestinationWarehouseId))
+            throw new ForbiddenOperationException("Brak dostępu do wysyłki.");
+
+        shipment.Items = (await shipmentItemRepository.FilterByAsync(
+                item => item.ShipmentId == shipment.Id,
+                cancellationToken))
+            .ToList();
+        var products = (await productRepository.AllAsync(cancellationToken))
+            .ToDictionary(product => product.Id);
+        var warehouses = (await warehouseRepository.AllAsync(cancellationToken))
+            .ToDictionary(warehouse => warehouse.Id);
+
+        var userIds = ShipmentMapper.UserIds([shipment]);
+        var users = (await userRepository.FilterByAsync(user => userIds.Contains(user.Id), cancellationToken))
+            .ToDictionary(user => user.Id);
+
+        return ShipmentMapper.ToView(shipment, warehouses, products, users);
+    }
+}

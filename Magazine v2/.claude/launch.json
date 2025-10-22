@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "magazine-spa",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "Magazine-SPA",
+        "start"
+      ],
+      "port": 4200
+    },
+    {
+      "name": "storefront",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8081",
+        "--directory",
+        "StorefrontDemo"
+      ],
+      "port": 8081
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+<app-dialog-header [title]="title" />
+
+@if (data.mode === 'details') {
+  <mat-dialog-content>
+    <dl>
+      <dt>ID</dt>
+      <dd>{{ display(data.row?.id) }}</dd>
+      <dt>Login</dt>
+      <dd>{{ display(data.row?.login) }}</dd>
+      <dt>Imię</dt>
+      <dd>{{ display(data.row?.firstName) }}</dd>
+      <dt>Nazwisko</dt>
+      <dd>{{ display(data.row?.lastName) }}</dd>
+      <dt>E-mail</dt>
+      <dd>{{ display(data.row?.email) }}</dd>
+      <dt>Rola</dt>
+      <dd>{{ display(data.row?.roleName) }}</dd>
+      <dt>Magazyn</dt>
+      <dd>{{ display(data.row?.warehouseName) }}</dd>
+    </dl>
+  </mat-dialog-content>
+  <app-close-dialog-actions />
+} @else if (data.mode === 'delete') {
+  <app-delete-dialog-body message="Czy na pewno chcesz usunąć użytkownika?" />
+} @else {
+  <form #modalForm="ngForm" (ngSubmit)="save()">
+    <mat-dialog-content>
+      <div class="fields">
+        <app-form-input label="Login" name="login" [(ngModel)]="form.login" required />
+        <app-form-input label="Imię" name="firstName" [(ngModel)]="form.firstName" required />
+        <app-form-input label="Nazwisko" name="lastName" [(ngModel)]="form.lastName" required />
+        <app-form-input
+          label="E-mail"
+          type="email"
+          name="email"
+          [(ngModel)]="form.email"
+          required
+        />
+        <app-form-input
+          label="Hasło {{ data.row ? '(opcjonalne)' : '' }}"
+          type="password"
+          name="password"
+          [(ngModel)]="form.password"
+          [required]="!data.row"
+          [minLength]="8"
+        />
+        <app-form-select
+          label="Rola"
+          name="roleId"
+          [(ngModel)]="form.roleId"
+          (ngModelChange)="roleChanged()"
+          [options]="roles"
+          required
+        />
+        <app-form-select
+          label="Magazyn"
+          name="warehouseId"
+          [(ngModel)]="form.warehouseId"
+          [options]="warehouses"
+          [required]="warehouseRequired"
+        />
+      </div>
+    </mat-dialog-content>
+    <app-form-dialog-actions [saving]="saving" [invalid]="modalForm.invalid" />
+  </form>
+}

@@ -1,0 +1,27 @@
+namespace MagazineAPIApplication.Modules.PurchaseOrders;
+
+public sealed record PurchaseOrderView(
+    Guid Id,
+    string Number,
+    Guid WarehouseId,
+    string WarehouseName,
+    Guid ContractorId,
+    string ContractorName,
+    string Status,
+    DateTime CreatedOnUtc,
+    DateTime? ApprovedOnUtc,
+    DateTime? ReceivedOnUtc,
+    string? InvoiceNumber,
+    string? PaperDocumentNumber,
+    string? Notes,
+    decimal TotalValue,
+    IReadOnlyList<PurchaseOrderItemView> Items,
+    string? WarehouseAddress = null,
+    string? WarehouseTaxNumber = null,
+    string? ContractorTaxNumber = null,
+    string? ContractorAddress = null,
+    string? ContractorEmail = null,
+    string? ContractorPhone = null,
+    string? CreatedBy = null,
+    string? ApprovedBy = null,
+    string? ReceivedBy = null);

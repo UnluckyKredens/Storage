@@ -1,0 +1,66 @@
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export interface Product {
+  productId: string;
+  categoryId: string;
+  unitOfMeasureId: string;
+  name: string;
+  sku: string;
+  barcode: string | null;
+  description: string | null;
+  imageUrl: string | null;
+  category: string;
+  unitOfMeasure: string;
+  purchasePrice: number;
+  salePrice: number;
+  minimumQuantity: number;
+  optimumQuantity: number | null;
+  isActive: boolean;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+export interface UnitOfMeasure {
+  id: string;
+  name: string;
+  symbol: string;
+}
+
+export interface Warehouse {
+  id: string;
+  name: string;
+  address: string | null;
+  taxNumber: string | null;
+  description: string | null;
+  isHub: boolean;
+}
+
+export interface Location {
+  id: string;
+  warehouseId: string;
+  warehouseName: string;
+  locationCode: string;
+  description: string | null;
+}
+
+export interface Contractor {
+  id: string;
+  name: string;
+  taxNumber: string;
+  type: number;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+}
+
+export interface ProductPage {
+  list: Product[];
+  total: number;
+}

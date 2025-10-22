@@ -1,0 +1,49 @@
+<app-dialog-header [title]="title" />
+
+@if (data.mode === 'details') {
+  <mat-dialog-content>
+    <dl>
+      <dt>ID</dt>
+      <dd>{{ display(data.row?.id) }}</dd>
+      <dt>Nazwa</dt>
+      <dd>{{ display(data.row?.name) }}</dd>
+      <dt>Adres</dt>
+      <dd>{{ display(data.row?.address) }}</dd>
+      <dt>NIP</dt>
+      <dd>{{ display(data.row?.taxNumber) }}</dd>
+      <dt>Opis</dt>
+      <dd>{{ display(data.row?.description) }}</dd>
+      <dt>Magazyn przeładunkowy</dt>
+      <dd>{{ display(data.row?.isHub) }}</dd>
+    </dl>
+  </mat-dialog-content>
+  <app-close-dialog-actions />
+} @else if (data.mode === 'delete') {
+  <app-delete-dialog-body message="Czy na pewno chcesz usunąć magazyn?" />
+} @else {
+  <form #modalForm="ngForm" (ngSubmit)="save()">
+    <mat-dialog-content>
+      <div class="fields">
+        <app-form-input label="Nazwa" name="name" [(ngModel)]="form.name" required />
+        <app-form-input label="Adres" name="address" [(ngModel)]="form.address" />
+        <app-form-input label="NIP" name="taxNumber" [(ngModel)]="form.taxNumber" />
+        <app-form-textarea
+          class="full-width"
+          label="Opis"
+          name="description"
+          [(ngModel)]="form.description"
+          [rows]="3"
+        />
+        @if (isAdministrator) {
+          <app-form-checkbox
+            class="full-width"
+            label="Magazyn przeładunkowy (hub): przyjmuje zamówienia zewnętrzne i zaopatruje pozostałe magazyny"
+            name="isHub"
+            [(ngModel)]="form.isHub"
+          />
+        }
+      </div>
+    </mat-dialog-content>
+    <app-form-dialog-actions [saving]="saving" [invalid]="modalForm.invalid" />
+  </form>
+}

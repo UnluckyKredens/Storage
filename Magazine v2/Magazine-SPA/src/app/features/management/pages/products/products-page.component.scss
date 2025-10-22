@@ -1,0 +1,11 @@
+.product-thumb {
+  display: inline-grid;
+  place-items: center;
+  width: 54px;
+  height: 42px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgb(15 23 42 / 8%);
+  color: var(--app-muted);
+  font-size: 12px;
+}

@@ -1,0 +1,43 @@
+<app-dialog-header [title]="title" />
+
+@if (data.mode === 'details') {
+  <mat-dialog-content>
+    <dl>
+      <dt>ID</dt>
+      <dd>{{ display(data.row?.id) }}</dd>
+      <dt>Nazwa</dt>
+      <dd>{{ display(data.row?.name) }}</dd>
+      <dt>Pełny dostęp</dt>
+      <dd>{{ display(data.row?.hasAllPermissions) }}</dd>
+      <dt>Uprawnienia</dt>
+      <dd>{{ detailPermissions }}</dd>
+    </dl>
+  </mat-dialog-content>
+  <app-close-dialog-actions />
+} @else if (data.mode === 'delete') {
+  <app-delete-dialog-body message="Czy na pewno chcesz usunąć rolę?" />
+} @else {
+  <form #modalForm="ngForm" (ngSubmit)="save()">
+    <mat-dialog-content>
+      <div class="fields">
+        <app-form-input
+          label="Nazwa"
+          name="name"
+          [(ngModel)]="form.name"
+          [disabled]="nameDisabled"
+          required
+        />
+        <app-form-select
+          class="full-width"
+          label="Uprawnienia"
+          name="permissionCodes"
+          [(ngModel)]="form.permissionCodes"
+          [options]="permissions"
+          [disabled]="permissionsDisabled"
+          multiple
+        />
+      </div>
+    </mat-dialog-content>
+    <app-form-dialog-actions [saving]="saving" [invalid]="modalForm.invalid" />
+  </form>
+}

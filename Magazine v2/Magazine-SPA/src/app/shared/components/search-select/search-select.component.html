@@ -1,0 +1,31 @@
+<mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-select">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="value"
+    [required]="required"
+    [disabled]="disabled"
+    (selectionChange)="changeValue($event.value)"
+    (openedChange)="openedChanged($event)"
+    (closed)="touch()"
+  >
+    <div class="search-box">
+      <input
+        #searchInput
+        type="search"
+        [attr.aria-label]="searchLabel"
+        [(ngModel)]="search"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Szukaj..."
+        autocomplete="off"
+        (click)="$event.stopPropagation()"
+        (keydown)="$event.stopPropagation()"
+      />
+    </div>
+    @if (filteredOptions.length === 0) {
+      <div class="no-results">Brak wyników</div>
+    }
+    @for (option of filteredOptions; track option.value) {
+      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>

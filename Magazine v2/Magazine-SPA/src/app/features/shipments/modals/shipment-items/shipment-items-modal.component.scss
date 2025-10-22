@@ -1,0 +1,35 @@
+.items-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 18px;
+  color: var(--app-muted);
+
+  &__count {
+    margin-left: auto;
+  }
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+  }
+
+  th {
+    color: var(--app-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .right {
+    text-align: right;
+  }
+}
