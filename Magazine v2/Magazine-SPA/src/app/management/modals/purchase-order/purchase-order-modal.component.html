@@ -1,0 +1,66 @@
+<app-dialog-header title="Nowe zamówienie zewnętrzne" />
+
+<form #purchaseOrderForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <section class="purchase-order-route">
+      <app-form-input label="Magazyn" name="warehouse" [ngModel]="data.pageData.warehouse.name" disabled />
+      <app-search-select
+        label="Dostawca"
+        name="contractorId"
+        [(ngModel)]="contractorId"
+        [options]="supplierOptions"
+        required
+      />
+    </section>
+
+    <section class="purchase-order-entry">
+      <app-search-select
+        label="Produkt"
+        name="selectedProductId"
+        [(ngModel)]="selectedProductId"
+        [options]="productOptions"
+        (ngModelChange)="productChanged($event)"
+      />
+      <app-form-input label="Ilość" type="number" name="quantity" [(ngModel)]="quantity" [min]="1" [step]="1" required />
+      <app-form-input label="Cena zakupu" type="number" name="unitPrice" [(ngModel)]="unitPrice" [min]="0" [step]="0.01" required />
+      <button mat-flat-button type="button" [disabled]="saving()" (click)="addItem()">
+        <mat-icon>add</mat-icon>
+        Dodaj
+      </button>
+    </section>
+
+    @if (error) {
+      <p class="modal-error">{{ error }}</p>
+    }
+
+    <section class="purchase-order-items">
+      <header>
+        <strong>Pozycje</strong>
+        <span>{{ totalValue | number: '1.2-2' }} zł</span>
+      </header>
+      @for (item of items; track item.productId; let i = $index) {
+        <div class="purchase-order-item">
+          <div>
+            <strong>{{ item.productName }}</strong>
+            <span>{{ item.sku }} / {{ item.barcode }}</span>
+          </div>
+          <span>{{ item.quantity }} x {{ item.unitPrice | number: '1.2-2' }} zł</span>
+          <button mat-icon-button type="button" aria-label="Usuń pozycję" (click)="removeItem(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      } @empty {
+        <p class="empty">Brak pozycji.</p>
+      }
+    </section>
+
+    <app-form-textarea label="Uwagi" name="notes" [(ngModel)]="notes" [rows]="3" />
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [disabled]="saving()" mat-dialog-close>Anuluj</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Zapisywanie...' : 'Utwórz zamówienie' }}
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,50 @@
+<section class="shipments">
+  <header class="page-heading">
+    <div>
+      <h1>Wysyłki</h1>
+    </div>
+    @if (canCreate()) {
+      <div class="page-heading__actions">
+        <button
+          class="app-action app-action--primary"
+          type="button"
+          [disabled]="openingMode === 'create'"
+          (click)="add()"
+        >
+          <mat-icon>add_road</mat-icon>
+          <span>{{ openingMode === 'create' ? 'Ładowanie...' : 'Dodaj wysyłkę' }}</span>
+        </button>
+        <button
+          class="app-action"
+          type="button"
+          [disabled]="openingMode === 'request'"
+          (click)="requestShipment()"
+        >
+          <mat-icon>move_to_inbox</mat-icon>
+          <span>{{ openingMode === 'request' ? 'Ładowanie...' : 'Prośba o wysyłkę' }}</span>
+        </button>
+      </div>
+    }
+  </header>
+
+  <div class="module-list">
+    @for (section of sections; track section.path) {
+      @if (canSee(section.permission)) {
+        <a
+          class="module-row"
+          [routerLink]="[section.path]"
+          [matBadge]="section.badge ? pendingCount : null"
+          [matBadgeHidden]="!section.badge || pendingCount === 0"
+          matBadgeColor="warn"
+          matBadgeOverlap="false"
+        >
+          <mat-icon>{{ section.icon }}</mat-icon>
+          <span>
+            <strong>{{ section.label }}</strong>
+            <small>{{ section.description }}</small>
+          </span>
+        </a>
+      }
+    }
+  </div>
+</section>

@@ -1,0 +1,52 @@
+<app-dialog-header title="Przyjęcie zamówienia" />
+
+<form #receiveForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <section class="receive-summary">
+      <div>
+        <span>Numer</span>
+        <strong>{{ data.order.number }}</strong>
+      </div>
+      <div>
+        <span>Dostawca</span>
+        <strong>{{ data.order.contractorName }}</strong>
+      </div>
+      <div>
+        <span>Faktura</span>
+        <strong>{{ data.order.invoiceNumber }}</strong>
+      </div>
+    </section>
+
+    <section class="receive-checklist">
+      <header>
+        <strong>Checklist przyjęcia</strong>
+        <span>{{ checkedItemIds.size }} / {{ data.order.items.length }}</span>
+      </header>
+      @for (item of data.order.items; track item.id) {
+        <mat-checkbox
+          [checked]="checkedItemIds.has(item.id)"
+          [disabled]="saving()"
+          (change)="toggleItem(item.id, $event.checked)"
+        >
+          <span class="check-item">
+            <strong>{{ item.productName }}</strong>
+            <small>{{ item.sku }} / {{ item.barcode }} / {{ item.quantity }} szt.</small>
+          </span>
+        </mat-checkbox>
+      }
+    </section>
+
+    <app-form-textarea label="Uwagi do przyjęcia" name="notes" [(ngModel)]="notes" [disabled]="saving()" [rows]="4" />
+
+    @if (error) {
+      <p class="modal-error">{{ error }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [disabled]="saving()" mat-dialog-close>Anuluj</button>
+    <button mat-flat-button type="submit" [disabled]="saving() || !allChecked">
+      {{ saving() ? 'Przyjmuję...' : 'Przyjmij na stan' }}
+    </button>
+  </mat-dialog-actions>
+</form>

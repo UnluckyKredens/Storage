@@ -1,0 +1,114 @@
+<app-dialog-header [title]="modalTitle" />
+
+<form #shipmentForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    @if (loadingOptions()) {
+      <mat-progress-bar mode="indeterminate" />
+      <p class="loading-note">Ładowanie produktów...</p>
+    }
+
+    <section class="shipment-route" aria-label="Trasa wysyłki">
+      @if (isRequestMode) {
+        <app-form-input
+          label="Do magazynu"
+          name="destinationWarehouse"
+          [ngModel]="data.sourceWarehouseName"
+          disabled
+        />
+      } @else {
+        <app-form-input
+          label="Skąd"
+          name="sourceWarehouse"
+          [ngModel]="data.sourceWarehouseName"
+          disabled
+        />
+        <app-form-select
+          label="Dokąd"
+          name="destinationWarehouseId"
+          [(ngModel)]="destinationWarehouseId"
+          [options]="data.destinations ?? []"
+          required
+        />
+      }
+    </section>
+
+    <section class="shipment-entry" aria-label="Dodawanie pozycji">
+      <div class="shipment-entry-choice">
+        <app-form-input
+          label="Kod kreskowy"
+          name="barcode"
+          [(ngModel)]="barcode"
+          [disabled]="hasSelectedProduct"
+          autocomplete="off"
+          (ngModelChange)="barcodeChanged($event)"
+        />
+        <span>albo</span>
+        <app-search-select
+          label="Produkt"
+          name="selectedProductId"
+          [(ngModel)]="selectedProductId"
+          [options]="productOptions"
+          [disabled]="hasBarcode || loadingOptions()"
+          (ngModelChange)="productChanged($event)"
+        />
+      </div>
+      <div class="shipment-entry-amount">
+        <app-form-input
+          label="Ilość"
+          type="number"
+          name="quantity"
+          [(ngModel)]="quantity"
+          [min]="1"
+          [step]="1"
+          required
+        />
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="loadingProduct() || loadingOptions() || saving()"
+          (click)="addItem()"
+        >
+          <mat-icon>add</mat-icon>
+          {{ loadingProduct() ? 'Sprawdzam...' : 'Dodaj pozycję' }}
+        </button>
+      </div>
+    </section>
+
+    @if (error) {
+      <p class="modal-error">{{ error }}</p>
+    }
+
+    <section class="shipment-items" aria-label="Pozycje wysyłki">
+      <header>
+        <strong>Pozycje</strong>
+        <span>{{ items.length }} rekordów</span>
+      </header>
+      @for (item of items; track item.barcode; let i = $index) {
+        <div class="shipment-item">
+          <div>
+            <strong>{{ item.productName }}</strong>
+            <span>{{ item.sku }} / {{ item.barcode }}</span>
+          </div>
+          <div>
+            <span>{{ item.quantity }} szt.</span>
+            @if (!isRequestMode) {
+              <small>Dostępne: {{ item.availableQuantity }}</small>
+            }
+          </div>
+          <button mat-icon-button type="button" aria-label="Usuń pozycję" (click)="removeItem(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      } @empty {
+        <p class="empty">Brak pozycji.</p>
+      }
+    </section>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [disabled]="saving()" mat-dialog-close>Anuluj</button>
+    <button mat-flat-button type="submit" [disabled]="saving() || loadingProduct() || loadingOptions()">
+      {{ submitLabel }}
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,81 @@
+<app-dialog-header title="Przyjęcie wysyłki" />
+
+<form #receiveForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    @if (loading() || saving()) {
+      <mat-progress-bar mode="indeterminate" />
+      <p class="loading-note">{{ saving() ? 'Zapisywanie przyjęcia...' : 'Szukam wysyłki...' }}</p>
+    }
+
+    <section class="receive-scan" aria-label="Skanowanie wysyłki">
+      <app-form-input
+        label="Identyfikator wysyłki"
+        name="identifier"
+        [(ngModel)]="identifier"
+        autocomplete="off"
+        [disabled]="loading() || saving()"
+        required
+      />
+      <button mat-flat-button type="button" [disabled]="loading() || saving()" (click)="findShipment()">
+        <mat-icon>qr_code_scanner</mat-icon>
+        {{ loading() ? 'Szukam...' : 'Skanuj' }}
+      </button>
+    </section>
+
+    @if (error) {
+      <p class="modal-error">{{ error }}</p>
+    }
+
+    @if (shipment) {
+      <section class="receive-summary" aria-label="Informacje o wysyłce">
+        <div>
+          <span>Numer</span>
+          <strong>{{ shipment.number }}</strong>
+        </div>
+        <div>
+          <span>Trasa</span>
+          <strong>{{ shipment.sourceWarehouseName }} -> {{ shipment.destinationWarehouseName }}</strong>
+        </div>
+        <div>
+          <span>Status</span>
+          <strong>{{ shipment.status }}</strong>
+        </div>
+      </section>
+
+      <section class="receive-checklist" aria-label="Checklist odbioru">
+        <header>
+          <strong>Checklist odbioru</strong>
+          <span>{{ checkedItemIds.size }} / {{ shipment.items.length }}</span>
+        </header>
+
+        @for (item of shipment.items; track item.id) {
+          <mat-checkbox
+            [checked]="checkedItemIds.has(item.id)"
+            [disabled]="saving()"
+            (change)="toggleItem(item.id, $event.checked)"
+          >
+            <span class="check-item">
+              <strong>{{ item.productName }}</strong>
+              <small>{{ item.sku }} / {{ item.barcode }} / {{ item.quantity }} szt.</small>
+            </span>
+          </mat-checkbox>
+        }
+      </section>
+
+      <app-form-textarea
+        label="Błędy lub skargi dotyczące zawartości"
+        name="notes"
+        [(ngModel)]="notes"
+        [disabled]="saving()"
+        [rows]="4"
+      />
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [disabled]="saving()" mat-dialog-close>Anuluj</button>
+    <button mat-flat-button type="submit" [disabled]="!canSave">
+      {{ saving() ? 'Zapisywanie...' : 'Przyjmij na stan' }}
+    </button>
+  </mat-dialog-actions>
+</form>
