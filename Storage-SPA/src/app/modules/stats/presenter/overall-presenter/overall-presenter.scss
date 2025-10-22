@@ -1,0 +1,26 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 10%;
+  grid-template-rows: repeat(2, auto);
+  padding: 2%;
+
+  .block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &__title {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    &__value {
+      font-size: 2rem;
+      color: #7D7DFE;
+    }
+  }
+}

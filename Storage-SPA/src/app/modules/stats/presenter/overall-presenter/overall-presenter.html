@@ -1,0 +1,22 @@
+@if(stats) {
+<div class="container">
+  <div class="block">
+    <p class="block__title">Total Items</p>
+    <p class="block__value">{{ stats.totalItems }}</p>
+  </div>
+  <div class="block">
+    <p class="block__title">Total Sellers</p>
+    <p class="block__value">{{ stats.totalSellers }}</p>
+  </div>
+  <div class="block">
+    <p class="block__title">Total Stock Entries</p>
+    <p class="block__value">{{ stats.totalStockEntries }}</p>
+  </div>
+    <div class="block">
+    <p class="block__title">Total Stock Purchases</p>
+    <p class="block__value">{{ stats.totalPurchases }}</p>
+  </div>
+</div>
+}@else {
+  <h3>No data yet</h3>
+}

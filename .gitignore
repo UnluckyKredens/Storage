@@ -14,6 +14,8 @@
 *.env
 .env.*
 
+*.vscode.*
+
 # Local configuration that shouldn't be shared
 *.local
 

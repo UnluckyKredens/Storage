@@ -1,0 +1,14 @@
+.categories {
+  padding: 2%;
+  .options {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .table {
+    &__options {
+      text-align: end;
+    }
+}
+}
+

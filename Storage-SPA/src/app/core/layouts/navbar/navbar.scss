@@ -1,0 +1,28 @@
+.navbar {
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  border-right: 1px solid #a5a5a589;
+  margin: 0  0 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  mat-icon {
+    font-size: 22px;
+    text-align: center;
+    width: 100%;
+    margin: 10% 0;
+    color: #6c6c6cd4;
+    p {
+    font-size: 8px;
+      margin: 0 ;
+      color: #000;
+    }
+  }
+  .active {
+  color: #7d7dfe;
+}
+}
+
+
