@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { PurchasesService } from '../../services/purchases.service';
 
 @Component({
   selector: 'app-purchases-presenter',
@@ -9,9 +10,19 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class PurchasesPresenter {
 
-  displayedColumns: string[] = ['id', 'item', 'quantity', 'totalPrice', 'date', 'options'];
+  displayedColumns: string[] = ['id', 'item', 'quantity', 'cost', 'purchaseDate', 'options'];
   purchases = new MatTableDataSource();
-  constructor() {}
+  constructor(private readonly purchaseService: PurchasesService) {}
+
+  getAllPurchases(): void {
+    this.purchaseService.getPurchases().subscribe((purchases) => {
+      this.purchases.data = purchases;
+    });
+  }
+
+  ngOnInit(): void {
+    this.getAllPurchases();
+  }
   nil() {}
 
 }

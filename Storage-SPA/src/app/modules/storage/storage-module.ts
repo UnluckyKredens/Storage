@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SellersPresenter } from './presenter/sellers-presenter/sellers-presenter';
 import { StockPresenter } from './presenter/stock-presenter/stock-presenter';
 import { PurchasesPresenter } from './presenter/purchases-presenter/purchases-presenter';
+import { AddSellerModal } from './presenter/sellers-presenter/modal/add-seller-modal/add-seller-modal';
 
 
 
@@ -25,6 +26,7 @@ import { PurchasesPresenter } from './presenter/purchases-presenter/purchases-pr
     SellersPresenter,
     StockPresenter,
     PurchasesPresenter,
+    AddSellerModal,
   ],
   imports: [
     CommonModule,

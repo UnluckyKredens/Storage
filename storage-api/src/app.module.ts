@@ -16,6 +16,7 @@ import { SellerModule } from './seller/seller.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { Statistics } from './entities/statistics.entity';
 import { SeedModule } from './seed/seed.module';
+import { ConnectionModule } from './connection/connection.module';
 
 @Module({
   imports: [
@@ -25,8 +26,8 @@ import { SeedModule } from './seed/seed.module';
       type: 'mysql',
       host: 'localhost',
       port: 3306,
-      username: '', //Type your own username
-      password: '', //Type your own password
+      username: 'root', //Type your own username
+      password: 'Sernik2025!', //Type your own password
       database: 'storage',
       entities: [Item, Category, Stock, Purchase, Seller, Statistics],
       synchronize: true,
@@ -37,6 +38,7 @@ import { SeedModule } from './seed/seed.module';
     SellerModule,
     StatisticsModule,
     SeedModule,
+    ConnectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

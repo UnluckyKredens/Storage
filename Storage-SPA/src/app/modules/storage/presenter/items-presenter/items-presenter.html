@@ -28,11 +28,11 @@
 
       <ng-container matColumnDef="brutto">
         <th mat-header-cell *matHeaderCellDef> Brutto Price </th>
-        <td mat-cell *matCellDef="let element"> {{element.bruttoPrice}} zł</td>
+        <td mat-cell *matCellDef="let element"> {{element.bruttoPrice | currency: 'PLN '}}</td>
       </ng-container>
       <ng-container matColumnDef="netto">
         <th mat-header-cell *matHeaderCellDef> Netto Price </th>
-        <td mat-cell *matCellDef="let element"> {{element.nettoPrice}} zł </td>
+        <td mat-cell *matCellDef="let element"> {{element.nettoPrice | currency: 'PLN '}} </td>
       </ng-container>
 
       <ng-container matColumnDef="options">

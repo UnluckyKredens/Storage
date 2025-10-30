@@ -1,7 +1,7 @@
 <div class="container">
   <div class="container__options">
-    <input matInput (keyup)="nil()" placeholder="Znajdź" #input>
-    <button mat-flat-button (click)="nil()">Add</button>
+    <input matInput (keyup)="find($event)" placeholder="Znajdź" #input>
+    <button mat-flat-button (click)="addSeller()">Add</button>
   </div>
   <div class="container__table">
     <table mat-table [dataSource]="sellers" class="">
@@ -31,8 +31,8 @@
       <ng-container matColumnDef="options">
         <th mat-header-cell *matHeaderCellDef class="table__options"> Options </th>
         <td mat-cell *matCellDef="let element" class="table__options">
-          <mat-icon (click)="nil()">edit</mat-icon>
-          <mat-icon (click)="nil()">delete</mat-icon>
+          <mat-icon (click)="editSeller(element)">edit</mat-icon>
+          <mat-icon (click)="deleteSeller(element)">delete</mat-icon>
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

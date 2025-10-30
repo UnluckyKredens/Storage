@@ -23,7 +23,7 @@ export class SellersService {
   }
 
   deleteSeller(seller: Seller){
-    // return this.http.delete<void>(`${apiEndpoints.seller.sellerUrl}`, seller);
+    return this.http.delete<void>(`${apiEndpoints.seller.sellerUrl}/`, {body: seller});
 
   }
 }

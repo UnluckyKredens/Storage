@@ -1,4 +1,9 @@
   <div class="storage">
+    @if(connection) {
   <router-outlet></router-outlet>
+    }
+    @else {
+      <h1 text-align="center">No connection</h1>
+    }
   </div>
 

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ConnectionService } from '../../services/connection.service';
+import { Subscriber } from 'rxjs';
 
 @Component({
   selector: 'app-storage-container',
@@ -7,5 +9,11 @@ import { Component } from '@angular/core';
   styleUrl: './storage-container.scss'
 })
 export class StorageContainer {
+  connection: boolean = false;
+  constructor(private readonly connectionService: ConnectionService) {}
+
+
+  ngOnInit(): void {
+  this.connection = this.connectionService.checkConncection();  }
 
 }

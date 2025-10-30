@@ -1,6 +1,9 @@
 import { environment } from "../../../environments/environment";
 
 export const apiEndpoints = {
+  connection: {
+    connectionUrl: `${environment.apiUrl}/connection`
+   },
    category: {
       categoryUrl: `${environment.apiUrl}/category`,
       // getOneCategory: `${environment.apiUrl}/category`
