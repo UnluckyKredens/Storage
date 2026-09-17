@@ -1,0 +1,11 @@
+.create-shipment-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+@media (width <= 620px) {
+  .create-shipment-page {
+    padding: 20px 16px;
+  }
+}

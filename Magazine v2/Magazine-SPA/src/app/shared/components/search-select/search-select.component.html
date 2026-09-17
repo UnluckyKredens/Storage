@@ -1,0 +1,27 @@
+<mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-select">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="value"
+    [required]="required"
+    [disabled]="disabled"
+    (selectionChange)="changeValue($event.value)"
+    (openedChange)="openedChanged($event)"
+    (closed)="touch()"
+  >
+    <mat-option>
+      <input
+        matInput
+        type="search"
+        [attr.aria-label]="searchLabel"
+        [(ngModel)]="search"
+        placeholder="Szukaj..."
+        autocomplete="off"
+        (click)="$event.stopPropagation()"
+        (keydown)="$event.stopPropagation()"
+      />
+    </mat-option>
+    @for (option of filteredOptions; track option.value) {
+      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>

@@ -1,0 +1,28 @@
+dl {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 8px 16px;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin: 0;
+}
+
+.fields .full-width {
+  grid-column: 1 / -1;
+}
+
+.fields mat-form-field {
+  width: 100%;
+}
+
+@media (width <= 700px) {
+  .fields,
+  dl {
+    grid-template-columns: 1fr;
+  }
+}

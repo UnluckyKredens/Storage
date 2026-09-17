@@ -1,0 +1,30 @@
+.receive-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+form {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+app-form-input {
+  flex: 1;
+}
+
+@media (width <= 620px) {
+  .receive-page {
+    padding: 20px 16px;
+  }
+
+  form {
+    flex-direction: column;
+  }
+
+  app-form-input {
+    width: 100%;
+  }
+}

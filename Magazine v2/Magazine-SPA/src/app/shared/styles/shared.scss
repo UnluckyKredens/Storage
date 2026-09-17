@@ -1,0 +1,49 @@
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.empty-row td {
+  padding: 24px;
+  text-align: center;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  padding: 25px;
+
+  table {
+    width: 100%;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 10px;
+  }
+
+  mat-paginator {
+    background-color: #fff;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+::ng-deep {
+  .mdc-text-field--filled {
+    background-color: transparent !important;
+  }
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: transparent !important;
+  }
+}
+

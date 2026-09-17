@@ -1,0 +1,20 @@
+<section class="receive-page">
+  <a mat-button routerLink="/main/shipments">Wróć</a>
+  <h1>Odbierz przesyłkę</h1>
+  <p>Zeskanuj kod kreskowy zawierający identyfikator GUID przesyłki.</p>
+
+  <form (ngSubmit)="scan()">
+    <app-form-input
+      label="Kod przesyłki"
+      name="shipmentCode"
+      [(ngModel)]="code"
+      autocomplete="off"
+      placeholder="00000000-0000-0000-0000-000000000000"
+    />
+    <button mat-flat-button type="submit" [disabled]="loading">Sprawdź paczkę</button>
+  </form>
+
+  @if (loading) {
+    <p>Sprawdzanie przesyłki...</p>
+  }
+</section>

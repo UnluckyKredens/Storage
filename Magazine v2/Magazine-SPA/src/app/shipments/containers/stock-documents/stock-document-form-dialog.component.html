@@ -1,0 +1,90 @@
+<app-dialog-header [title]="title" />
+<form #documentForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <div class="document-fields">
+      <app-form-select
+        label="Magazyn"
+        name="warehouse"
+        [(ngModel)]="warehouseId"
+        (ngModelChange)="changeWarehouse()"
+        [options]="warehouseOptions"
+        required
+      />
+
+      @if (data.type === 1) {
+        <app-form-select
+          label="Dostawca"
+          name="contractor"
+          [(ngModel)]="contractorId"
+          [options]="contractorOptions"
+          required
+        />
+      } @else {
+        <app-form-select
+          label="Magazyn docelowy"
+          placeholder="Wybierz oddział"
+          name="destinationWarehouse"
+          [(ngModel)]="destinationWarehouseId"
+          [options]="destinationWarehouseOptions"
+          required
+        />
+      }
+
+      <app-form-textarea class="notes" label="Uwagi" name="notes" [(ngModel)]="notes" [rows]="2" />
+    </div>
+
+    <div class="items-heading">
+      <h3>Pozycje dokumentu</h3>
+      <button mat-button type="button" (click)="addItem()">Dodaj pozycję</button>
+    </div>
+
+    <div class="document-items">
+      @for (item of items; track $index; let index = $index) {
+        <fieldset>
+          <legend>Pozycja {{ index + 1 }}</legend>
+          <app-form-select
+            label="Produkt"
+            [name]="'product-' + index"
+            [(ngModel)]="item.productId"
+            [options]="productOptions"
+            required
+          />
+
+          <app-form-select
+            label="Lokalizacja"
+            [name]="'location-' + index"
+            [(ngModel)]="item.locationId"
+            [options]="locationOptions"
+            required
+          />
+
+          <app-form-input
+            label="Ilość"
+            type="number"
+            [name]="'quantity-' + index"
+            [(ngModel)]="item.quantity"
+            [min]="1"
+            [step]="1"
+            required
+          />
+
+          <button
+            mat-button
+            type="button"
+            [disabled]="items.length === 1"
+            (click)="removeItem(index)"
+          >
+            Usuń pozycję
+          </button>
+        </fieldset>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Anuluj</button>
+    <button mat-flat-button type="submit" [disabled]="documentForm.invalid || saving">
+      {{ saving ? 'Zapisywanie...' : 'Zapisz szkic' }}
+    </button>
+  </mat-dialog-actions>
+</form>

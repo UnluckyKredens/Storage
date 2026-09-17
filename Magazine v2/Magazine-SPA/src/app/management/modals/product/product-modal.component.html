@@ -1,0 +1,93 @@
+<app-dialog-header [title]="title" />
+
+@if (data.mode === 'details') {
+  <mat-dialog-content>
+    <dl>
+      <dt>ID</dt>
+      <dd>{{ display(data.row?.productId) }}</dd>
+      <dt>Nazwa</dt>
+      <dd>{{ display(data.row?.name) }}</dd>
+      <dt>SKU</dt>
+      <dd>{{ display(data.row?.sku) }}</dd>
+      <dt>Kod kreskowy</dt>
+      <dd>{{ display(data.row?.barcode) }}</dd>
+      <dt>Kategoria</dt>
+      <dd>{{ display(data.row?.category) }}</dd>
+      <dt>Jednostka miary</dt>
+      <dd>{{ display(data.row?.unitOfMeasure) }}</dd>
+      <dt>Cena zakupu</dt>
+      <dd>{{ display(data.row?.purchasePrice) }}</dd>
+      <dt>Cena sprzedaży</dt>
+      <dd>{{ display(data.row?.salePrice) }}</dd>
+      <dt>Opis</dt>
+      <dd>{{ display(data.row?.description) }}</dd>
+      <dt>Aktywny</dt>
+      <dd>{{ display(data.row?.isActive) }}</dd>
+    </dl>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Zamknij</button>
+  </mat-dialog-actions>
+} @else if (data.mode === 'delete') {
+  <mat-dialog-content>Czy na pewno chcesz usunąć produkt?</mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [mat-dialog-close]="false">Anuluj</button>
+    <button mat-flat-button type="button" [mat-dialog-close]="true">Usuń</button>
+  </mat-dialog-actions>
+} @else {
+  <form #modalForm="ngForm" (ngSubmit)="save()">
+    <mat-dialog-content>
+      <div class="fields">
+        <app-form-input label="Nazwa" name="name" [(ngModel)]="form.name" required />
+        <app-form-input label="SKU" name="sku" [(ngModel)]="form.sku" required />
+        <app-form-input label="Kod kreskowy" name="barcode" [(ngModel)]="form.barcode" />
+        <app-search-select
+          label="Kategoria"
+          name="categoryId"
+          [(ngModel)]="form.categoryId"
+          [options]="categories"
+          
+        />
+        <app-search-select
+          label="Jednostka miary"
+          name="unitOfMeasureId"
+          [(ngModel)]="form.unitOfMeasureId"
+          [options]="units"
+          required
+        />
+        <app-form-input
+          label="Cena zakupu"
+          type="number"
+          name="purchasePrice"
+          [(ngModel)]="form.purchasePrice"
+          [min]="0"
+          step="0.01"
+          required
+        />
+        <app-form-input
+          label="Cena sprzedaży"
+          type="number"
+          name="salePrice"
+          [(ngModel)]="form.salePrice"
+          [min]="0"
+          step="0.01"
+          required
+        />
+        <app-form-textarea
+          class="full-width"
+          label="Opis"
+          name="description"
+          [(ngModel)]="form.description"
+          [rows]="3"
+        />
+        <app-form-checkbox label="Aktywny" name="isActive" [(ngModel)]="form.isActive" />
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button type="button" mat-dialog-close>Anuluj</button>
+      <button mat-flat-button type="submit" [disabled]="modalForm.invalid || saving">
+        {{ saving ? 'Zapisywanie...' : 'Zapisz' }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+}

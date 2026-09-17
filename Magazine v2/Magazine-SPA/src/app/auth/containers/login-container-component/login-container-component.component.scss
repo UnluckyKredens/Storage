@@ -1,0 +1,28 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .login {
+    width: 250px;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    &__logo {
+      width: 250px;
+    }
+
+    app-form-input {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+  }
+}

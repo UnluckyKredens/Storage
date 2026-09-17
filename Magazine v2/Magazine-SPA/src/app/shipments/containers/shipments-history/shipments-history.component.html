@@ -1,0 +1,88 @@
+<section class="history-page">
+  <app-table-navigation-component
+    title="Historia wysyłek i przyjęć"
+    backLink="/main/shipments"
+    [searchValue]="search"
+    [showAddButton]="false"
+    (searchSubmit)="searchRows($event)"
+  />
+
+  <app-form-select
+    class="type-filter"
+    label="Typ dokumentu"
+    placeholder="Wszystkie"
+    [emptyValue]="null"
+    name="document-type"
+    [(ngModel)]="documentType"
+    (ngModelChange)="changeType()"
+    [options]="documentTypes"
+  />
+
+  <div class="table-wrapper">
+    <table
+      mat-table
+      [dataSource]="rows"
+      matSort
+      matSortActive="completed"
+      matSortDirection="desc"
+      matSortDisableClear
+      (matSortChange)="sortChanged($event)"
+      aria-label="Historia dokumentów PZ i WZ"
+    >
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Numer</th>
+        <td mat-cell *matCellDef="let row">{{ row.number }}</td>
+      </ng-container>
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Typ</th>
+        <td mat-cell *matCellDef="let row">{{ row.typeName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="warehouse">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Magazyn</th>
+        <td mat-cell *matCellDef="let row">{{ row.warehouseName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="destination">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Dostawca / oddział docelowy</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.contractorName || row.destinationWarehouseName || '—' }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="approvedBy">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Zatwierdził</th>
+        <td mat-cell *matCellDef="let row">{{ row.approvedBy || '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="items">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Pozycje</th>
+        <td mat-cell *matCellDef="let row">{{ row.itemsCount }}</td>
+      </ng-container>
+      <ng-container matColumnDef="completed">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Zatwierdzono</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.completedAtUtc ? (row.completedAtUtc | date: 'dd.MM.yyyy HH:mm') : '—' }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-button type="button" (click)="showDetails(row)">Szczegóły</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">Brak dokumentów.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="total"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 25, 50]"
+      [showFirstLastButtons]="true"
+      aria-label="Wybierz stronę historii"
+      (page)="changePage($event)"
+    />
+  </div>
+</section>

@@ -1,0 +1,17 @@
+@MagazineAPI_HostAddress = http://localhost:5292
+@Token = paste-jwt-token-here
+
+GET {{MagazineAPI_HostAddress}}/api/Category
+Accept: application/json
+
+###
+
+GET {{MagazineAPI_HostAddress}}/api/Products?page=1&pageSize=10
+Authorization: Bearer {{Token}}
+Accept: application/json
+
+###
+
+GET {{MagazineAPI_HostAddress}}/api/Inventory/page-data
+Authorization: Bearer {{Token}}
+Accept: application/json

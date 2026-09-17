@@ -1,0 +1,19 @@
+.documents-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+.actions {
+  justify-content: center;
+}
+
+@media (width <= 700px) {
+  .documents-page {
+    padding: 20px 16px;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}

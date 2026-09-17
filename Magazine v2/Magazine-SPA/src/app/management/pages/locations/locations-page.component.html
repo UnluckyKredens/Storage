@@ -1,0 +1,52 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Lokalizacje"
+    backLink="/main/management"
+    [showAddButton]="canManage"
+    (searchSubmit)="search($event)"
+    (add)="add()"
+  />
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" matSort aria-label="Tabela: Lokalizacje">
+      <ng-container matColumnDef="locationCode">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Kod</th>
+        <td mat-cell *matCellDef="let row">{{ row.locationCode }}</td>
+      </ng-container>
+      <ng-container matColumnDef="warehouseName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Magazyn</th>
+        <td mat-cell *matCellDef="let row">{{ row.warehouseName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Opis</th>
+        <td mat-cell *matCellDef="let row">{{ row.description || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            <button mat-button type="button" (click)="showDetails(row)">Szczegóły</button>
+            @if (canManage) {
+              <button mat-button type="button" (click)="edit(row)">Edytuj</button>
+              <button mat-button type="button" (click)="remove(row)">Usuń</button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">Brak lokalizacji.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [pageSize]="10"
+      [pageSizeOptions]="[10, 25, 50]"
+      [showFirstLastButtons]="true"
+      aria-label="Wybierz stronę"
+    />
+  </div>
+</section>

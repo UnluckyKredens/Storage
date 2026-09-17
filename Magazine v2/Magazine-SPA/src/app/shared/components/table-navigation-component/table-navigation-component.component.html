@@ -1,0 +1,53 @@
+<nav class="table-navigation" [attr.aria-label]="'Nawigacja widoku ' + title">
+  <button
+    mat-icon-button
+    type="button"
+    class="table-navigation__back"
+    aria-label="Wróć do poprzedniego widoku"
+    (click)="goBack()"
+  >
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  <h1>{{ title }}</h1>
+
+  <mat-form-field subscriptSizing="dynamic" class="table-navigation__search">
+    <mat-label>{{ searchLabel }}</mat-label>
+    <input
+      #searchInput
+      matInput
+      type="search"
+      [placeholder]="searchPlaceholder"
+      [value]="searchValue"
+      (keyup.enter)="submitSearch(searchInput.value)"
+    />
+
+    @if (searchValue) {
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Wyczyść wyszukiwanie"
+        (click)="submitSearch('')"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    } @else {
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Szukaj"
+        (click)="submitSearch(searchInput.value)"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  @if (showAddButton) {
+    <button matMiniFab type="button" class="table-navigation__add" (click)="add.emit()">
+      <mat-icon>add</mat-icon>
+    </button>
+  }
+</nav>

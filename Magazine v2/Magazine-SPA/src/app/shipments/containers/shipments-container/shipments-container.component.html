@@ -1,0 +1,13 @@
+<section class="shipments">
+  <h1>Wysyłki</h1>
+  <p>Odbiór przesyłek i obsługa dokumentów magazynowych.</p>
+
+  <div class="shipments__grid">
+    @for (section of visibleSections; track section.path) {
+      <a class="shipments__card" [routerLink]="section.path">
+        <strong>{{ section.title }}</strong>
+        <span>{{ section.description }}</span>
+      </a>
+    }
+  </div>
+</section>

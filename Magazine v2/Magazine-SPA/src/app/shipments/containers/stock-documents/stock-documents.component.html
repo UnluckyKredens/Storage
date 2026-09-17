@@ -1,0 +1,86 @@
+<section class="documents-page">
+  <app-table-navigation-component
+    [title]="title"
+    backLink="/main/shipments"
+    [searchValue]="search"
+    [addLabel]="addLabel"
+    [showAddButton]="canManageDrafts"
+    (searchSubmit)="searchRows($event)"
+    (add)="add()"
+  />
+
+  <div class="table-wrapper">
+    <table
+      mat-table
+      [dataSource]="rows"
+      matSort
+      matSortActive="created"
+      matSortDirection="desc"
+      matSortDisableClear
+      (matSortChange)="sortChanged($event)"
+      [attr.aria-label]="'Tabela: ' + title"
+    >
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Numer</th>
+        <td mat-cell *matCellDef="let row">{{ row.number }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let row">{{ row.statusName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="warehouse">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Magazyn</th>
+        <td mat-cell *matCellDef="let row">{{ row.warehouseName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="destination">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ documentType === 1 ? 'Dostawca' : 'Magazyn docelowy' }}
+        </th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.contractorName || row.destinationWarehouseName || '—' }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="items">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Pozycje</th>
+        <td mat-cell *matCellDef="let row">{{ row.itemsCount }}</td>
+      </ng-container>
+      <ng-container matColumnDef="created">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Utworzono</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.createdAtUtc | date: 'dd.MM.yyyy HH:mm' }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            <button mat-button type="button" (click)="showDetails(row)">Szczegóły</button>
+            @if (canManageDrafts && row.status === status.Draft) {
+              <button mat-button type="button" (click)="edit(row)">Edytuj</button>
+              <button mat-button type="button" (click)="remove(row)">Usuń</button>
+            }
+            @if (canApproveRow(row)) {
+              <button mat-button type="button" (click)="complete(row)">Zatwierdź</button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">Brak dokumentów.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="total"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 25, 50]"
+      [showFirstLastButtons]="true"
+      aria-label="Wybierz stronę dokumentów"
+      (page)="changePage($event)"
+    />
+  </div>
+</section>
