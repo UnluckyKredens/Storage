@@ -1,0 +1,41 @@
+<app-dialog-header title="Zawartość przesyłki" />
+<mat-dialog-content>
+  <dl>
+    <dt>Numer</dt>
+    <dd>{{ document.number }}</dd>
+    <dt>Status</dt>
+    <dd>{{ document.statusName }}</dd>
+    <dt>Dostawca</dt>
+    <dd>{{ document.contractorName }}</dd>
+    <dt>Magazyn</dt>
+    <dd>{{ document.warehouseName }}</dd>
+    <dt>Utworzono</dt>
+    <dd>{{ document.createdAtUtc | date: 'dd.MM.yyyy HH:mm' }}</dd>
+    <dt>Uwagi</dt>
+    <dd>{{ document.notes || '—' }}</dd>
+  </dl>
+
+  <h3>Produkty w paczce</h3>
+  <table mat-table [dataSource]="dataSource" matSort aria-label="Zawartość przesyłki">
+    <ng-container matColumnDef="productName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Produkt</th>
+      <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
+    </ng-container>
+    <ng-container matColumnDef="sku">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>SKU</th>
+      <td mat-cell *matCellDef="let item">{{ item.sku }}</td>
+    </ng-container>
+    <ng-container matColumnDef="quantity">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ilość</th>
+      <td mat-cell *matCellDef="let item">{{ item.quantity }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zamknij</button>
+  @if (canReceive) {
+    <button mat-flat-button type="button" [mat-dialog-close]="true">Przyjmij przesyłkę</button>
+  }
+</mat-dialog-actions>

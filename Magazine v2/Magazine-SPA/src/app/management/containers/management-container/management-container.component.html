@@ -1,0 +1,16 @@
+<section class="management">
+  <h1>Zarządzanie</h1>
+  <br />
+  <div>
+    @for (group of visibleSections(); track group.category) {
+      <div>
+        <h2>{{ group.category }}</h2>
+      </div>
+      <div class="management__grid">
+        @for (section of group.sections; track section.label) {
+          <a class="management__card" [routerLink]="[section.path]">{{ section.label }}</a>
+        }
+      </div>
+    }
+  </div>
+</section>

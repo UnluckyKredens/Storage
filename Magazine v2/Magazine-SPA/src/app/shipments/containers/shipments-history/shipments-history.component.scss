@@ -1,0 +1,28 @@
+.history-page {
+  padding: 28px 32px;
+}
+
+.type-filter {
+  margin-top: 16px;
+  display: flex;
+  max-width: 280px;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  margin-left: 40px;
+}
+
+.type-filter select {
+  padding: 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
+  background: var(--mat-sys-surface-container-lowest);
+  color: inherit;
+  font: inherit;
+}
+
+@media (width <= 700px) {
+  .history-page {
+    padding: 20px 16px;
+  }
+}

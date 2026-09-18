@@ -1,0 +1,61 @@
+<app-dialog-header [title]="document.typeName + ' ' + document.number" />
+<mat-dialog-content>
+  <dl>
+    <dt>Kod paczki</dt>
+    <dd>{{ document.id }}</dd>
+    <dt>Status</dt>
+    <dd>{{ document.statusName }}</dd>
+    <dt>Magazyn</dt>
+    <dd>{{ document.warehouseName }}</dd>
+    @if (document.type === 1) {
+      <dt>Dostawca</dt>
+      <dd>{{ document.contractorName }}</dd>
+    } @else {
+      <dt>Magazyn docelowy</dt>
+      <dd>{{ document.destinationWarehouseName }}</dd>
+    }
+    <dt>Utworzył</dt>
+    <dd>{{ document.createdBy }}</dd>
+    <dt>Data utworzenia</dt>
+    <dd>{{ document.createdAtUtc | date: 'dd.MM.yyyy HH:mm' }}</dd>
+    <dt>Przyjął</dt>
+    <dd>{{ document.receivedBy || '—' }}</dd>
+    <dt>Data przyjęcia</dt>
+    <dd>
+      {{ document.receivedAtUtc ? (document.receivedAtUtc | date: 'dd.MM.yyyy HH:mm') : '—' }}
+    </dd>
+    <dt>Zatwierdził</dt>
+    <dd>{{ document.approvedBy || '—' }}</dd>
+    <dt>Data zatwierdzenia</dt>
+    <dd>
+      {{ document.completedAtUtc ? (document.completedAtUtc | date: 'dd.MM.yyyy HH:mm') : '—' }}
+    </dd>
+    <dt>Uwagi</dt>
+    <dd>{{ document.notes || '—' }}</dd>
+  </dl>
+
+  <h3>Pozycje</h3>
+  <table mat-table [dataSource]="dataSource" matSort aria-label="Pozycje dokumentu">
+    <ng-container matColumnDef="productName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Produkt</th>
+      <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
+    </ng-container>
+    <ng-container matColumnDef="sku">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>SKU</th>
+      <td mat-cell *matCellDef="let item">{{ item.sku }}</td>
+    </ng-container>
+    <ng-container matColumnDef="locationCode">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Lokalizacja</th>
+      <td mat-cell *matCellDef="let item">{{ item.locationCode }}</td>
+    </ng-container>
+    <ng-container matColumnDef="quantity">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ilość</th>
+      <td mat-cell *matCellDef="let item">{{ item.quantity }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zamknij</button>
+</mat-dialog-actions>

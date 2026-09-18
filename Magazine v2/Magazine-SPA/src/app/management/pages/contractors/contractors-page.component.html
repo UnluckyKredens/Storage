@@ -1,0 +1,60 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Kontrahenci"
+    backLink="/main/management"
+    [showAddButton]="canManage"
+    (searchSubmit)="search($event)"
+    (add)="add()"
+  />
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" matSort aria-label="Tabela: Kontrahenci">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nazwa</th>
+        <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+      </ng-container>
+      <ng-container matColumnDef="taxNumber">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>NIP</th>
+        <td mat-cell *matCellDef="let row">{{ row.taxNumber }}</td>
+      </ng-container>
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Typ</th>
+        <td mat-cell *matCellDef="let row">{{ typeLabel(row.type) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>E-mail</th>
+        <td mat-cell *matCellDef="let row">{{ row.email || '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="phone">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Telefon</th>
+        <td mat-cell *matCellDef="let row">{{ row.phone || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            <button mat-button type="button" (click)="showDetails(row)">Szczegóły</button>
+            @if (canManage) {
+              <button mat-button type="button" (click)="edit(row)">Edytuj</button>
+              <button mat-button type="button" (click)="remove(row)">Usuń</button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">Brak kontrahentów.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [pageSize]="10"
+      [pageSizeOptions]="[10, 25, 50]"
+      [showFirstLastButtons]="true"
+      aria-label="Wybierz stronę"
+    />
+  </div>
+</section>

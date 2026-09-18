@@ -69,3 +69,17 @@ e2e/*.map
 .env.development.local
 .env.test.local
 .env.production.local
+/Magazine v2/MagazineAPI/MagazineAPIApplication.Tests/bin
+/Magazine v2/MagazineAPI/MagazineAPIApplication/obj
+/Magazine v2/Magazine-SPA.worktrees
+/Magazine v2/MagazineAPI/.vs
+.DS_Store
+/Magazine v2/MagazineAPI/MagazineAPI/bin
+/Magazine v2/MagazineAPI/MagazineAPI/obj
+/Magazine v2/MagazineAPI/MagazineAPIApplication.Tests/obj
+/Magazine v2/MagazineAPI/MagazineAPIApplication/bin
+/Magazine v2/MagazineAPI/MagazineAPIDomain/bin
+/Magazine v2/MagazineAPI/MagazineAPIDomain/obj
+/Magazine v2/MagazineAPI/MagazineAPIInfrastructure/bin
+/Magazine v2/MagazineAPI/MagazineAPIInfrastructure/obj
+/Magazine v2/Magazine-SPA/.vscode

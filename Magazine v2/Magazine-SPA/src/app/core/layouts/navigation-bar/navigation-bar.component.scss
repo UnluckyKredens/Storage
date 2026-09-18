@@ -1,0 +1,69 @@
+.navigation {
+  display: grid;
+  grid-template-columns: 0.2fr 1fr auto;
+  min-height: 48px;
+  padding: 12px 20px;
+  background-color: #fff;
+  align-items: center;
+  margin-bottom: 40px;
+
+  &__logo img {
+    height: 32px;
+  }
+
+  &__links {
+    display: flex;
+    gap: 28px;
+    margin-right: 20px;
+    font-size: 16px;
+    font-weight: bolder;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .active {
+      color: #007bff;
+    }
+  }
+
+  &__user {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.warehouse-select {
+  width: min(280px, 28vw);
+}
+
+.warehouse-name {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+}
+
+@media (width <= 700px) {
+  .navigation {
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 12px;
+
+    &__links {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    &__user {
+      grid-column: 2;
+      grid-row: 1;
+      flex-wrap: wrap;
+    }
+  }
+
+  .warehouse-select {
+    width: 180px;
+  }
+}

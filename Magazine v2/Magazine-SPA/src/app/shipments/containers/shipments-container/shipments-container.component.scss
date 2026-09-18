@@ -1,0 +1,44 @@
+.shipments {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 32px;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  &__card {
+    display: flex;
+    min-height: 120px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 10px;
+    background: var(--mat-sys-surface-container-lowest);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+    color: var(--mat-sys-on-surface);
+    text-decoration: none;
+  }
+
+  &__card:hover {
+    background: var(--mat-sys-surface-container);
+  }
+
+  &__card strong {
+    font-size: 18px;
+  }
+
+  &__card span {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+@media (width <= 700px) {
+  .shipments {
+    padding: 20px 16px;
+  }
+}

@@ -1,0 +1,9 @@
+<section class="create-shipment-page">
+  <a mat-button routerLink="/main/shipments">Wróć</a>
+  <h1>Utwórz wysyłkę międzyoddziałową</h1>
+  <p>Przygotuj szkic WZ do innego oddziału. Kierownik zatwierdzi wysyłkę.</p>
+
+  <button mat-flat-button type="button" [disabled]="!pageData || loading" (click)="openForm()">
+    Nowa wysyłka WZ
+  </button>
+</section>

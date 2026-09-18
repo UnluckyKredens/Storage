@@ -1,0 +1,16 @@
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font: inherit;
+}
+
+.dialog-header button {
+  flex: 0 0 auto;
+  color: var(--mat-sys-primary);
+}

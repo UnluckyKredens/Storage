@@ -1,0 +1,37 @@
+.management {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 32px;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(210px, 1fr));
+    gap: 16px;
+  }
+
+  &__card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 110px;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--mat-sys-surface-container-lowest);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+    color: var(--mat-sys-on-surface);
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  &__card:hover {
+    background: var(--mat-sys-surface-container);
+  }
+}
+
+@media (width <= 700px) {
+  .management {
+    padding: 20px 16px;
+  }
+}

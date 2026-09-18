@@ -1,0 +1,14 @@
+<div class="container">
+  <form class="login" [formGroup]="loginForm" (ngSubmit)="login()">
+    <img src="./logo.png" alt="Logo" class="login__logo" />
+    <app-form-input label="Login" placeholder="Podaj login" formControlName="login" required />
+    <app-form-input
+      label="Hasło"
+      type="password"
+      placeholder="Podaj hasło"
+      formControlName="password"
+      required
+    />
+    <button mat-raised-button color="primary">Login</button>
+  </form>
+</div>

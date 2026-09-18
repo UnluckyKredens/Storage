@@ -1,0 +1,61 @@
+<div class="navigation">
+  <div class="navigation__logo">
+    <img src="./logo.png" alt="Logo" class="logo" />
+  </div>
+  <div class="navigation__links">
+    <a
+      routerLink="/main/management/inventory"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >Magazyn</a
+    >
+    <a
+      routerLink="/main/management"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >Zarządzanie</a
+    >
+    @if (canViewShipments) {
+      <a
+        routerLink="/main/shipments"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        >Wysyłki</a
+      >
+    }
+  </div>
+  <div class="navigation__user">
+    @if (account.user(); as user) {
+      @if (isAdministrator) {
+        <app-search-select
+          class="warehouse-select"
+          label="Magazyn"
+          searchLabel="Szukaj magazynu"
+          [ngModel]="account.activeWarehouseId()"
+          (ngModelChange)="selectWarehouse($event)"
+          [options]="warehouseOptions"
+        />
+      } @else {
+        <span class="warehouse-name">{{ user.warehouseName }}</span>
+      }
+
+      <button mat-button type="button" [matMenuTriggerFor]="accountMenu">
+        <mat-icon>account_circle</mat-icon>
+        {{ user.firstName }} {{ user.lastName }}
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #accountMenu="matMenu" xPosition="before">
+        <a mat-menu-item routerLink="/main/account">
+          <mat-icon>settings</mat-icon>
+          <span>Ustawienia konta</span>
+        </a>
+        <button mat-menu-item type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Wyloguj</span>
+        </button>
+      </mat-menu>
+    } @else if (nameError) {
+      <span class="navigation__user__name">Konto</span>
+    }
+  </div>
+</div>

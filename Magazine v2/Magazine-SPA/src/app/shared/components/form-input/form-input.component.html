@@ -1,0 +1,19 @@
+<mat-form-field appearance="fill" subscriptSizing="dynamic" class="form-input">
+  <mat-label>{{ label }}</mat-label>
+  <input
+    matInput
+    [type]="type"
+    [value]="value ?? ''"
+    [placeholder]="placeholder"
+    [autocomplete]="autocomplete"
+    [required]="required"
+    [disabled]="disabled"
+    [attr.min]="min"
+    [attr.max]="max"
+    [attr.step]="step"
+    [attr.minlength]="minLength"
+    [attr.maxlength]="maxLength"
+    (input)="changeValue($event)"
+    (blur)="touch()"
+  />
+</mat-form-field>
