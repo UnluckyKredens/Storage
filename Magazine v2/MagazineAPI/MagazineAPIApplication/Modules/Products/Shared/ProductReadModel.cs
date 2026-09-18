@@ -13,5 +13,7 @@ public class ProductReadModel
     public string Category { get; set; } = string.Empty;
     public decimal PurchasePrice { get; set; }
     public decimal SalePrice { get; set; }
+    public decimal MinimumQuantity { get; set; }
+    public decimal? OptimumQuantity { get; set; }
     public bool IsActive { get; set; }
 }

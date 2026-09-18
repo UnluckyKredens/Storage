@@ -83,3 +83,9 @@ e2e/*.map
 /Magazine v2/MagazineAPI/MagazineAPIInfrastructure/bin
 /Magazine v2/MagazineAPI/MagazineAPIInfrastructure/obj
 /Magazine v2/Magazine-SPA/.vscode
+/Magazine v2/MagazineAPI/MagazineAPIEvent/obj
+/Magazine v2/MagazineAPI/Domain/obj
+/Magazine v2/MagazineAPI/MagazineAPIEvent/bin
+/Magazine v2/MagazineWarehouseBot
+/Magazine v2/MagazineWarehouseBot
+/Magazine v2/MagazineWarehouseBot

@@ -12,4 +12,7 @@ public class User
     public Role Role { get; set; } = null!;
     public Guid? WarehouseId { get; set; }
     public Warehouse? Warehouse { get; set; }
+    public ICollection<Shipment> CreatedShipments { get; set; } = new List<Shipment>();
+    public ICollection<Shipment> ApprovedShipments { get; set; } = new List<Shipment>();
+    public ICollection<Shipment> ReceivedShipments { get; set; } = new List<Shipment>();
 }

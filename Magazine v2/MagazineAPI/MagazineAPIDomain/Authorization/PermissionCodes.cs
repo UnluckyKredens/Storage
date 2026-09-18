@@ -17,9 +17,7 @@ public static class PermissionCodes
     public const string UsersRead = "users.read";
     public const string UsersManage = "users.manage";
     public const string DictionariesManage = "dictionaries.manage";
-    public const string StockDocumentsManage = "stock-documents.manage";
-    public const string StockDocumentsApprove = "stock-documents.approve";
-    public const string StockDocumentsRead = "stock-documents.read";
-    public const string StockDocumentsReceive = "stock-documents.receive";
-    public const string StockShipmentsCreate = "stock-shipments.create";
+    public const string ShipmentsRead = "shipments.read";
+    public const string ShipmentsCreate = "shipments.create";
+    public const string ShipmentsApprove = "shipments.approve";
 }

@@ -31,6 +31,8 @@ public sealed class GetProductQueryHandler(
             UnitOfMeasure = unit?.Name,
             PurchasePrice = product.PurchasePrice,
             SalePrice = product.SalePrice,
+            MinimumQuantity = product.MinimumQuantity,
+            OptimumQuantity = product.OptimumQuantity,
             IsActive = product.IsActive
         };
     }

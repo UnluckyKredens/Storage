@@ -29,7 +29,7 @@ describe('NavigationBarComponent', () => {
     load: vi.fn(() => of(account.user()!)),
     loadPermissions: vi.fn(() => of(account.permissionCodes())),
     loadWarehouses: vi.fn(() => of([])),
-    permissionCodes: signal<string[]>(['stock-documents.receive']),
+    permissionCodes: signal<string[]>(['inventory.read']),
     warehouses: signal<WarehouseOption[]>([]),
     activeWarehouseId: signal<string | null>('warehouse-id'),
     setActiveWarehouse: vi.fn(),
@@ -46,7 +46,7 @@ describe('NavigationBarComponent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     account.user.set(user);
-    account.permissionCodes.set(['stock-documents.receive']);
+    account.permissionCodes.set(['inventory.read']);
     account.warehouses.set([]);
     fixture = TestBed.createComponent(NavigationBarComponent);
     component = fixture.componentInstance;
@@ -60,9 +60,10 @@ describe('NavigationBarComponent', () => {
   it('links only to existing sections', () => {
     const links = Array.from(fixture.nativeElement.querySelectorAll('a')) as HTMLAnchorElement[];
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/main/dashboard',
       '/main/management/inventory',
+      '/main/management/shipments',
       '/main/management',
-      '/main/shipments',
     ]);
   });
 

@@ -47,7 +47,7 @@ export class ProductsPageComponent implements OnInit {
   sortBy = 'name';
   order: 'asc' | 'desc' = 'asc';
   pageIndex = 0;
-  pageSize = 10;
+  pageSize = 25;
   total = 0;
   loading = false;
 

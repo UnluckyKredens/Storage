@@ -53,15 +53,6 @@ export class NavigationBarComponent implements OnInit {
     return this.account.user()?.roleId === administratorRoleId;
   }
 
-  get canViewShipments(): boolean {
-    return (
-      this.isAdministrator ||
-      this.account.permissionCodes().includes('stock-documents.read') ||
-      this.account.permissionCodes().includes('stock-documents.receive') ||
-      this.account.permissionCodes().includes('stock-shipments.create')
-    );
-  }
-
   get warehouseOptions(): { value: string; label: string }[] {
     return this.account.warehouses().map((warehouse) => ({
       value: warehouse.id,

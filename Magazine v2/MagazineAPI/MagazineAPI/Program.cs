@@ -2,18 +2,21 @@ using MagazineAPInfrastructure.Persistence;
 using MagazineAPInfrastructure.Persistence.Repositories;
 using MagazineAPI.Authentication;
 using MagazineAPI.Authorization;
+using MagazineAPI.Services;
 using MagazineAPI.Startup;
 using MagazineAPIApplication;
 using MagazineAPIApplication.Common.Security;
 using MagazineAPIDomain.Repositories;
-using Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using MagazineAPIDomain.Entities.History;
 using MagazineAPIApplication.Common.Exceptions;
+using MagazineAPIApplication.Common.Interfaces;
+using MagazineAPIEvent;
 using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,7 +54,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddMediator(opt =>
 {
-    opt.Assemblies = [typeof(ApplicationAssemblyReference)];
+    opt.Assemblies = [typeof(ApplicationAssemblyReference), typeof(EventAssemblyReference)];
     opt.ServiceLifetime = ServiceLifetime.Scoped;
 });
 
@@ -96,15 +99,29 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
             sqlServerOptions.EnableRetryOnFailure();
         }));
 
+builder.Services.AddDbContext<HistoryDbContext>(opt =>
+    opt.UseSqlServer(
+        builder.Configuration.GetConnectionString("HistoryConnection"),
+        sqlServerOptions =>
+        {
+            sqlServerOptions.EnableRetryOnFailure();
+        }));
+
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IRepository<InventoryHistory>, HistoryRepository<InventoryHistory>>();
+builder.Services.AddScoped<IRepository<ShipmentHistory>, HistoryRepository<ShipmentHistory>>();
 builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-builder.Services.AddScoped<IStockDocumentRepository, StockDocumentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IWarehouseContext, HttpWarehouseContext>();
-
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<IStockMovementWriter, StockMovementWriter>();
+builder.Services.AddScoped<IAuditLogWriter, AuditLogWriter>();
+builder.Services.AddScoped<IDocumentNumberGenerator, DocumentNumberGenerator>();
+builder.Services.AddScoped<IShipmentReservationService, ShipmentReservationService>();
 
 var app = builder.Build();
 

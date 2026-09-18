@@ -15,6 +15,8 @@ export interface Product {
   unitOfMeasure: string;
   purchasePrice: number;
   salePrice: number;
+  minimumQuantity: number;
+  optimumQuantity: number | null;
   isActive: boolean;
 }
 
@@ -68,6 +70,66 @@ export interface InventoryItem {
   availableQuantity: number;
 }
 
+export interface StockMovement {
+  id: string;
+  createdOnUtc: string;
+  type: number;
+  warehouseId: string;
+  warehouseName: string;
+  locationId: string;
+  locationCode: string;
+  productId: string;
+  productName: string;
+  inventoryId: string | null;
+  quantityBefore: number;
+  quantityChange: number;
+  quantityAfter: number;
+  reservedQuantityBefore: number;
+  reservedQuantityChange: number;
+  reservedQuantityAfter: number;
+  sourceType: string | null;
+  sourceId: string | null;
+  sourceNumber: string | null;
+  createdByUserId: string;
+  createdBy: string;
+  notes: string | null;
+}
+
+export interface AuditLog {
+  id: string;
+  createdOnUtc: string;
+  userId: string | null;
+  userName: string | null;
+  action: string;
+  entityName: string;
+  entityId: string | null;
+  summary: string | null;
+  beforeValuesJson: string | null;
+  afterValuesJson: string | null;
+}
+
+export interface WarehouseOperationItem {
+  id: string;
+  productId: string;
+  productName: string;
+  sourceLocationCode: string | null;
+  destinationLocationCode: string | null;
+  quantity: number;
+  targetQuantity: number | null;
+}
+
+export interface WarehouseOperation {
+  id: string;
+  number: string;
+  type: string;
+  status: string;
+  warehouseId: string;
+  warehouseName: string;
+  completedOnUtc: string;
+  notes: string | null;
+  items: WarehouseOperationItem[];
+}
+
 export interface User {
   id: string;
   login: string;
@@ -97,4 +159,55 @@ export interface Permission {
 export interface ProductPage {
   list: Product[];
   total: number;
+}
+
+export interface ShipmentItem {
+  id: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  barcode: string;
+  quantity: number;
+}
+
+export interface Shipment {
+  id: string;
+  number: string;
+  sourceWarehouseId: string;
+  sourceWarehouseName: string;
+  destinationWarehouseId: string;
+  destinationWarehouseName: string;
+  status: string;
+  createdOnUtc: string;
+  approvedOnUtc: string | null;
+  receivedOnUtc: string | null;
+  items: ShipmentItem[];
+}
+
+export interface ShipmentHistory {
+  id: string;
+  eventType: string;
+  eventName: string;
+  sourceWarehouseId: string;
+  sourceWarehouseName: string;
+  destinationWarehouseId: string;
+  destinationWarehouseName: string;
+  userId: string | null;
+  userName: string | null;
+  createdOnUtc: string;
+  details: string;
+}
+
+export interface ShipmentPageData {
+  sourceWarehouse: Warehouse;
+  destinationWarehouses: Warehouse[];
+  availableProducts: ShipmentProduct[];
+}
+
+export interface ShipmentProduct {
+  productId: string;
+  name: string;
+  sku: string;
+  barcode: string;
+  availableQuantity: number;
 }

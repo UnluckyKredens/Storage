@@ -14,8 +14,10 @@ public static class DatabaseInitializer
     {
         await using var scope = services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var historyDbContext = scope.ServiceProvider.GetRequiredService<HistoryDbContext>();
 
         await dbContext.Database.MigrateAsync();
+        await historyDbContext.Database.MigrateAsync();
 
         var options = configuration
             .GetSection(InitialAdminOptions.SectionName)

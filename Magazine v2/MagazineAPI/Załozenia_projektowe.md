@@ -4,7 +4,7 @@ Dokument opisuje stan kodu znajdującego się obecnie w repozytorium. Rozdział 
 
 ## 1. Przeznaczenie i architektura
 
-Magazine v2 jest systemem do obsługi katalogu towarów, magazynów, lokalizacji, stanów, kontrahentów, użytkowników oraz dokumentów PZ i WZ.
+Magazine v2 jest systemem do obsługi katalogu towarów, magazynów, lokalizacji, stanów, kontrahentów i użytkowników.
 
 - API: ASP.NET Core na .NET 10.
 - Baza: SQL Server, Entity Framework Core i migracje EF Core.
@@ -14,11 +14,11 @@ Magazine v2 jest systemem do obsługi katalogu towarów, magazynów, lokalizacji
 - REST/JSON: prefiks `/api`.
 - Warstwy: `MagazineAPI` (HTTP), `MagazineAPIApplication` (komendy/zapytania), `MagazineAPIDomain` (encje/reguły), `MagazineAPIInfrastructure` (EF Core/repozytoria).
 
-Encje: `Category`, `Contractor`, `Inventory`, `Location`, `Permission`, `Product`, `Role`, `RolePermission`, `StockDocument`, `StockDocumentItem`, `UnitOfMeasure`, `User`, `Warehouse`.
+Encje: `Category`, `Contractor`, `Inventory`, `Location`, `Permission`, `Product`, `Role`, `RolePermission`, `UnitOfMeasure`, `User`, `Warehouse`.
 
 Wszystkie bieżące identyfikatory i klucze obce są typu `Guid` (`uniqueidentifier`). `RolePermission` ma klucz złożony `(RoleId, PermissionId)`. `Inventory.AvailableQuantity` jest kolumną wyliczaną: `Quantity - ReservedQuantity`.
 
-## 2. Zakres magazynu i dokumenty
+## 2. Zakres magazynu
 
 Każde żądanie poza logowaniem wymaga JWT. Zakres danych ogranicza `IWarehouseContext`:
 
@@ -28,21 +28,15 @@ Każde żądanie poza logowaniem wymaga JWT. Zakres danych ogranicza `IWarehouse
 - administrator wskazuje aktywny magazyn nagłówkiem `X-Warehouse-Id`;
 - kontrola API działa niezależnie od ograniczeń w SPA.
 
-`Receipt` to PZ, a `Shipment` to WZ. Statusy to `Draft`, `Completed` i `Received`. Szkic można edytować i usunąć. Zatwierdzenie zmienia `Inventory` i przenosi dokument do historii. Odbiór PZ zapisuje odbierającego i czas, ale sam nie księguje stanu.
-
-Przebieg PZ: szkic -> opcjonalny odbiór skanem -> zatwierdzenie -> wzrost stanu.
-
-Przebieg WZ: szkic wysyłki -> zatwierdzenie -> zmniejszenie stanu magazynu źródłowego.
-
-Księgowanie jest transakcyjne. Po zatwierdzeniu dokumentu nie wolno go edytować ani usuwać. Bezpośrednia edycja `Inventory` jest jednak nadal możliwa z `inventory.manage`.
+Stany magazynowe są zarządzane bezpośrednio przez moduł `Inventory`.
 
 ## 3. Role i uprawnienia
 
 | Rola | Zakres |
 |---|---|
 | `Administrator` | Pełny dostęp, bez magazynu; zarządza wszystkimi oddziałami, rolami i uprawnieniami. |
-| `Kierownik` | Przypisany magazyn; zarządza dokumentami i może je zatwierdzać. |
-| `Pracownik` | Odczyt produktów i stanów, odbiór PZ skanem, tworzenie szkiców wysyłek. |
+| `Kierownik` | Przypisany magazyn; zarządza produktami i stanami. |
+| `Pracownik` | Odczyt produktów i stanów. |
 
 | Uprawnienie | Znaczenie |
 |---|---|
@@ -52,11 +46,6 @@ Księgowanie jest transakcyjne. Po zatwierdzeniu dokumentu nie wolno go edytowa�
 | `contractors.read`, `contractors.manage` | Odczyt oraz CRUD kontrahentów. |
 | `users.read`, `users.manage` | Odczyt oraz zarządzanie kontami. |
 | `dictionaries.manage` | Kategorie i jednostki miary. |
-| `stock-documents.read` | Listy, szczegóły i historia PZ/WZ. |
-| `stock-documents.manage` | Tworzenie, edycja i usuwanie szkiców. |
-| `stock-documents.approve` | Zatwierdzanie i księgowanie. |
-| `stock-documents.receive` | Skanowanie i odbiór PZ. |
-| `stock-shipments.create` | Tworzenie szkiców WZ między oddziałami. |
 | `roles.manage` | Role, uprawnienia i przypisania; administrator. |
 
 Administrator jest rozpoznawany po stałym identyfikatorze roli i nie potrzebuje wpisów `RolePermissions`.
@@ -168,25 +157,6 @@ Wszystkie wymagają `roles.manage`.
 
 Stałe role i uprawnienia systemowe są chronione przed usunięciem lub nieprawidłową zmianą.
 
-### Dokumenty - `/api/StockDocuments`
-
-| Metoda i ścieżka | Dostęp | Działanie/opcje |
-|---|---|---|
-| `GET /api/StockDocuments` | `stock-documents.read` | Lista; `type`, `page`, `pageSize`, `search`, `sortBy`, `order`. |
-| `GET /api/StockDocuments/history` | `stock-documents.read` | Tylko `Completed`; opcjonalny typ, wyszukiwanie i sortowanie. |
-| `GET /api/StockDocuments/{id}` | `stock-documents.read` | Szczegóły nagłówka i pozycji. |
-| `GET /api/StockDocuments/page-data` | `stock-documents.manage` | Produkty, lokalizacje, magazyny i kontrahenci. |
-| `GET /api/StockDocuments/shipment-page-data` | `stock-shipments.create` | Dane formularza WZ. |
-| `GET /api/StockDocuments/scan/{id}` | `stock-documents.receive` | PZ do odbioru. |
-| `POST /api/StockDocuments` | `stock-documents.manage` | Szkic PZ/WZ. |
-| `POST /api/StockDocuments/shipments` | `stock-shipments.create` | Szkic WZ; typ wymuszony, kontrahent ignorowany. |
-| `PUT /api/StockDocuments/{id}` | `stock-documents.manage` | Edycja wyłącznie szkicu. |
-| `POST /api/StockDocuments/{id}/receive` | `stock-documents.receive` | Odbiór PZ, użytkownik i czas. |
-| `POST /api/StockDocuments/{id}/complete` | `stock-documents.approve` | Zatwierdzenie i atomowa zmiana stanu. |
-| `DELETE /api/StockDocuments/{id}` | `stock-documents.manage` | Usunięcie szkicu. |
-
-Pozycja ma produkt, lokalizację i dodatnią ilość do trzech miejsc po przecinku. PZ wymaga dostawcy (`Supplier` lub `Both`), WZ innego magazynu docelowego. Lokalizacja musi należeć do magazynu dokumentu, a WZ nie może przekroczyć `AvailableQuantity`.
-
 ## 6. Frontend SPA
 
 | Trasa | Funkcja |
@@ -201,10 +171,9 @@ Pozycja ma produkt, lokalizację i dodatnią ilość do trzech miejsc po przecin
 | `/main/management/contractors` | Kontrahenci. |
 | `/main/management/users` | Użytkownicy. |
 | `/main/management/roles` | Role i uprawnienia. |
-| `/main/shipments` | PZ/WZ, szkice, zatwierdzanie, historia. |
 | `/main/account` | Własne konto i hasło. |
 
-`authGuard` chroni `/main`, a `permissionGuard` ładuje użytkownika i uprawnienia. Brak uprawnienia kieruje do `/main/shipments`; API jest ostateczną ochroną. Listy mają wyszukiwanie, sortowanie, paginację, szczegóły, modale formularzy, potwierdzenia usuwania i komunikaty błędów.
+`authGuard` chroni `/main`, a `permissionGuard` ładuje użytkownika i uprawnienia. Brak uprawnienia kieruje do `/main/management`; API jest ostateczną ochroną. Listy mają wyszukiwanie, sortowanie, paginację, szczegóły, modale formularzy, potwierdzenia usuwania i komunikaty błędów.
 
 ## 7. Przypadki brzegowe
 
@@ -219,17 +188,6 @@ Pozycja ma produkt, lokalizację i dodatnią ilość do trzech miejsc po przecin
 - produkt i lokalizacja muszą istnieć i należeć do właściwego zakresu;
 - nie można dodać drugiego stanu dla produktu w lokalizacji;
 - identyfikatory muszą być poprawnymi GUID-ami.
-
-### Dokumenty
-
-- dokument bez pozycji i pozycja z ilością `<= 0` są niepoprawne;
-- PZ wymaga dostawcy, WZ wymaga innego magazynu docelowego;
-- lokalizacja pozycji musi należeć do magazynu dokumentu;
-- zatwierdzenie jest jednorazowe;
-- odbiór PZ nie zastępuje zatwierdzenia;
-- zatwierdzonego dokumentu nie można zmienić/usunąć;
-- WZ z niewystarczającym stanem blokuje księgowanie;
-- pełny `RowVersion` i osobny dziennik ruchów nie są jeszcze wdrożone.
 
 ### Bezpieczeństwo
 
@@ -302,37 +260,18 @@ Pozycja ma produkt, lokalizację i dodatnią ilość do trzech miejsc po przecin
 
 ### F. Stan początkowy
 
-- Pusty magazyn: utwórz stan z `Quantity=0`, a pierwszy towar wprowadź przez PZ.
+- Pusty magazyn: utwórz stan z `Quantity=0`, a pierwszy towar wprowadź przez edycję stanu.
 - Istniejący magazyn: wprowadź stan przez `Inventory` użytkownikiem z `inventory.manage`.
 
 Opcjonalnie po migracjach uruchom `MagazineAPI/scripts/seed-prosperous-multi-branch.sql`. Skrypt jest idempotentny i transakcyjny, ale ma dane demonstracyjne oraz hasło `Test123!`; nie używaj go w produkcji.
 
-### G. Pierwsze PZ
-
-1. Użytkownik z `stock-documents.manage` pobiera dane formularza.
-2. Wybiera magazyn, dostawcę, produkty, lokalizacje i dodatnie ilości.
-3. Zapisuje szkic; stan się nie zmienia.
-4. Pracownik z `stock-documents.receive` skanuje GUID, sprawdza pozycje i odbiera PZ.
-5. Kierownik z `stock-documents.approve` zatwierdza dokument.
-6. Stan rośnie, dokument staje się `Completed`, a jego edycja i usunięcie są blokowane.
-
-### H. Pierwsze WZ
-
-1. Pracownik lub kierownik z `stock-shipments.create` wybiera magazyn źródłowy i inny docelowy.
-2. Dodaje produkty i lokalizacje źródłowe w ilościach dostępnych.
-3. Zapisuje szkic; stan się nie zmienia.
-4. Kierownik zatwierdza WZ.
-5. API sprawdza dostępność i transakcyjnie pomniejsza `Inventory` źródłowego magazynu.
-6. Odbiór docelowy nie jest jeszcze osobnym procesem MM; pełny transfer jest w roadmapie.
-
-### I. Kontrola
+### G. Kontrola
 
 - zaloguj się jako administrator, kierownik i pracownik;
 - sprawdź dane dwóch magazynów;
-- wykonaj PZ od szkicu do zatwierdzenia i sprawdź wzrost stanu;
-- wykonaj WZ z poprawną oraz zbyt dużą ilością;
+- wykonaj edycję stanu i sprawdź aktualizację dostępnej ilości;
 - spróbuj usunąć rekord z zależnościami;
-- sprawdź historię i błędne GUID-y;
+- sprawdź błędne GUID-y;
 - sprawdź `401` po wygaśnięciu tokenu.
 
 ## 9. Roadmapa
@@ -358,4 +297,4 @@ npm run build
 npm run lint
 ```
 
-Przed wdrożeniem należy dodać testy integracyjne PZ/WZ, izolacji magazynów, współbieżnego księgowania, usuwania zależności oraz cyklu użytkownik -> uprawnienia -> endpoint.
+Przed wdrożeniem należy dodać testy integracyjne izolacji magazynów, edycji stanów, usuwania zależności oraz cyklu użytkownik -> uprawnienia -> endpoint.

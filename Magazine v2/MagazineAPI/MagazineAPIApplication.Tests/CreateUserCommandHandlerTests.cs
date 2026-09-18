@@ -87,6 +87,8 @@ public sealed class CreateUserCommandHandlerTests
     {
         public List<TEntity> Items { get; } = [.. items];
 
+        public IQueryable<TEntity> Query() => Items.AsQueryable();
+
         public Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             Items.Add(entity);

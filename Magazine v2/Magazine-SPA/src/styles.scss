@@ -4,6 +4,18 @@
 html {
   height: 100%;
 
+  --app-primary: #0b5ed7;
+  --app-primary-hover: #094db2;
+  --app-primary-soft: #eff6ff;
+  --app-primary-line: #bfdbfe;
+  --app-page: #f8fafc;
+  --app-surface: #fff;
+  --app-surface-soft: #f1f5f9;
+  --app-border: #e2e8f0;
+  --app-border-strong: #cbd5e1;
+  --app-text: #0f172a;
+  --app-muted: #64748b;
+
   @include mat.theme(
     (
       color: (
@@ -18,14 +30,19 @@ html {
 
 body {
   color-scheme: light;
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
+  background-color: var(--app-page);
+  color: var(--app-text);
   font: var(--mat-sys-body-medium);
   margin: 0;
   height: 100%;
 }
 
+a {
+  color: inherit;
+}
+
 .mat-mdc-dialog-surface {
-  padding: 10px !important;
-  border-radius: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--app-border) !important;
+  border-radius: 10px !important;
 }

@@ -9,4 +9,6 @@ public class Warehouse
 
     public ICollection<Location> Locations { get; set; } = new List<Location>();
     public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<Shipment> SourceShipments { get; set; } = new List<Shipment>();
+    public ICollection<Shipment> DestinationShipments { get; set; } = new List<Shipment>();
 }

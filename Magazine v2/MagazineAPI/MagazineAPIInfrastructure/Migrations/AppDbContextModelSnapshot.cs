@@ -22,6 +22,53 @@ namespace MagazineAPInfrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("AuditLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("AfterValuesJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BeforeValuesJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AuditLogId");
+
+                    b.HasIndex("CreatedOnUtc");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("EntityName", "EntityId");
+
+                    b.ToTable("AuditLogs", (string)null);
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.Category", b =>
                 {
                     b.Property<Guid>("CategoryId")
@@ -80,6 +127,37 @@ namespace MagazineAPInfrastructure.Migrations
                     b.HasKey("ContractorId");
 
                     b.ToTable("Contractors", (string)null);
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.DocumentNumberSequence", b =>
+                {
+                    b.Property<Guid>("DocumentNumberSequenceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("DocumentNumberSequenceId");
+
+                    b.HasIndex("WarehouseId", "DocumentType", "Year")
+                        .IsUnique();
+
+                    b.ToTable("DocumentNumberSequences", (string)null);
                 });
 
             modelBuilder.Entity("MagazineAPIDomain.Entities.Inventory", b =>
@@ -260,37 +338,23 @@ namespace MagazineAPInfrastructure.Migrations
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000012"),
-                            Code = "stock-documents.manage",
-                            Description = "Tworzenie, edycja i usuwanie szkiców przyjęć oraz wydań.",
-                            Name = "Tworzenie dokumentów PZ i WZ"
+                            Code = "shipments.read",
+                            Description = "Wyświetlanie wysyłek między magazynami.",
+                            Name = "Podgląd wysyłek"
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000013"),
-                            Code = "stock-documents.approve",
-                            Description = "Zatwierdzanie przyjęć i wydań zmieniających stan magazynowy.",
-                            Name = "Zatwierdzanie dokumentów PZ i WZ"
+                            Code = "shipments.create",
+                            Description = "Tworzenie wysyłek z magazynu pracownika.",
+                            Name = "Tworzenie wysyłek"
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000014"),
-                            Code = "stock-documents.read",
-                            Description = "Wyświetlanie list dokumentów i ich historii.",
-                            Name = "Podgląd dokumentów PZ i WZ"
-                        },
-                        new
-                        {
-                            Id = new Guid("20000000-0000-0000-0000-000000000015"),
-                            Code = "stock-documents.receive",
-                            Description = "Skanowanie kodu, podgląd zawartości i przyjmowanie przesyłek PZ.",
-                            Name = "Odbiór przesyłek"
-                        },
-                        new
-                        {
-                            Id = new Guid("20000000-0000-0000-0000-000000000016"),
-                            Code = "stock-shipments.create",
-                            Description = "Tworzenie szkiców WZ kierowanych do innego oddziału.",
-                            Name = "Tworzenie wysyłek międzyoddziałowych"
+                            Code = "shipments.approve",
+                            Description = "Akceptowanie wysyłek i przygotowanie WZ.",
+                            Name = "Akceptacja wysyłek"
                         });
                 });
 
@@ -316,10 +380,20 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("MinimumQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)")
+                        .HasDefaultValue(0m);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal?>("OptimumQuantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<decimal>("PurchasePrice")
                         .HasPrecision(18, 2)
@@ -351,6 +425,8 @@ namespace MagazineAPInfrastructure.Migrations
                     b.ToTable("Products", null, t =>
                         {
                             t.HasCheckConstraint("CK_Products_Prices", "[PurchasePrice] >= 0 AND [SalePrice] >= 0");
+
+                            t.HasCheckConstraint("CK_Products_QuantityThresholds", "[MinimumQuantity] >= 0 AND ([OptimumQuantity] IS NULL OR [OptimumQuantity] >= [MinimumQuantity])");
                         });
                 });
 
@@ -428,6 +504,16 @@ namespace MagazineAPInfrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000005")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000007")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
                             PermissionId = new Guid("20000000-0000-0000-0000-000000000012")
                         },
                         new
@@ -442,26 +528,6 @@ namespace MagazineAPInfrastructure.Migrations
                         },
                         new
                         {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            PermissionId = new Guid("20000000-0000-0000-0000-000000000015")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            PermissionId = new Guid("20000000-0000-0000-0000-000000000016")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            PermissionId = new Guid("20000000-0000-0000-0000-000000000005")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            PermissionId = new Guid("20000000-0000-0000-0000-000000000007")
-                        },
-                        new
-                        {
                             RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
                             PermissionId = new Guid("20000000-0000-0000-0000-000000000001")
                         },
@@ -473,56 +539,171 @@ namespace MagazineAPInfrastructure.Migrations
                         new
                         {
                             RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
-                            PermissionId = new Guid("20000000-0000-0000-0000-000000000015")
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000012")
                         },
                         new
                         {
                             RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
-                            PermissionId = new Guid("20000000-0000-0000-0000-000000000016")
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000013")
                         });
                 });
 
-            modelBuilder.Entity("MagazineAPIDomain.Entities.StockDocument", b =>
+            modelBuilder.Entity("MagazineAPIDomain.Entities.Shipment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ShipmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ApprovedByUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CompletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ContractorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
+                    b.Property<DateTime?>("ApprovedOnUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DestinationWarehouseId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<Guid>("DestinationWarehouseId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("ReceivedAtUtc")
+                    b.Property<Guid?>("ReceivedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ReceivedOnUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ReceivedByUserId")
+                    b.Property<Guid>("SourceWarehouseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.HasKey("ShipmentId");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("ReceivedByUserId");
+
+                    b.HasIndex("DestinationWarehouseId", "CreatedOnUtc");
+
+                    b.HasIndex("SourceWarehouseId", "CreatedOnUtc");
+
+                    b.HasIndex("Status", "CreatedOnUtc");
+
+                    b.ToTable("Shipments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Shipments_DifferentWarehouses", "[SourceWarehouseId] <> [DestinationWarehouseId]");
+
+                            t.HasCheckConstraint("CK_Shipments_Status", "[Status] IN (1, 2, 3, 4)");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.ShipmentItem", b =>
+                {
+                    b.Property<Guid>("ShipmentItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Barcode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("ShipmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ShipmentItemId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ShipmentId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("ShipmentItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ShipmentItems_Quantity", "[Quantity] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StockMovement", b =>
+                {
+                    b.Property<Guid>("StockMovementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("InventoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("QuantityAfter")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("QuantityBefore")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("QuantityChange")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("ReservedQuantityAfter")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("ReservedQuantityBefore")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("ReservedQuantityChange")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SourceNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -530,35 +711,44 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovedByUserId");
-
-                    b.HasIndex("ContractorId");
+                    b.HasKey("StockMovementId");
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("DestinationWarehouseId");
+                    b.HasIndex("CreatedOnUtc");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
+                    b.HasIndex("InventoryId");
 
-                    b.HasIndex("ReceivedByUserId");
+                    b.HasIndex("LocationId");
 
-                    b.HasIndex("WarehouseId");
+                    b.HasIndex("ProductId", "CreatedOnUtc");
 
-                    b.ToTable("StockDocuments", null, t =>
+                    b.HasIndex("SourceType", "SourceId");
+
+                    b.HasIndex("WarehouseId", "CreatedOnUtc");
+
+                    b.ToTable("StockMovements", null, t =>
                         {
-                            t.HasCheckConstraint("CK_StockDocuments_Status", "[Status] IN (1, 2, 3)");
-
-                            t.HasCheckConstraint("CK_StockDocuments_Type", "[Type] IN (1, 2)");
+                            t.HasCheckConstraint("CK_StockMovements_Type", "[Type] IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)");
                         });
                 });
 
-            modelBuilder.Entity("MagazineAPIDomain.Entities.StockDocumentItem", b =>
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StockReservation", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("StockReservationId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ClosedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("InventoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("LocationId")
@@ -571,21 +761,50 @@ namespace MagazineAPInfrastructure.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
-                    b.Property<Guid>("StockDocumentId")
+                    b.Property<decimal>("ReleasedQuantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("SourceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<Guid?>("SourceItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SourceNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("StockReservationId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("InventoryId");
 
                     b.HasIndex("LocationId");
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("StockDocumentId", "ProductId", "LocationId")
-                        .IsUnique();
+                    b.HasIndex("SourceType", "SourceId");
 
-                    b.ToTable("StockDocumentItems", null, t =>
+                    b.HasIndex("WarehouseId", "ProductId", "Status");
+
+                    b.ToTable("StockReservations", null, t =>
                         {
-                            t.HasCheckConstraint("CK_StockDocumentItems_Quantity", "[Quantity] > 0");
+                            t.HasCheckConstraint("CK_StockReservations_QuantityValues", "[Quantity] > 0 AND [ReleasedQuantity] >= 0 AND [ReleasedQuantity] <= [Quantity]");
+
+                            t.HasCheckConstraint("CK_StockReservations_Status", "[Status] IN (1, 2, 3, 4)");
                         });
                 });
 
@@ -694,6 +913,124 @@ namespace MagazineAPInfrastructure.Migrations
                     b.ToTable("Warehouses", (string)null);
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.WarehouseOperation", b =>
+                {
+                    b.Property<Guid>("WarehouseOperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CompletedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("WarehouseOperationId");
+
+                    b.HasIndex("CompletedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("WarehouseId", "CompletedOnUtc");
+
+                    b.ToTable("WarehouseOperations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WarehouseOperations_Status", "[Status] IN (1, 2)");
+
+                            t.HasCheckConstraint("CK_WarehouseOperations_Type", "[Type] IN (1, 2, 3, 4, 5)");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.WarehouseOperationItem", b =>
+                {
+                    b.Property<Guid>("WarehouseOperationItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DestinationLocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid?>("SourceLocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("TargetQuantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("WarehouseOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("WarehouseOperationItemId");
+
+                    b.HasIndex("DestinationLocationId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SourceLocationId");
+
+                    b.HasIndex("WarehouseOperationId");
+
+                    b.ToTable("WarehouseOperationItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WarehouseOperationItems_Quantity", "[Quantity] >= 0 AND ([TargetQuantity] IS NULL OR [TargetQuantity] >= 0)");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.AuditLog", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.DocumentNumberSequence", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.Inventory", b =>
                 {
                     b.HasOne("MagazineAPIDomain.Entities.Location", "Location")
@@ -762,43 +1099,37 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("MagazineAPIDomain.Entities.StockDocument", b =>
+            modelBuilder.Entity("MagazineAPIDomain.Entities.Shipment", b =>
                 {
                     b.HasOne("MagazineAPIDomain.Entities.User", "ApprovedByUser")
-                        .WithMany()
+                        .WithMany("ApprovedShipments")
                         .HasForeignKey("ApprovedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("MagazineAPIDomain.Entities.Contractor", "Contractor")
-                        .WithMany()
-                        .HasForeignKey("ContractorId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("MagazineAPIDomain.Entities.User", "CreatedByUser")
-                        .WithMany()
+                        .WithMany("CreatedShipments")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MagazineAPIDomain.Entities.Warehouse", "DestinationWarehouse")
-                        .WithMany()
+                        .WithMany("DestinationShipments")
                         .HasForeignKey("DestinationWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("MagazineAPIDomain.Entities.User", "ReceivedByUser")
-                        .WithMany()
+                        .WithMany("ReceivedShipments")
                         .HasForeignKey("ReceivedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId")
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "SourceWarehouse")
+                        .WithMany("SourceShipments")
+                        .HasForeignKey("SourceWarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApprovedByUser");
-
-                    b.Navigation("Contractor");
 
                     b.Navigation("CreatedByUser");
 
@@ -806,11 +1137,41 @@ namespace MagazineAPInfrastructure.Migrations
 
                     b.Navigation("ReceivedByUser");
 
-                    b.Navigation("Warehouse");
+                    b.Navigation("SourceWarehouse");
                 });
 
-            modelBuilder.Entity("MagazineAPIDomain.Entities.StockDocumentItem", b =>
+            modelBuilder.Entity("MagazineAPIDomain.Entities.ShipmentItem", b =>
                 {
+                    b.HasOne("MagazineAPIDomain.Entities.Product", "Product")
+                        .WithMany("ShipmentItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Shipment", "Shipment")
+                        .WithMany("Items")
+                        .HasForeignKey("ShipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Shipment");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StockMovement", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Inventory", "Inventory")
+                        .WithMany()
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MagazineAPIDomain.Entities.Location", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
@@ -823,17 +1184,64 @@ namespace MagazineAPInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MagazineAPIDomain.Entities.StockDocument", "StockDocument")
-                        .WithMany("Items")
-                        .HasForeignKey("StockDocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Inventory");
 
                     b.Navigation("Location");
 
                     b.Navigation("Product");
 
-                    b.Navigation("StockDocument");
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StockReservation", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Inventory", "Inventory")
+                        .WithMany()
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Inventory");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("MagazineAPIDomain.Entities.User", b =>
@@ -854,6 +1262,66 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.WarehouseOperation", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.User", "CompletedByUser")
+                        .WithMany()
+                        .HasForeignKey("CompletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CompletedByUser");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.WarehouseOperationItem", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.Location", "DestinationLocation")
+                        .WithMany()
+                        .HasForeignKey("DestinationLocationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MagazineAPIDomain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Location", "SourceLocation")
+                        .WithMany()
+                        .HasForeignKey("SourceLocationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MagazineAPIDomain.Entities.WarehouseOperation", "WarehouseOperation")
+                        .WithMany("Items")
+                        .HasForeignKey("WarehouseOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DestinationLocation");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("SourceLocation");
+
+                    b.Navigation("WarehouseOperation");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -872,6 +1340,8 @@ namespace MagazineAPInfrastructure.Migrations
             modelBuilder.Entity("MagazineAPIDomain.Entities.Product", b =>
                 {
                     b.Navigation("Inventories");
+
+                    b.Navigation("ShipmentItems");
                 });
 
             modelBuilder.Entity("MagazineAPIDomain.Entities.Role", b =>
@@ -881,7 +1351,7 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("MagazineAPIDomain.Entities.StockDocument", b =>
+            modelBuilder.Entity("MagazineAPIDomain.Entities.Shipment", b =>
                 {
                     b.Navigation("Items");
                 });
@@ -891,11 +1361,29 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.User", b =>
+                {
+                    b.Navigation("ApprovedShipments");
+
+                    b.Navigation("CreatedShipments");
+
+                    b.Navigation("ReceivedShipments");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.Warehouse", b =>
                 {
+                    b.Navigation("DestinationShipments");
+
                     b.Navigation("Locations");
 
+                    b.Navigation("SourceShipments");
+
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.WarehouseOperation", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

@@ -13,8 +13,6 @@ export const managementRoutes: Routes = [
   { path: 'items', redirectTo: 'products' },
   { path: 'employees', redirectTo: 'users' },
   { path: 'branches', redirectTo: 'warehouses' },
-  { path: 'receipts', redirectTo: '/main/shipments/receipts' },
-  { path: 'shipments', redirectTo: '/main/shipments/issues' },
   {
     path: 'products',
     canActivate: [permissionGuard],
@@ -58,6 +56,30 @@ export const managementRoutes: Routes = [
       import('./pages/inventory/inventory-page.component').then((m) => m.InventoryPageComponent),
   },
   {
+    path: 'stock-movements',
+    canActivate: [permissionGuard],
+    data: { permission: 'inventory.read' },
+    loadComponent: () =>
+      import('./pages/stock-movements/stock-movements-page.component').then(
+        (m) => m.StockMovementsPageComponent,
+      ),
+  },
+  {
+    path: 'warehouse-operations',
+    canActivate: [permissionGuard],
+    data: { permission: 'inventory.read' },
+    loadComponent: () =>
+      import('./pages/warehouse-operations/warehouse-operations-page.component').then(
+        (m) => m.WarehouseOperationsPageComponent,
+      ),
+  },
+  {
+    path: 'shipments',
+    canActivate: [permissionGuard],
+    data: { permission: 'shipments.read' },
+    loadChildren: () => import('./shipments.routes').then((m) => m.shipmentRoutes),
+  },
+  {
     path: 'contractors',
     canActivate: [permissionGuard],
     data: { permission: 'contractors.read' },
@@ -88,5 +110,12 @@ export const managementRoutes: Routes = [
       import('./pages/permissions/permissions-page.component').then(
         (m) => m.PermissionsPageComponent,
       ),
+  },
+  {
+    path: 'audit-logs',
+    canActivate: [permissionGuard],
+    data: { permission: 'roles.manage' },
+    loadComponent: () =>
+      import('./pages/audit-logs/audit-logs-page.component').then((m) => m.AuditLogsPageComponent),
   },
 ];

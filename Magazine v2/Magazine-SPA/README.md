@@ -2,23 +2,20 @@
 
 ## Gdzie szukać kodu
 
-Kod jest podzielony według funkcji aplikacji: `auth`, `management` i `shipments`. W module zarządzania nazwa obszaru prowadzi przez cały przepływ. Dla użytkowników tabela znajduje się w `src/app/management/pages/users`, formularz i szczegóły w `src/app/management/modals/user`, a wywołania API w `src/app/management/services/user.service.ts`. Produkty, magazyny, lokalizacje i pozostałe obszary mają taki sam układ.
+Kod jest podzielony według funkcji aplikacji: `auth` i `management`. W module zarządzania nazwa obszaru prowadzi przez cały przepływ. Dla użytkowników tabela znajduje się w `src/app/management/pages/users`, formularz i szczegóły w `src/app/management/modals/user`, a wywołania API w `src/app/management/services/user.service.ts`. Produkty, magazyny, lokalizacje i pozostałe obszary mają taki sam układ.
 
 - `pages` — widoki list i jawnie zapisane tabele Angular Material;
 - `modals` — osobne dialogi formularzy, szczegółów i potwierdzeń;
 - `services` — proste wywołania HTTP, po jednym serwisie na obszar;
 - `models` — typy danych zwracanych przez API;
 - `management.routes.ts` — adresy ekranów i wymagane uprawnienia;
-- `auth` — logowanie, konto, token, interceptor i guardy;
-- `shipments` — przyjęcia PZ, wydania WZ i historia.
+- `auth` — logowanie, konto, token, interceptor i guardy.
 
 Pełna checklista i ocena czytelności znajdują się w `MagazineAPI/docs/audyt-projektu.md`.
 
 ## Aktualne widoki zarządzania
 
 Pod `/main/management` znajduje się lista ekranów dla produktów, kategorii, jednostek miary, magazynów, lokalizacji, stanów magazynowych, kontrahentów, użytkowników, ról i uprawnień. Przypisania uprawnień są edytowane multiselectem bezpośrednio w formularzu roli. Każdy obszar ma własny komponent strony w `src/app/management/pages`, własną tabelę Angular Material i jawnie zapisane kolumny. Wszystkie kolumny danych można sortować. Produkty są sortowane i stronicowane przez API, a pozostałe listy przez `MatSort` i `MatPaginator` w SPA. Każdy obszar ma także własny modal ze szczegółami, formularzem i potwierdzeniem usunięcia w `src/app/management/modals`. Pola i walidacja formularzy są zapisane bezpośrednio w komponentach poszczególnych encji. Karty i akcje są pokazywane zgodnie z uprawnieniami użytkownika.
-
-Pod `/main/shipments` znajduje się osobny moduł **Wysyłki**. Pracownik może odebrać PZ przez skan GUID albo utworzyć szkic WZ do innego oddziału. Formularz WZ nie pozwala wybrać kontrahenta ani magazynu źródłowego jako docelowego. Pracownik nie ma dostępu do list PZ/WZ ani historii. Kierownik widzi listy i historię oraz zatwierdza dokumenty.
 
 Pod `/main/account` użytkownik widzi swoje dane, rolę, przypisany magazyn i uprawnienia. Może zmienić login, imię, nazwisko, e-mail oraz hasło (po podaniu obecnego hasła). Ustawienia konta i wylogowanie znajdują się w menu użytkownika w prawym górnym rogu. Pracownik oraz kierownik widzą przypisany magazyn. Administrator wybiera aktywny magazyn z listy z wyszukiwarką, a wybór jest zapisywany w przeglądarce i przekazywany do API w nagłówku `X-Warehouse-Id`. Zmiana wyboru odświeża dane wybranej sekcji. Po zmianie danych konta API zwraca nowy token z aktualnymi danymi.
 
@@ -59,15 +56,12 @@ Interfejs musi reagować na rolę oraz kody uprawnień zwracane przez API. Ukryw
 
 - Przegląda i zarządza produktami oraz stanami.
 - Przegląda magazyny i kontrahentów.
-- Zarządza szkicami PZ i WZ oraz zatwierdza dokumenty przygotowane przez pracowników.
 - Nie zarządza użytkownikami, rolami ani słownikami, jeśli nie otrzyma odpowiedniego uprawnienia.
 
 ### Pracownik
 
 - Przegląda produkty i stany.
-- Skanuje GUID przesyłki PZ, przegląda zawartość paczki i potwierdza odbiór.
-- Tworzy szkic WZ, wybierając inny oddział jako magazyn docelowy.
-- Nie ma dostępu do list PZ/WZ, historii, zatwierdzania ani edycji stanów.
+- Nie ma dostępu do edycji stanów.
 - Nie widzi funkcji administracyjnych.
 
 Obsługiwane kody uprawnień:
@@ -78,11 +72,6 @@ Obsługiwane kody uprawnień:
 | `products.manage`         | Dodawanie, edycja i wycofywanie produktów                 |
 | `inventory.read`          | Stany całkowite, zarezerwowane i dostępne                 |
 | `inventory.manage`        | Bezpośrednia edycja stanów magazynowych                   |
-| `stock-documents.manage`  | Tworzenie, edycja i usuwanie szkiców PZ oraz WZ           |
-| `stock-documents.approve` | Zatwierdzanie PZ i WZ oraz aktualizacja stanu             |
-| `stock-documents.read`    | Listy PZ/WZ, szczegóły i historia                         |
-| `stock-documents.receive` | Skanowanie, podgląd paczki i potwierdzenie odbioru PZ     |
-| `stock-shipments.create`  | Tworzenie szkiców WZ między oddziałami                    |
 | `warehouses.read`         | Magazyny oraz ich lokalizacje                             |
 | `warehouses.manage`       | Edycja magazynów i lokalizacji                            |
 | `contractors.read`        | Dostawcy i odbiorcy                                       |
@@ -193,7 +182,7 @@ Zaprojektuj wspólny, prosty przepływ dla przyjęcia, wydania, przesunięcia i 
 4. podanie ilości wraz z jednostką;
 5. podsumowanie i potwierdzenie.
 
-Podstawowy przepływ PZ i WZ jest wdrożony. Pracownik odbiera PZ przez skan GUID albo tworzy międzyoddziałowy szkic WZ. Kierownik zatwierdza dokument, a dopiero zatwierdzenie aktualizuje stan. Przesunięcia i korekty pozostają dalszym etapem.
+Przepływy dokumentów PZ/WZ i wysyłek zostały usunięte z aplikacji. Stany magazynowe są obsługiwane bezpośrednio przez moduł zarządzania stanami.
 
 ### 6. Magazyny i lokalizacje
 
@@ -251,15 +240,6 @@ Nie zmieniaj nazw pól ani tras podczas tworzenia warstwy UI.
 | `GET /api/Auth/me`                           | Dane zalogowanego użytkownika                              |
 | `GET /api/Auth/me/permissions`               | Lista kodów uprawnień                                      |
 | `GET /api/Products`                          | Produkty; parametry: `pageSize`, `page`, `search`, `order` |
-| `GET /api/StockDocuments`                    | Lista PZ albo WZ; `type`, `page`, `pageSize`, `search`     |
-| `GET /api/StockDocuments/history`            | Historia zatwierdzonych PZ i WZ z paginacją                |
-| `GET /api/StockDocuments/scan/{id}`          | Zawartość jednej zeskanowanej przesyłki PZ                 |
-| `POST /api/StockDocuments/{id}/receive`      | Potwierdzenie odbioru PZ bez zmiany stanu                  |
-| `GET /api/StockDocuments/shipment-page-data` | Dane formularza WZ między oddziałami                       |
-| `POST /api/StockDocuments/shipments`         | Utworzenie szkicu WZ przez pracownika                      |
-| `POST /api/StockDocuments`                   | Utworzenie szkicu dokumentu z pozycjami                    |
-| `PUT /api/StockDocuments/{id}`               | Edycja szkicu                                              |
-| `POST /api/StockDocuments/{id}/complete`     | Zatwierdzenie dokumentu i aktualizacja stanu               |
 | `GET /api/Roles`                             | Role wraz z kodami uprawnień                               |
 | `GET /api/Roles/permissions`                 | Katalog uprawnień z nazwami i opisami                      |
 | `PUT /api/Roles/{roleId}/permissions`        | Zapis kodów uprawnień roli                                 |

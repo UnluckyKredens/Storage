@@ -1,0 +1,36 @@
+<app-dialog-header [title]="'Historia ' + data.shipment.number" />
+
+<mat-dialog-content>
+  <div class="history-summary">
+    <span>{{ data.shipment.sourceWarehouseName }}</span>
+    <strong>→</strong>
+    <span>{{ data.shipment.destinationWarehouseName }}</span>
+  </div>
+
+  <div class="history-list">
+    @for (entry of data.history; track entry.id) {
+      <article class="history-entry">
+        <div class="history-entry__marker"></div>
+        <div class="history-entry__content">
+          <header>
+            <strong>{{ entry.eventName }}</strong>
+            <time>{{ entry.createdOnUtc | date: 'short' }}</time>
+          </header>
+          <p>{{ entry.details }}</p>
+          <small>
+            {{ entry.sourceWarehouseName }} → {{ entry.destinationWarehouseName }}
+            @if (entry.userName) {
+              · {{ entry.userName }}
+            }
+          </small>
+        </div>
+      </article>
+    } @empty {
+      <p class="empty">Brak historii dla tej wysyłki.</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zamknij</button>
+</mat-dialog-actions>

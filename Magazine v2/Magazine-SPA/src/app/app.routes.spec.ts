@@ -37,9 +37,9 @@ describe('app routes', () => {
     expect(router.url).toBe('/auth?returnUrl=%2Fmain%2Faccount');
   });
 
-  it('opens the shipments module for an authenticated user', async () => {
+  it('redirects removed shipments routes to management', async () => {
     localStorage.setItem('token', token(Math.floor(Date.now() / 1000) + 60));
     await router.navigateByUrl('/main/shipments');
-    expect(router.url).toBe('/main/shipments');
+    expect(router.url).toBe('/main/management');
   });
 });

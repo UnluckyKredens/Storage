@@ -45,6 +45,14 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasPrecision(18, 2)
             .IsRequired();
 
+        builder.Property(product => product.MinimumQuantity)
+            .HasPrecision(18, 3)
+            .HasDefaultValue(0)
+            .IsRequired();
+
+        builder.Property(product => product.OptimumQuantity)
+            .HasPrecision(18, 3);
+
         builder.Property(product => product.IsActive)
             .IsRequired();
 
@@ -56,6 +64,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             tableBuilder.HasCheckConstraint(
                 "CK_Products_Prices",
                 "[PurchasePrice] >= 0 AND [SalePrice] >= 0");
+            tableBuilder.HasCheckConstraint(
+                "CK_Products_QuantityThresholds",
+                "[MinimumQuantity] >= 0 AND ([OptimumQuantity] IS NULL OR [OptimumQuantity] >= [MinimumQuantity])");
         });
 
         builder.HasOne(product => product.UnitOfMeasure)

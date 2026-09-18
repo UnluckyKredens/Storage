@@ -104,6 +104,8 @@ public sealed class UpdateOwnAccountCommandHandlerTests
         public List<TEntity> Items { get; } = [.. items];
         public int UpdateCount { get; private set; }
 
+        public IQueryable<TEntity> Query() => Items.AsQueryable();
+
         public Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             Items.Add(entity);

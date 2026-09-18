@@ -24,7 +24,7 @@ describe('permissionGuard', () => {
   let permissions: string[];
 
   beforeEach(() => {
-    permissions = ['stock-documents.receive', 'stock-shipments.create'];
+    permissions = ['products.read', 'inventory.read'];
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -47,18 +47,14 @@ describe('permissionGuard', () => {
     return firstValueFrom(result as Observable<boolean | ReturnType<Router['createUrlTree']>>);
   }
 
-  it('allows a worker to open the shipment receiver', async () => {
-    await expect(check('stock-documents.receive')).resolves.toBe(true);
+  it('allows a worker to open a permitted section', async () => {
+    await expect(check('products.read')).resolves.toBe(true);
   });
 
-  it('allows a worker to create an inter-branch shipment', async () => {
-    await expect(check('stock-shipments.create')).resolves.toBe(true);
-  });
-
-  it('redirects a worker trying to open history', async () => {
-    const result = await check('stock-documents.read');
+  it('redirects a worker trying to open a forbidden section', async () => {
+    const result = await check('users.read');
     expect(TestBed.inject(Router).serializeUrl(result as ReturnType<Router['createUrlTree']>)).toBe(
-      '/main/shipments',
+      '/main/management',
     );
   });
 });

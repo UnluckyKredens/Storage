@@ -13,9 +13,7 @@ public static class PermissionIds
     public static readonly Guid UsersRead = Guid.Parse("20000000-0000-0000-0000-000000000009");
     public static readonly Guid UsersManage = Guid.Parse("20000000-0000-0000-0000-000000000010");
     public static readonly Guid DictionariesManage = Guid.Parse("20000000-0000-0000-0000-000000000011");
-    public static readonly Guid StockDocumentsManage = Guid.Parse("20000000-0000-0000-0000-000000000012");
-    public static readonly Guid StockDocumentsApprove = Guid.Parse("20000000-0000-0000-0000-000000000013");
-    public static readonly Guid StockDocumentsRead = Guid.Parse("20000000-0000-0000-0000-000000000014");
-    public static readonly Guid StockDocumentsReceive = Guid.Parse("20000000-0000-0000-0000-000000000015");
-    public static readonly Guid StockShipmentsCreate = Guid.Parse("20000000-0000-0000-0000-000000000016");
+    public static readonly Guid ShipmentsRead = Guid.Parse("20000000-0000-0000-0000-000000000012");
+    public static readonly Guid ShipmentsCreate = Guid.Parse("20000000-0000-0000-0000-000000000013");
+    public static readonly Guid ShipmentsApprove = Guid.Parse("20000000-0000-0000-0000-000000000014");
 }

@@ -12,9 +12,6 @@ internal static class PermissionMapper
         PermissionIds.InventoryRead, PermissionIds.InventoryManage,
         PermissionIds.WarehousesRead, PermissionIds.WarehousesManage,
         PermissionIds.ContractorsRead, PermissionIds.ContractorsManage,
-        PermissionIds.UsersRead, PermissionIds.UsersManage, PermissionIds.DictionariesManage,
-        PermissionIds.StockDocumentsManage, PermissionIds.StockDocumentsApprove,
-        PermissionIds.StockDocumentsRead, PermissionIds.StockDocumentsReceive,
-        PermissionIds.StockShipmentsCreate
+        PermissionIds.UsersRead, PermissionIds.UsersManage, PermissionIds.DictionariesManage
     }.Contains(id);
 }

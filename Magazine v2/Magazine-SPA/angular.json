@@ -3,7 +3,10 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": ["angular-eslint"]
+    "schematicCollections": [
+      "angular-eslint"
+    ],
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -23,7 +26,12 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+            "polyfills": ["zone.js"],
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "jsbarcode",
+              "qrcode"
+            ],
             "assets": [
               {
                 "glob": "**/*",

@@ -6,12 +6,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { DialogHeaderComponent } from '../../../shared/components/dialog-header/dialog-header.component';
 import { FormCheckboxComponent } from '../../../shared/components/form-checkbox/form-checkbox.component';
 import { FormInputComponent } from '../../../shared/components/form-input/form-input.component';
-import { FormSelectComponent } from '../../../shared/components/form-select/form-select.component';
 import { FormTextareaComponent } from '../../../shared/components/form-textarea/form-textarea.component';
+import { SearchSelectComponent } from '../../../shared/components/search-select/search-select.component';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { Product, SelectOption } from '../../models/management.models';
 import { ProductService } from '../../services/product.service';
-import { SearchSelectComponent } from '../../../shared/components/search-select/search-select.component';
 
 interface ProductModalData {
   mode: 'details' | 'form' | 'delete';
@@ -27,10 +26,9 @@ interface ProductModalData {
     DialogHeaderComponent,
     FormCheckboxComponent,
     FormInputComponent,
-    FormSelectComponent,
     FormTextareaComponent,
-    SearchSelectComponent
-],
+    SearchSelectComponent,
+  ],
   templateUrl: './product-modal.component.html',
   styleUrl: '../management-modal.scss',
 })
@@ -48,6 +46,10 @@ export class ProductModalComponent implements OnInit {
     unitOfMeasureId: String(this.data.row?.unitOfMeasureId ?? ''),
     purchasePrice: Number(this.data.row?.purchasePrice ?? 0),
     salePrice: Number(this.data.row?.salePrice ?? 0),
+    minimumQuantity: Number(this.data.row?.minimumQuantity ?? 0),
+    optimumQuantity: this.data.row?.optimumQuantity === null || this.data.row?.optimumQuantity === undefined
+      ? null
+      : Number(this.data.row.optimumQuantity),
     description: String(this.data.row?.description ?? ''),
     isActive: this.data.row?.isActive === undefined ? true : Boolean(this.data.row.isActive),
   };

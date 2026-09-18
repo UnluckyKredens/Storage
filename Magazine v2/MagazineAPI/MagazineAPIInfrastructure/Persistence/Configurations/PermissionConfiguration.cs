@@ -42,10 +42,8 @@ public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permissio
             new Permission { Id = PermissionIds.UsersRead, Code = PermissionCodes.UsersRead, Name = "Podgląd użytkowników", Description = "Wyświetlanie kont użytkowników." },
             new Permission { Id = PermissionIds.UsersManage, Code = PermissionCodes.UsersManage, Name = "Zarządzanie użytkownikami", Description = "Edycja i usuwanie kont innych niż administratorzy." },
             new Permission { Id = PermissionIds.DictionariesManage, Code = PermissionCodes.DictionariesManage, Name = "Zarządzanie słownikami", Description = "Edycja kategorii i jednostek miary." },
-            new Permission { Id = PermissionIds.StockDocumentsManage, Code = PermissionCodes.StockDocumentsManage, Name = "Tworzenie dokumentów PZ i WZ", Description = "Tworzenie, edycja i usuwanie szkiców przyjęć oraz wydań." },
-            new Permission { Id = PermissionIds.StockDocumentsApprove, Code = PermissionCodes.StockDocumentsApprove, Name = "Zatwierdzanie dokumentów PZ i WZ", Description = "Zatwierdzanie przyjęć i wydań zmieniających stan magazynowy." },
-            new Permission { Id = PermissionIds.StockDocumentsRead, Code = PermissionCodes.StockDocumentsRead, Name = "Podgląd dokumentów PZ i WZ", Description = "Wyświetlanie list dokumentów i ich historii." },
-            new Permission { Id = PermissionIds.StockDocumentsReceive, Code = PermissionCodes.StockDocumentsReceive, Name = "Odbiór przesyłek", Description = "Skanowanie kodu, podgląd zawartości i przyjmowanie przesyłek PZ." },
-            new Permission { Id = PermissionIds.StockShipmentsCreate, Code = PermissionCodes.StockShipmentsCreate, Name = "Tworzenie wysyłek międzyoddziałowych", Description = "Tworzenie szkiców WZ kierowanych do innego oddziału." });
+            new Permission { Id = PermissionIds.ShipmentsRead, Code = PermissionCodes.ShipmentsRead, Name = "Podgląd wysyłek", Description = "Wyświetlanie wysyłek między magazynami." },
+            new Permission { Id = PermissionIds.ShipmentsCreate, Code = PermissionCodes.ShipmentsCreate, Name = "Tworzenie wysyłek", Description = "Tworzenie wysyłek z magazynu pracownika." },
+            new Permission { Id = PermissionIds.ShipmentsApprove, Code = PermissionCodes.ShipmentsApprove, Name = "Akceptacja wysyłek", Description = "Akceptowanie wysyłek i przygotowanie WZ." });
     }
 }

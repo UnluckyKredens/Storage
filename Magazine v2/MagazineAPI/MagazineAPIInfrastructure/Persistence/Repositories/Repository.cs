@@ -10,6 +10,11 @@ public class Repository<TEntity>(AppDbContext dbContext) : IRepository<TEntity>
     private readonly AppDbContext _dbContext = dbContext;
     private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
+    public IQueryable<TEntity> Query()
+    {
+        return _dbSet.AsNoTracking();
+    }
+
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         var entry = await _dbSet.AddAsync(entity, cancellationToken);

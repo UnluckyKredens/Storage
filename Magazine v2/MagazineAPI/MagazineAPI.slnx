@@ -6,9 +6,11 @@
   <Project Path="MagazineAPIApplication.Tests/MagazineAPIApplication.Tests.csproj" />
   <Project Path="MagazineAPIApplication/MagazineAPIApplication.csproj" Id="23508810-7230-49bb-9180-624d649700ab">
     <BuildDependency Project="MagazineAPIDomain/MagazineAPIDomain.csproj" />
-    <BuildDependency Project="MagazineAPIInfrastructure/MagazineAPInfrastructure.csproj" />
   </Project>
   <Project Path="MagazineAPIDomain/MagazineAPIDomain.csproj" Id="f8eaa056-4fe2-4845-9bbc-d64f098be359" />
+  <Project Path="MagazineAPIEvent/MagazineAPIEvent.csproj">
+    <BuildDependency Project="MagazineAPIDomain/MagazineAPIDomain.csproj" />
+  </Project>
   <Project Path="MagazineAPIInfrastructure/MagazineAPInfrastructure.csproj" Id="861697f2-c69b-4740-98e4-4d87f02d8b81">
     <BuildDependency Project="MagazineAPIDomain/MagazineAPIDomain.csproj" />
   </Project>

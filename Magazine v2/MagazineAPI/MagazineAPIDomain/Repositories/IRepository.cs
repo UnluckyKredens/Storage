@@ -4,6 +4,8 @@ namespace MagazineAPIDomain.Repositories;
 
 public interface IRepository<TEntity> where TEntity : class
 {
+    IQueryable<TEntity> Query();
+
     Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);

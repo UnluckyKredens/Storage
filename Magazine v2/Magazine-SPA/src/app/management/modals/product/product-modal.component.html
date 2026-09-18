@@ -19,6 +19,10 @@
       <dd>{{ display(data.row?.purchasePrice) }}</dd>
       <dt>Cena sprzedaży</dt>
       <dd>{{ display(data.row?.salePrice) }}</dd>
+      <dt>Minimum</dt>
+      <dd>{{ display(data.row?.minimumQuantity) }}</dd>
+      <dt>Optimum</dt>
+      <dd>{{ display(data.row?.optimumQuantity) }}</dd>
       <dt>Opis</dt>
       <dd>{{ display(data.row?.description) }}</dd>
       <dt>Aktywny</dt>
@@ -72,6 +76,23 @@
           [min]="0"
           step="0.01"
           required
+        />
+        <app-form-input
+          label="Minimum"
+          type="number"
+          name="minimumQuantity"
+          [(ngModel)]="form.minimumQuantity"
+          [min]="0"
+          step="0.001"
+          required
+        />
+        <app-form-input
+          label="Optimum"
+          type="number"
+          name="optimumQuantity"
+          [(ngModel)]="form.optimumQuantity"
+          [min]="0"
+          step="0.001"
         />
         <app-form-textarea
           class="full-width"

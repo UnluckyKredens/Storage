@@ -1,1 +1,6 @@
-<app-navigation-bar></app-navigation-bar> <router-outlet></router-outlet>
+<div class="app-shell">
+  <app-navigation-bar class="app-shell__navigation"></app-navigation-bar>
+  <main class="app-shell__content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

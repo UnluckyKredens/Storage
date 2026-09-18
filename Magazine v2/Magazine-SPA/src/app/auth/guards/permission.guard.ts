@@ -13,8 +13,8 @@ export const permissionGuard: CanActivateFn = (route) => {
     map(([user, permissions]) =>
       user.roleId === administratorRoleId || permissions.includes(permission)
         ? true
-        : router.createUrlTree(['/main/shipments']),
+        : router.createUrlTree(['/main/management']),
     ),
-    catchError(() => of(router.createUrlTree(['/main/shipments']))),
+    catchError(() => of(router.createUrlTree(['/main/management']))),
   );
 };

@@ -34,15 +34,8 @@ MERGE dbo.RolePermissions AS target
             (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000004')), -- Kierownik: inventory.manage
             (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000005')), -- Kierownik: warehouses.read
             (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000007')), -- Kierownik: contractors.read
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000012')), -- Kierownik: stock-documents.manage
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000013')), -- Kierownik: stock-documents.approve
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000014')), -- Kierownik: stock-documents.read
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000015')), -- Kierownik: stock-documents.receive
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000002'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000016')), -- Kierownik: stock-shipments.create
             (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000003'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000001')), -- Pracownik: products.read
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000003'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000003')), -- Pracownik: inventory.read
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000003'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000015')), -- Pracownik: stock-documents.receive
-            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000003'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000016'))  -- Pracownik: stock-shipments.create
+            (CONVERT(uniqueidentifier, '10000000-0000-0000-0000-000000000003'), CONVERT(uniqueidentifier, '20000000-0000-0000-0000-000000000003'))  -- Pracownik: inventory.read
     ) AS source (RoleId, PermissionId)
         ON target.RoleId = source.RoleId
         AND target.PermissionId = source.PermissionId

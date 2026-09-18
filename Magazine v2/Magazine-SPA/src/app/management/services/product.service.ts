@@ -18,6 +18,8 @@ export interface ProductForm {
   unitOfMeasureId: string;
   purchasePrice: number;
   salePrice: number;
+  minimumQuantity: number;
+  optimumQuantity: number | null;
   description: string;
   isActive: boolean;
 }

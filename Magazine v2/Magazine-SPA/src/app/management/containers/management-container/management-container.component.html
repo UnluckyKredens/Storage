@@ -1,16 +1,48 @@
 <section class="management">
-  <h1>Zarządzanie</h1>
-  <br />
-  <div>
+  <header class="page-heading">
+    <div>
+      <h1>Zarządzanie magazynem</h1>
+    </div>
+    <p>Najważniejsze obszary pracy magazynu w jednym miejscu.</p>
+  </header>
+
+  <div class="management__content">
     @for (group of visibleSections(); track group.category) {
-      <div>
-        <h2>{{ group.category }}</h2>
-      </div>
-      <div class="management__grid">
-        @for (section of group.sections; track section.label) {
-          <a class="management__card" [routerLink]="[section.path]">{{ section.label }}</a>
-        }
-      </div>
+      @if (group.category === 'Ustawienia') {
+        <details class="settings-panel">
+          <summary>
+            <span>
+              <strong>Ustawienia systemu</strong>
+              <small>Słowniki, konta i dostęp do systemu</small>
+            </span>
+            <mat-icon>expand_more</mat-icon>
+          </summary>
+
+          <div class="settings-panel__list">
+            @for (section of group.sections; track section.label) {
+              <a class="settings-panel__link" [routerLink]="[section.path]">
+                <mat-icon>{{ section.icon }}</mat-icon>
+                <span>{{ section.label }}</span>
+              </a>
+            }
+          </div>
+        </details>
+      } @else {
+        <section class="section-block">
+          <h2 class="section-block__title">{{ group.category }}</h2>
+          <div class="module-list">
+            @for (section of group.sections; track section.label) {
+              <a class="module-row" [routerLink]="[section.path]">
+                <mat-icon>{{ section.icon }}</mat-icon>
+                <span>
+                  <strong>{{ section.label }}</strong>
+                  <small>{{ section.description }}</small>
+                </span>
+              </a>
+            }
+          </div>
+        </section>
+      }
     }
   </div>
 </section>

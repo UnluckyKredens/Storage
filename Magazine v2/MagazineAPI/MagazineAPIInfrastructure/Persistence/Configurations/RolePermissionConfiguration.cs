@@ -32,16 +32,14 @@ public sealed class RolePermissionConfiguration : IEntityTypeConfiguration<RoleP
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ProductsManage },
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.InventoryRead },
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.InventoryManage },
-            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.StockDocumentsManage },
-            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.StockDocumentsApprove },
-            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.StockDocumentsRead },
-            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.StockDocumentsReceive },
-            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.StockShipmentsCreate },
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.WarehousesRead },
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ContractorsRead },
+            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ShipmentsRead },
+            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ShipmentsCreate },
+            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ShipmentsApprove },
             new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ProductsRead },
             new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.InventoryRead },
-            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.StockDocumentsReceive },
-            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.StockShipmentsCreate });
+            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ShipmentsRead },
+            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ShipmentsCreate });
     }
 }

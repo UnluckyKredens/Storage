@@ -2,6 +2,7 @@ using MagazineAPIApplication.Common.ReadModels;
 using MagazineAPIDomain.Entities;
 using MagazineAPIDomain.Repositories;
 using Mediator;
+using Microsoft.EntityFrameworkCore;
 
 namespace MagazineAPIApplication.Modules.Products;
 
@@ -15,38 +16,45 @@ public sealed class GetProductsQueryHandler(
         GetProductsQuery query,
         CancellationToken cancellationToken)
     {
-        var products = await productRepository.AllAsync(cancellationToken);
-        var categories = (await categoryRepository.AllAsync(cancellationToken))
-            .ToDictionary(category => category.CategoryId, category => category.Name);
-        var units = (await unitOfMeasureRepository.AllAsync(cancellationToken))
-            .ToDictionary(unit => unit.UnitOfMeasureId, unit => unit.Name);
-
         var search = query.Search.Trim();
-        var filteredProducts = products
-            .Where(product => string.IsNullOrEmpty(search)
-                || product.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || product.Sku.Contains(search, StringComparison.OrdinalIgnoreCase)
-                || (product.Barcode?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
+        var filteredProducts = productRepository.Query();
+        if (!string.IsNullOrEmpty(search))
+        {
+            filteredProducts = filteredProducts.Where(product =>
+                product.Name.Contains(search) ||
+                product.Sku.Contains(search) ||
+                (product.Barcode != null && product.Barcode.Contains(search)));
+        }
 
         var page = Math.Max(query.Page, 1);
         var pageSize = Math.Clamp(query.PageSize, 1, 100);
-        var total = filteredProducts.Count();
+        var total = await filteredProducts.CountAsync(cancellationToken);
 
-        var readModels = filteredProducts.Select(product => new ProductReadModel
-        {
-            ProductId = product.ProductId,
-            CategoryId = product.CategoryId,
-            UnitOfMeasureId = product.UnitOfMeasureId,
-            Name = product.Name,
-            Sku = product.Sku,
-            Barcode = product.Barcode,
-            Description = product.Description,
-            UnitOfMeasure = units.GetValueOrDefault(product.UnitOfMeasureId, string.Empty),
-            Category = categories.GetValueOrDefault(product.CategoryId, string.Empty),
-            PurchasePrice = product.PurchasePrice,
-            SalePrice = product.SalePrice,
-            IsActive = product.IsActive
-        });
+        var readModels =
+            from product in filteredProducts
+            join category in categoryRepository.Query()
+                on product.CategoryId equals category.CategoryId into categoryJoin
+            from category in categoryJoin.DefaultIfEmpty()
+            join unit in unitOfMeasureRepository.Query()
+                on product.UnitOfMeasureId equals unit.UnitOfMeasureId into unitJoin
+            from unit in unitJoin.DefaultIfEmpty()
+            select new ProductReadModel
+            {
+                ProductId = product.ProductId,
+                CategoryId = product.CategoryId,
+                UnitOfMeasureId = product.UnitOfMeasureId,
+                Name = product.Name,
+                Sku = product.Sku,
+                Barcode = product.Barcode,
+                Description = product.Description,
+                UnitOfMeasure = unit == null ? string.Empty : unit.Name,
+                Category = category == null ? string.Empty : category.Name,
+                PurchasePrice = product.PurchasePrice,
+                SalePrice = product.SalePrice,
+                MinimumQuantity = product.MinimumQuantity,
+                OptimumQuantity = product.OptimumQuantity,
+                IsActive = product.IsActive
+            };
 
         var descending = string.Equals(query.OrderBy, "desc", StringComparison.OrdinalIgnoreCase);
         readModels = (query.SortBy.ToLowerInvariant(), descending) switch
@@ -68,14 +76,14 @@ public sealed class GetProductsQueryHandler(
         var results = readModels
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToList();
+            .ToListAsync(cancellationToken);
 
         return new PaginationReadModel<ProductReadModel>
         {
             PageSize = pageSize,
             Page = page,
             Total = total,
-            List = results
+            List = await results
         };
     }
 }

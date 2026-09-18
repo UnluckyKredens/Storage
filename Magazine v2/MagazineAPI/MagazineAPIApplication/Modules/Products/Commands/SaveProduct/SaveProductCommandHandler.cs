@@ -16,6 +16,8 @@ public sealed class SaveProductCommandHandler(
             throw new CommandValidationException("Nazwa i SKU produktu są wymagane.");
         if (command.PurchasePrice < 0 || command.SalePrice < 0)
             throw new CommandValidationException("Ceny nie mogą być ujemne.");
+        if (command.MinimumQuantity < 0 || (command.OptimumQuantity is not null && command.OptimumQuantity < command.MinimumQuantity))
+            throw new CommandValidationException("Progi minimum i optimum muszą być spójne.");
         if (await categoryRepository.FirstOrDefaultAsync(x => x.CategoryId == command.CategoryId, cancellationToken) is null)
             throw new CommandValidationException("Kategoria nie istnieje.");
         if (await unitRepository.FirstOrDefaultAsync(x => x.UnitOfMeasureId == command.UnitOfMeasureId, cancellationToken) is null)
@@ -54,6 +56,8 @@ public sealed class SaveProductCommandHandler(
         product.UnitOfMeasureId = command.UnitOfMeasureId;
         product.PurchasePrice = command.PurchasePrice;
         product.SalePrice = command.SalePrice;
+        product.MinimumQuantity = command.MinimumQuantity;
+        product.OptimumQuantity = command.OptimumQuantity;
         product.IsActive = command.IsActive;
     }
 }

@@ -11,9 +11,12 @@ public class Product
     public Guid CategoryId { get; set; }
     public decimal PurchasePrice { get; set; }
     public decimal SalePrice { get; set; }
+    public decimal MinimumQuantity { get; set; }
+    public decimal? OptimumQuantity { get; set; }
     public bool IsActive { get; set; }
 
     public Category Category { get; set; } = null!;
     public UnitOfMeasure UnitOfMeasure { get; set; } = null!;
     public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
+    public ICollection<ShipmentItem> ShipmentItems { get; set; } = new List<ShipmentItem>();
 }
