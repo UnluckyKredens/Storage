@@ -1,4 +1,4 @@
-# Co uwzględnić w pracy inżynierskiej - Magazine v2
+# Co uwzględnić w pracy inżynierskiej - Projekt Magazynu Wielooddziałowego
 
 ## Proponowany tytuł
 

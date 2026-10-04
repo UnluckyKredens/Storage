@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MagazineWarehouseBot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6fc97127b9b925c955c2a949bb5709c784ecf57b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b6afadbec44e6c9aa8ab49c1b00039cee9d7a2d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MagazineWarehouseBot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MagazineWarehouseBot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
