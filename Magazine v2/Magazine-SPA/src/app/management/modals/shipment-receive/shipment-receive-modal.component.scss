@@ -1,0 +1,94 @@
+.receive-scan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--app-border);
+
+  button {
+    height: 46px;
+  }
+}
+
+.loading-note {
+  margin: 8px 0 14px;
+  color: var(--app-muted);
+  font-size: 13px;
+}
+
+.receive-summary {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 160px;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  span,
+  strong {
+    display: block;
+  }
+
+  span {
+    margin-bottom: 4px;
+    color: var(--app-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: var(--app-text);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+}
+
+.receive-checklist {
+  display: grid;
+  gap: 4px;
+  margin: 18px 0;
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+    color: var(--app-muted);
+    font-size: 13px;
+
+    strong {
+      color: var(--app-text);
+    }
+  }
+}
+
+.check-item {
+  display: grid;
+  gap: 2px;
+  padding: 7px 0;
+
+  strong {
+    color: var(--app-text);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  small {
+    color: var(--app-muted);
+    font-size: 12px;
+  }
+}
+
+.modal-error {
+  margin: 12px 0 0;
+  color: var(--mat-sys-error);
+}
+
+@media (width <= 700px) {
+  .receive-scan,
+  .receive-summary {
+    grid-template-columns: 1fr;
+  }
+}

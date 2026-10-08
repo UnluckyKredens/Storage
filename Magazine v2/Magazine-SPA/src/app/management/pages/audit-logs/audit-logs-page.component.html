@@ -1,0 +1,52 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Audit log"
+    backLink="/main/management"
+    [showAddButton]="false"
+    [searchValue]="searchValue"
+    searchPlaceholder="Akcja, encja, użytkownik lub opis"
+    (searchSubmit)="search($event)"
+  />
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" matSort aria-label="Tabela: Audit log">
+      <ng-container matColumnDef="createdOnUtc">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Data</th>
+        <td mat-cell *matCellDef="let row">{{ row.createdOnUtc | date: 'dd.MM.yyyy HH:mm' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Akcja</th>
+        <td mat-cell *matCellDef="let row">{{ row.action }}</td>
+      </ng-container>
+      <ng-container matColumnDef="entityName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Encja</th>
+        <td mat-cell *matCellDef="let row">{{ row.entityName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="entityId">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+        <td mat-cell *matCellDef="let row">{{ row.entityId || '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="userName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Użytkownik</th>
+        <td mat-cell *matCellDef="let row">{{ row.userName || '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="summary">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Opis</th>
+        <td mat-cell *matCellDef="let row">{{ row.summary || '—' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">Brak wpisów audytu.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [pageSize]="25"
+      [pageSizeOptions]="[25, 50, 100]"
+      [showFirstLastButtons]="true"
+      aria-label="Wybierz stronę"
+    />
+  </div>
+</section>

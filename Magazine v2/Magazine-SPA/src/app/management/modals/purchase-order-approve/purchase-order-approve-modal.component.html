@@ -1,0 +1,27 @@
+<app-dialog-header title="Akceptacja zamówienia" />
+
+<form #approveForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <p class="muted">Zamówienie {{ data.order.number }} od {{ data.order.contractorName }}</p>
+
+    <app-form-input label="Numer faktury" name="invoiceNumber" [(ngModel)]="invoiceNumber" required />
+    <app-form-input
+      label="Numer dokumentu papierowego"
+      name="paperDocumentNumber"
+      [(ngModel)]="paperDocumentNumber"
+      required
+    />
+    <app-form-textarea label="Uwagi" name="notes" [(ngModel)]="notes" [rows]="3" />
+
+    @if (error) {
+      <p class="modal-error">{{ error }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [disabled]="saving()" mat-dialog-close>Anuluj</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Akceptuję...' : 'Akceptuj' }}
+    </button>
+  </mat-dialog-actions>
+</form>

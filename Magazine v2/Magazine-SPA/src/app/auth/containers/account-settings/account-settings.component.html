@@ -1,0 +1,66 @@
+<section class="account-settings">
+  <h1>Ustawienia konta</h1>
+  @if (account.user(); as user) {
+    <p class="account-name">{{ user.firstName }} {{ user.lastName }}</p>
+  }
+  @if (success) {
+    <p class="message success">{{ success }}</p>
+  }
+  @if (error) {
+    <p class="message error">{{ error }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="fields">
+      <app-form-input label="Login" formControlName="login" [maxLength]="100" required />
+      <app-form-input label="Imię" formControlName="firstName" [maxLength]="100" required />
+      <app-form-input label="Nazwisko" formControlName="lastName" [maxLength]="100" required />
+      <app-form-input
+        label="E-mail"
+        type="email"
+        formControlName="email"
+        [maxLength]="255"
+        required
+      />
+    </div>
+
+    <h2>Zmiana hasła</h2>
+    <p>Pozostaw te pola puste, jeśli nie chcesz zmieniać hasła.</p>
+    <div class="fields">
+      <app-form-input
+        label="Obecne hasło"
+        type="password"
+        formControlName="currentPassword"
+        autocomplete="current-password"
+      />
+      <app-form-input
+        label="Nowe hasło"
+        type="password"
+        formControlName="newPassword"
+        autocomplete="new-password"
+        [minLength]="8"
+      />
+      <app-form-input
+        label="Powtórz nowe hasło"
+        type="password"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+      />
+    </div>
+
+    <button mat-flat-button type="submit" [disabled]="saving">
+      {{ saving ? 'Zapisywanie...' : 'Zapisz ustawienia' }}
+    </button>
+  </form>
+
+  <h2>Uprawnienia</h2>
+  @if (account.permissionCodes().length) {
+    <ul>
+      @for (code of account.permissionCodes(); track code) {
+        <li>{{ code }}</li>
+      }
+    </ul>
+  } @else {
+    <p>Brak przypisanych uprawnień.</p>
+  }
+</section>

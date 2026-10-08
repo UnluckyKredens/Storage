@@ -1,0 +1,78 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Dashboard magazynu"
+    backLink="/main/management"
+    [showAddButton]="false"
+  />
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (dashboard(); as dashboard) {
+    <div class="metric-grid">
+      <div class="metric">
+        <strong>{{ dashboard.productCount }}</strong>
+        <span>Produkty na stanie</span>
+      </div>
+      <div class="metric">
+        <strong>{{ dashboard.totalQuantity | number: '1.0-3' }}</strong>
+        <span>Ilość łącznie</span>
+      </div>
+      <div class="metric">
+        <strong>{{ dashboard.reservedQuantity | number: '1.0-3' }}</strong>
+        <span>Zarezerwowane</span>
+      </div>
+      <div class="metric">
+        <strong>{{ dashboard.availableQuantity | number: '1.0-3' }}</strong>
+        <span>Dostępne</span>
+      </div>
+      <div class="metric">
+        <strong>{{ dashboard.activeReservationCount }}</strong>
+        <span>Aktywne rezerwacje</span>
+      </div>
+      <div class="metric">
+        <strong>{{ dashboard.inTransitShipmentCount }}</strong>
+        <span>W drodze</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="dashboard.alerts" aria-label="Tabela: Alerty magazynowe">
+        <ng-container matColumnDef="warehouseName">
+          <th mat-header-cell *matHeaderCellDef>Magazyn</th>
+          <td mat-cell *matCellDef="let row">{{ row.warehouseName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="productName">
+          <th mat-header-cell *matHeaderCellDef>Produkt</th>
+          <td mat-cell *matCellDef="let row">{{ row.productName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="availableQuantity">
+          <th mat-header-cell *matHeaderCellDef>Dostępne</th>
+          <td mat-cell *matCellDef="let row">{{ row.availableQuantity | number: '1.0-3' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="thresholds">
+          <th mat-header-cell *matHeaderCellDef>Minimum / optimum</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.minimumQuantity | number: '1.0-3' }} /
+            {{ row.optimumQuantity === null ? '—' : (row.optimumQuantity | number: '1.0-3') }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="message">
+          <th mat-header-cell *matHeaderCellDef>Alert</th>
+          <td mat-cell *matCellDef="let row">{{ row.message }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="alertColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: alertColumns"></tr>
+        <tr class="mat-row empty-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="alertColumns.length">Brak alertów.</td>
+        </tr>
+      </table>
+    </div>
+  }
+</section>

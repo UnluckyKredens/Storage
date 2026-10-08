@@ -1,0 +1,55 @@
+.history-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 18px;
+  color: var(--app-muted);
+}
+
+.history-list {
+  display: grid;
+  gap: 14px;
+}
+
+.history-entry {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 12px;
+
+  &__marker {
+    width: 10px;
+    height: 10px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: var(--app-primary);
+  }
+
+  &__content {
+    display: grid;
+    gap: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  time,
+  small {
+    color: var(--app-muted);
+  }
+}
+
+.empty {
+  margin: 0;
+  color: var(--app-muted);
+}

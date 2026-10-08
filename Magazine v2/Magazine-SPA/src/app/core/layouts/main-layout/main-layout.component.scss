@@ -1,0 +1,35 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100vh;
+  background-color: var(--app-page);
+
+  &__navigation {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: start;
+    z-index: 50;
+  }
+
+  &__content {
+    min-width: 0;
+    padding: 32px 48px 64px;
+  }
+}
+
+@media (width <= 920px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+
+    &__navigation {
+      position: static;
+      height: auto;
+    }
+
+    &__content {
+      padding: 18px 16px 36px;
+    }
+  }
+}
+

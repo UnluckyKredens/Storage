@@ -1,0 +1,129 @@
+<section class="management-page">
+  <app-table-navigation-component
+    [title]="moduleTitle"
+    backLink="/main/management/shipments"
+    [showAddButton]="false"
+  />
+
+  @if (canCreate || canApprove) {
+    <div class="shipment-actions">
+      @if (canCreate) {
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="openingMode() === 'create'"
+          (click)="add()"
+        >
+          <mat-icon>local_shipping</mat-icon>
+          {{ openingMode() === 'create' ? 'Ładowanie...' : 'Dodaj wysyłkę' }}
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="openingMode() === 'request'"
+          (click)="requestShipment()"
+        >
+          <mat-icon>assignment_returned</mat-icon>
+          {{ openingMode() === 'request' ? 'Ładowanie...' : 'Prośba o wysyłkę' }}
+        </button>
+      }
+      @if (canApprove) {
+        <button mat-stroked-button type="button" (click)="receive()">
+          <mat-icon>qr_code_scanner</mat-icon>
+          Przyjmij wysyłkę
+        </button>
+      }
+    </div>
+  }
+
+  <div class="table-wrapper">
+    @if (tableLoading) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <table mat-table [dataSource]="visibleShipments" aria-label="Tabela: Wysyłki">
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>Numer</th>
+        <td mat-cell *matCellDef="let row">{{ row.number }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="route">
+        <th mat-header-cell *matHeaderCellDef>Trasa</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="route">
+            <strong>{{ row.sourceWarehouseName }}</strong>
+            <mat-icon>arrow_forward</mat-icon>
+            <strong>{{ row.destinationWarehouseName }}</strong>
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdOnUtc">
+        <th mat-header-cell *matHeaderCellDef>Utworzono</th>
+        <td mat-cell *matCellDef="let row">{{ row.createdOnUtc | date: 'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="items">
+        <th mat-header-cell *matHeaderCellDef>Pozycje</th>
+        <td mat-cell *matCellDef="let row">{{ row.items.length }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-pill">{{ row.status }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            @if (canApprove && row.status === 'Oczekuje na akceptację') {
+              <button
+                mat-button
+                type="button"
+                [disabled]="approvingShipmentId() === row.id"
+                (click)="approve(row)"
+              >
+                {{ approvingShipmentId() === row.id ? 'Akceptuję...' : 'Akceptuj' }}
+              </button>
+            }
+            @if (canReceive(row)) {
+              <button mat-button type="button" (click)="receive(row)">Odbierz</button>
+            }
+            @if (canApprove && row.status === 'Wysłana') {
+              <button
+                mat-button
+                type="button"
+                [disabled]="inTransitShipmentId() === row.id"
+                (click)="markInTransit(row)"
+              >
+                {{ inTransitShipmentId() === row.id ? 'Zmieniam...' : 'W drodze' }}
+              </button>
+            }
+            @if (row.status === 'Wysłana' || row.status === 'W drodze') {
+              <button mat-button type="button" (click)="printWz(row)">WZ</button>
+              <button mat-button type="button" (click)="printLabel(row)">Naklejka</button>
+            }
+            <button
+              mat-button
+              type="button"
+              [disabled]="historyShipmentId() === row.id"
+              (click)="showHistory(row)"
+            >
+              {{ historyShipmentId() === row.id ? 'Ładowanie...' : 'Historia' }}
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          {{ tableLoading ? 'Ładowanie wysyłek...' : 'Brak wysyłek.' }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>

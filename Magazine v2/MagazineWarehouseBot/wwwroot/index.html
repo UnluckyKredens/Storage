@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bot magazynu</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="topbar">
+      <div>
+        <p class="eyebrow">Symulator</p>
+        <h1>Prosperujacy magazyn</h1>
+      </div>
+      <div class="actions">
+        <button id="saveAccounts">Zapisz konta</button>
+        <button id="startBot" class="primary">Start</button>
+        <button id="stopBot">Stop</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>Konta</h2>
+        <span id="runState" class="pill">...</span>
+      </div>
+      <div class="accounts">
+        <form class="account" data-role="Administrator">
+          <h3>Administrator</h3>
+          <input name="name" value="Administrator" autocomplete="off">
+          <input name="login" value="admin" placeholder="login" autocomplete="username">
+          <input name="password" value="Test123!" placeholder="haslo" type="password" autocomplete="current-password">
+        </form>
+        <form class="account" data-role="Worker">
+          <h3>Pracownik 1</h3>
+          <input name="name" value="Pracownik 1" autocomplete="off">
+          <input name="login" placeholder="login" autocomplete="username">
+          <input name="password" placeholder="haslo" type="password" autocomplete="current-password">
+        </form>
+        <form class="account" data-role="Worker">
+          <h3>Pracownik 2</h3>
+          <input name="name" value="Pracownik 2" autocomplete="off">
+          <input name="login" placeholder="login" autocomplete="username">
+          <input name="password" placeholder="haslo" type="password" autocomplete="current-password">
+        </form>
+        <form class="account" data-role="Manager">
+          <h3>Kierownik</h3>
+          <input name="name" value="Kierownik" autocomplete="off">
+          <input name="login" placeholder="login" autocomplete="username">
+          <input name="password" placeholder="haslo" type="password" autocomplete="current-password">
+        </form>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-title">
+          <h2>Aktorzy</h2>
+        </div>
+        <div id="actors" class="actors"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title">
+          <h2>Statystyki</h2>
+        </div>
+        <div id="stats" class="stats"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>Podglad akcji</h2>
+      </div>
+      <div id="events" class="events"></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

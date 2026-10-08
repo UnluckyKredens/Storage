@@ -1,0 +1,36 @@
+.receive-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.receive-summary div,
+.receive-checklist {
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.receive-summary span,
+.check-item small {
+  display: block;
+  color: var(--app-muted);
+}
+
+.receive-checklist {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.receive-checklist header {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (width <= 720px) {
+  .receive-summary {
+    grid-template-columns: 1fr;
+  }
+}

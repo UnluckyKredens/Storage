@@ -1,0 +1,18 @@
+<mat-form-field appearance="outline" subscriptSizing="dynamic" class="form-select">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="value"
+    [multiple]="multiple"
+    [required]="required"
+    [disabled]="disabled"
+    (selectionChange)="changeValue($event.value)"
+    (closed)="touch()"
+  >
+    @if (!multiple) {
+      <mat-option [value]="emptyValue">{{ placeholder }}</mat-option>
+    }
+    @for (option of options; track option.value) {
+      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>

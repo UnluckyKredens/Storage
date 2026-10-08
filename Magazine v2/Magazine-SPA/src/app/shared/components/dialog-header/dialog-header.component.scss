@@ -1,0 +1,23 @@
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 0 18px 0 24px;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+.dialog-header h2 {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 20px;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.dialog-header button {
+  flex: 0 0 auto;
+  color: var(--app-muted);
+}

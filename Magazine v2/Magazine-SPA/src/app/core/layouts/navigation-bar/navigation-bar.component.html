@@ -1,0 +1,88 @@
+<div class="navigation">
+  <div class="navigation__top">
+    <div class="navigation__brand">
+      <img src="./logo.png" alt="Logo" class="logo" />
+      <div>
+        <strong>Magazine</strong>
+        <span>system magazynowy</span>
+      </div>
+    </div>
+
+    <nav class="navigation__links" aria-label="Główna nawigacja">
+      <a
+        routerLink="/main/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>dashboard</mat-icon><span>Dashboard</span></a
+      >
+      <a
+        routerLink="/main/management/inventory"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>inventory_2</mat-icon><span>Magazyn</span></a
+      >
+      <a
+        routerLink="/main/management/shipments"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        ><mat-icon>local_shipping</mat-icon><span>Wysyłki</span></a
+      >
+      <a
+        routerLink="/main/management/purchase-orders"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>receipt_long</mat-icon><span>Zamówienia</span></a
+      >
+      <a
+        routerLink="/main/management/storefront-packing"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>inventory</mat-icon><span>Pakowanie</span></a
+      >
+      <a
+        routerLink="/main/management"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>dashboard_customize</mat-icon><span>Zarządzanie</span></a
+      >
+    </nav>
+  </div>
+
+  <div class="navigation__user">
+    @if (account.user(); as user) {
+      @if (isAdministrator) {
+        <app-search-select
+          class="warehouse-select"
+          label="Magazyn"
+          searchLabel="Szukaj magazynu"
+          [ngModel]="account.activeWarehouseId()"
+          (ngModelChange)="selectWarehouse($event)"
+          [options]="warehouseOptions"
+        />
+      } @else {
+        <span class="warehouse-name">
+          <mat-icon>warehouse</mat-icon>
+          {{ user.warehouseName }}
+        </span>
+      }
+
+      <button mat-button type="button" class="account-button" [matMenuTriggerFor]="accountMenu">
+        <mat-icon>account_circle</mat-icon>
+        <span>{{ user.firstName }} {{ user.lastName }}</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #accountMenu="matMenu" xPosition="after">
+        <a mat-menu-item routerLink="/main/account">
+          <mat-icon>settings</mat-icon>
+          <span>Ustawienia konta</span>
+        </a>
+        <button mat-menu-item type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Wyloguj</span>
+        </button>
+      </mat-menu>
+    } @else if (nameError) {
+      <span class="navigation__user__name">Konto</span>
+    }
+  </div>
+</div>

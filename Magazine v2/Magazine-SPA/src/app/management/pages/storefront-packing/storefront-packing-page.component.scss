@@ -1,0 +1,40 @@
+.subtle {
+  display: block;
+  color: var(--app-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgb(14 165 233 / 12%);
+  color: #0369a1;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.items-list {
+  display: grid;
+  gap: 6px;
+  min-width: 260px;
+
+  span {
+    display: grid;
+    gap: 2px;
+  }
+
+  small {
+    color: var(--app-muted);
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
