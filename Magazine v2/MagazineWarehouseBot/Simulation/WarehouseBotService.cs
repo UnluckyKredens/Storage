@@ -10,6 +10,8 @@ public sealed class WarehouseBotService : BackgroundService
     private const string ShipmentsApprove = "shipments.approve";
     private const string ProductsManage = "products.manage";
     private const string InventoryManage = "inventory.manage";
+    private const string PurchaseOrdersCreate = "purchase-orders.create";
+    private const string PurchaseOrdersApprove = "purchase-orders.approve";
 
     private readonly BotControlState _state;
     private readonly BotActionLog _log;
@@ -39,6 +41,9 @@ public sealed class WarehouseBotService : BackgroundService
                 new("Akceptacja", cadence.ShipmentApproveSeconds, TryApproveShipmentAsync),
                 new("Transport", cadence.ShipmentReceiveSeconds, TryMoveShipmentForwardAsync),
                 new("Odbior", cadence.ShipmentReceiveSeconds, TryReceiveShipmentAsync),
+                new("Zamowienie", cadence.PurchaseOrderCreateSeconds, TryCreatePurchaseOrderAsync),
+                new("Akceptacja zamowienia", cadence.PurchaseOrderApproveSeconds, TryApprovePurchaseOrderAsync),
+                new("Przyjecie zamowienia", cadence.PurchaseOrderReceiveSeconds, TryReceivePurchaseOrderAsync),
                 new("Stan", cadence.InventoryChangeSeconds, TryTouchInventoryAsync),
                 new("Nowy towar", cadence.ProductCreateSeconds, TryCreateProductWithInventoryAsync),
                 new("Wysylka", cadence.ShipmentCreateSeconds, TryCreateShipmentAsync),
@@ -48,7 +53,8 @@ public sealed class WarehouseBotService : BackgroundService
             [BotRole.Worker] =
             [
                 new("Prosba o wysylke", cadence.ShipmentRequestSeconds, TryCreateShipmentRequestAsync),
-                new("Wysylka", cadence.ShipmentCreateSeconds, TryCreateShipmentAsync)
+                new("Wysylka", cadence.ShipmentCreateSeconds, TryCreateShipmentAsync),
+                new("Zamowienie", cadence.PurchaseOrderCreateSeconds, TryCreatePurchaseOrderAsync)
             ],
             [BotRole.Manager] =
             [
@@ -56,6 +62,9 @@ public sealed class WarehouseBotService : BackgroundService
                 new("Akceptacja", cadence.ShipmentApproveSeconds, TryApproveShipmentAsync),
                 new("Transport", cadence.ShipmentReceiveSeconds, TryMoveShipmentForwardAsync),
                 new("Odbior", cadence.ShipmentReceiveSeconds, TryReceiveShipmentAsync),
+                new("Zamowienie", cadence.PurchaseOrderCreateSeconds, TryCreatePurchaseOrderAsync),
+                new("Akceptacja zamowienia", cadence.PurchaseOrderApproveSeconds, TryApprovePurchaseOrderAsync),
+                new("Przyjecie zamowienia", cadence.PurchaseOrderReceiveSeconds, TryReceivePurchaseOrderAsync),
                 new("Stan", cadence.InventoryChangeSeconds, TryTouchInventoryAsync),
                 new("Nowy towar", cadence.ProductCreateSeconds, TryCreateProductWithInventoryAsync),
                 new("Wysylka", cadence.ShipmentCreateSeconds, TryCreateShipmentAsync),
@@ -229,7 +238,7 @@ public sealed class WarehouseBotService : BackgroundService
         string adminToken,
         CancellationToken cancellationToken)
     {
-        await EnsureDictionariesAsync(adminToken, cancellationToken);
+        var dictionaries = await EnsureDictionariesAsync(adminToken, cancellationToken);
 
         var warehouses = (await _api.WarehousesAsync(adminToken, cancellationToken)).ToList();
         if (warehouses.Count == 0)
@@ -270,15 +279,21 @@ public sealed class WarehouseBotService : BackgroundService
             }
         }
 
+        locations = await _api.LocationsAsync(adminToken, cancellationToken);
+        await EnsureInitialStockAsync(adminToken, warehouses, locations, dictionaries, cancellationToken);
+        await EnsureSuppliersAsync(adminToken, cancellationToken);
+
         return warehouses;
     }
 
-    private async Task EnsureDictionariesAsync(string adminToken, CancellationToken cancellationToken)
+    private async Task<BootstrapDictionaries> EnsureDictionariesAsync(string adminToken, CancellationToken cancellationToken)
     {
         var categories = await _api.CategoriesAsync(adminToken, cancellationToken);
-        if (!categories.Any(category => category.Name.Equals("Sprzet IT", StringComparison.OrdinalIgnoreCase)))
+        var category = categories.FirstOrDefault(category =>
+            category.Name.Equals("Sprzet IT", StringComparison.OrdinalIgnoreCase));
+        if (category is null)
         {
-            await _api.CreateCategoryAsync(
+            category = await _api.CreateCategoryAsync(
                 adminToken,
                 new CategorySaveRequest(null, "Sprzet IT", "Kategoria utworzona automatycznie przez bota."),
                 cancellationToken);
@@ -286,13 +301,143 @@ public sealed class WarehouseBotService : BackgroundService
         }
 
         var units = await _api.UnitsAsync(adminToken, cancellationToken);
-        if (!units.Any(unit => unit.Symbol.Equals("szt.", StringComparison.OrdinalIgnoreCase)))
+        var unit = units.FirstOrDefault(unit =>
+            unit.Symbol.Equals("szt.", StringComparison.OrdinalIgnoreCase));
+        if (unit is null)
         {
-            await _api.CreateUnitAsync(
+            unit = await _api.CreateUnitAsync(
                 adminToken,
                 new UnitOfMeasureSaveRequest(null, "Sztuka", "szt."),
                 cancellationToken);
             _log.Info("Administrator", "Bootstrap", "Utworzono jednostke szt.");
+        }
+
+        category ??= (await _api.CategoriesAsync(adminToken, cancellationToken))
+            .First(category => category.Name.Equals("Sprzet IT", StringComparison.OrdinalIgnoreCase));
+        unit ??= (await _api.UnitsAsync(adminToken, cancellationToken))
+            .First(unit => unit.Symbol.Equals("szt.", StringComparison.OrdinalIgnoreCase));
+
+        return new BootstrapDictionaries(category, unit);
+    }
+
+    private async Task EnsureInitialStockAsync(
+        string adminToken,
+        IReadOnlyList<WarehouseView> warehouses,
+        IReadOnlyList<LocationView> locations,
+        BootstrapDictionaries dictionaries,
+        CancellationToken cancellationToken)
+    {
+        var products = (await _api.ProductsAsync(adminToken, cancellationToken)).List;
+        var productsBySku = products.ToDictionary(product => product.Sku, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var seed in DefaultProducts)
+        {
+            if (productsBySku.ContainsKey(seed.Sku))
+            {
+                continue;
+            }
+
+            var created = await _api.CreateProductAsync(
+                adminToken,
+                new ProductSaveRequest(
+                    seed.Name,
+                    seed.Sku,
+                    seed.Barcode,
+                    "Produkt startowy do symulacji pracy magazynu.",
+                    seed.ImageUrl,
+                    dictionaries.Unit.Id,
+                    dictionaries.Category.Id,
+                    seed.PurchasePrice,
+                    seed.SalePrice,
+                    true),
+                cancellationToken);
+
+            if (created is not null)
+            {
+                productsBySku[created.Sku] = created;
+                _log.Info("Administrator", "Bootstrap", $"Utworzono produkt startowy {created.Sku}.");
+            }
+        }
+
+        var seededProducts = DefaultProducts
+            .Select(seed => productsBySku.GetValueOrDefault(seed.Sku))
+            .OfType<ProductReadModel>()
+            .ToArray();
+        if (seededProducts.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var warehouse in warehouses)
+        {
+            var warehouseLocations = locations
+                .Where(location => location.WarehouseId == warehouse.Id)
+                .OrderBy(location => LocationPriority(location.LocationCode))
+                .ThenBy(location => location.LocationCode)
+                .Take(3)
+                .ToArray();
+            if (warehouseLocations.Length == 0)
+            {
+                continue;
+            }
+
+            var inventory = await _api.InventoryAsync(adminToken, warehouse.Id, cancellationToken);
+            var existingPairs = inventory
+                .Select(item => (item.ProductId, item.LocationId))
+                .ToHashSet();
+            var createdCount = 0;
+
+            for (var index = 0; index < seededProducts.Length; index++)
+            {
+                var product = seededProducts[index];
+                var location = warehouseLocations[index % warehouseLocations.Length];
+                if (existingPairs.Contains((product.ProductId, location.Id)))
+                {
+                    continue;
+                }
+
+                await _api.CreateInventoryAsync(
+                    adminToken,
+                    new InventorySaveRequest(
+                        null,
+                        product.ProductId,
+                        location.Id,
+                        Random.Shared.Next(12, 48),
+                        0),
+                    warehouse.Id,
+                    cancellationToken);
+                createdCount++;
+            }
+
+            if (createdCount > 0)
+            {
+                _log.Info("Administrator", "Bootstrap", $"Zasilono {warehouse.Name}: {createdCount} pozycji startowych.");
+            }
+        }
+    }
+
+    private async Task EnsureSuppliersAsync(string adminToken, CancellationToken cancellationToken)
+    {
+        var contractors = await _api.ContractorsAsync(adminToken, cancellationToken);
+        if (contractors.Any(contractor => contractor.Type is 1 or 3))
+        {
+            return;
+        }
+
+        foreach (var supplier in DefaultSuppliers)
+        {
+            await _api.CreateContractorAsync(
+                adminToken,
+                new ContractorSaveRequest(
+                    null,
+                    supplier.Name,
+                    supplier.TaxNumber,
+                    1,
+                    supplier.Email,
+                    supplier.Phone,
+                    supplier.Address),
+                cancellationToken);
+            _log.Info("Administrator", "Bootstrap", $"Utworzono dostawce {supplier.Name}.");
         }
     }
 
@@ -487,6 +632,107 @@ public sealed class WarehouseBotService : BackgroundService
         return Done(actor, "Transport", $"Oznaczono {shipment.Number} jako w drodze.");
     }
 
+    private async Task<bool> TryCreatePurchaseOrderAsync(BotActorState actor, CancellationToken cancellationToken)
+    {
+        if (!actor.HasPermission(PurchaseOrdersCreate))
+        {
+            return false;
+        }
+
+        var warehouseId = await ResolveWarehouseContextAsync(actor, cancellationToken);
+        if (warehouseId is null)
+        {
+            return false;
+        }
+
+        var pageData = await _api.PurchaseOrderPageDataAsync(actor.Token!, warehouseId, cancellationToken);
+        if (pageData is null || pageData.Suppliers.Count == 0 || pageData.Products.Count == 0)
+        {
+            return false;
+        }
+
+        var supplier = pageData.Suppliers[Random.Shared.Next(pageData.Suppliers.Count)];
+        var items = pageData.Products
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(Random.Shared.Next(1, Math.Min(4, pageData.Products.Count + 1)))
+            .Select(product => new CreatePurchaseOrderItem(
+                product.ProductId,
+                Random.Shared.Next(2, 12),
+                Math.Round(product.PurchasePrice * (decimal)(0.95 + Random.Shared.NextDouble() * 0.12), 2)))
+            .ToArray();
+
+        var order = await _api.CreatePurchaseOrderAsync(
+            actor.Token!,
+            new CreatePurchaseOrderRequest(
+                supplier.Id,
+                items,
+                "Zamowienie utworzone automatycznie przez bota."),
+            warehouseId,
+            cancellationToken);
+
+        return Done(actor, "Zamowienie", $"Utworzono zamowienie {order?.Number} od {supplier.Name}.");
+    }
+
+    private async Task<bool> TryApprovePurchaseOrderAsync(BotActorState actor, CancellationToken cancellationToken)
+    {
+        if (!actor.HasPermission(PurchaseOrdersApprove))
+        {
+            return false;
+        }
+
+        var order = (await _api.PurchaseOrdersAsync(actor.Token!, cancellationToken))
+            .Where(x => x.Status.Contains("Oczekuje", StringComparison.OrdinalIgnoreCase))
+            .Where(x => actor.User?.WarehouseId is null || x.WarehouseId == actor.User.WarehouseId)
+            .OrderBy(_ => Random.Shared.Next())
+            .FirstOrDefault();
+
+        if (order is null)
+        {
+            return false;
+        }
+
+        var suffix = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        await _api.ApprovePurchaseOrderAsync(
+            actor.Token!,
+            order.Id,
+            new ApprovePurchaseOrderRequest(
+                $"FV/BOT/{suffix}",
+                $"PZ-BOT/{suffix}",
+                "Faktura i dokument papierowy zaakceptowane automatycznie."),
+            cancellationToken);
+
+        return Done(actor, "Akceptacja zamowienia", $"Zaakceptowano zamowienie {order.Number}.");
+    }
+
+    private async Task<bool> TryReceivePurchaseOrderAsync(BotActorState actor, CancellationToken cancellationToken)
+    {
+        if (!actor.HasPermission(PurchaseOrdersApprove))
+        {
+            return false;
+        }
+
+        var order = (await _api.PurchaseOrdersAsync(actor.Token!, cancellationToken))
+            .Where(x => x.Status.Equals("Zaakceptowane", StringComparison.OrdinalIgnoreCase))
+            .Where(x => actor.User?.WarehouseId is null || x.WarehouseId == actor.User.WarehouseId)
+            .OrderBy(_ => Random.Shared.Next())
+            .FirstOrDefault();
+
+        if (order is null)
+        {
+            return false;
+        }
+
+        await _api.ReceivePurchaseOrderAsync(
+            actor.Token!,
+            order.Id,
+            new ReceivePurchaseOrderRequest(
+                order.Items.Select(item => item.Id).ToArray(),
+                "Przyjecie zamowienia potwierdzone automatycznie przez bota."),
+            cancellationToken);
+
+        return Done(actor, "Przyjecie zamowienia", $"Przyjeto zamowienie {order.Number} na stan.");
+    }
+
     private async Task<bool> TryTouchInventoryAsync(BotActorState actor, CancellationToken cancellationToken)
     {
         if (!actor.HasPermission(InventoryManage))
@@ -546,6 +792,7 @@ public sealed class WarehouseBotService : BackgroundService
                 $"BOT-{stamp}",
                 $"29{Random.Shared.NextInt64(10000000000, 99999999999)}",
                 "Rekord wygenerowany przez symulator magazynu.",
+                null,
                 unit.Id,
                 category.Id,
                 Random.Shared.Next(30, 900),
@@ -671,7 +918,7 @@ public sealed class WarehouseBotService : BackgroundService
 
         foreach (var action in actions)
         {
-            ScheduleNext(actor, action);
+            ScheduleInitial(actor, action);
         }
 
         actor.ScheduleInitialized = true;
@@ -687,6 +934,22 @@ public sealed class WarehouseBotService : BackgroundService
         var delay = RandomizedInterval(action.IntervalSeconds);
         _state.ScheduleAction(actor, action.Name, DateTimeOffset.UtcNow.Add(delay));
     }
+
+    private void ScheduleInitial(BotActorState actor, ScheduledBotAction action)
+    {
+        var maxDelay = Math.Max(_options.Value.Cadence.InitialDelaySeconds, 1);
+        var delay = TimeSpan.FromSeconds(Random.Shared.Next(1, maxDelay + 1));
+        _state.ScheduleAction(actor, action.Name, DateTimeOffset.UtcNow.Add(delay));
+    }
+
+    private static int LocationPriority(string code) => code switch
+    {
+        "A-01" => 0,
+        "B-01" => 1,
+        "PICK-01" => 2,
+        "REC-01" => 3,
+        _ => 4
+    };
 
     private TimeSpan RandomizedInterval(int seconds)
     {
@@ -714,6 +977,22 @@ public sealed class WarehouseBotService : BackgroundService
         "Obudowa rack",
         "Klawiatura mechaniczna",
         "Dock USB-C"
+    ];
+
+    private static readonly ProductSeed[] DefaultProducts =
+    [
+        new("Laptop biznesowy 14", "BOT-DEMO-LAP-14", "5900000000011", "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80", 2450, 3290),
+        new("Monitor 27 IPS", "BOT-DEMO-MON-27", "5900000000028", "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=900&q=80", 620, 949),
+        new("Stacja dokujaca USB-C", "BOT-DEMO-DOCK", "5900000000035", "https://images.unsplash.com/photo-1625842268584-8f3296236761?auto=format&fit=crop&w=900&q=80", 310, 529),
+        new("Dysk SSD NVMe 2TB", "BOT-DEMO-SSD-2TB", "5900000000042", "https://images.unsplash.com/photo-1597138804456-e7dca7f59d36?auto=format&fit=crop&w=900&q=80", 390, 649),
+        new("Switch 24p PoE", "BOT-DEMO-SW-24P", "5900000000059", "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80", 980, 1490),
+        new("Router WiFi 7", "BOT-DEMO-RT-WIFI7", "5900000000066", "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?auto=format&fit=crop&w=900&q=80", 520, 849)
+    ];
+
+    private static readonly SupplierSeed[] DefaultSuppliers =
+    [
+        new("Bot Supply Europe sp. z o.o.", "5273011122", "zakupy@botsupply.local", "+48 22 100 20 30", "ul. Dostawcza 8, 05-500 Piaseczno"),
+        new("Automation Hardware S.A.", "7793004455", "orders@automationhardware.local", "+48 61 222 10 10", "ul. Technologiczna 14, 60-179 Poznan")
     ];
 
     private static readonly BranchSeed[] DefaultBranches =
@@ -877,6 +1156,23 @@ public sealed class WarehouseBotService : BackgroundService
         string Name,
         int IntervalSeconds,
         Func<BotActorState, CancellationToken, Task<bool>> Work);
+
+    private sealed record BootstrapDictionaries(CategoryView Category, UnitOfMeasureView Unit);
+
+    private sealed record ProductSeed(
+        string Name,
+        string Sku,
+        string Barcode,
+        string ImageUrl,
+        decimal PurchasePrice,
+        decimal SalePrice);
+
+    private sealed record SupplierSeed(
+        string Name,
+        string TaxNumber,
+        string Email,
+        string Phone,
+        string Address);
 
     private sealed record BranchSeed(string Name, string Address, string Description);
 

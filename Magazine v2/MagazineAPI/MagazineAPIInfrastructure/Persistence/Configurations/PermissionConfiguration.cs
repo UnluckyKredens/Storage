@@ -44,6 +44,9 @@ public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permissio
             new Permission { Id = PermissionIds.DictionariesManage, Code = PermissionCodes.DictionariesManage, Name = "Zarządzanie słownikami", Description = "Edycja kategorii i jednostek miary." },
             new Permission { Id = PermissionIds.ShipmentsRead, Code = PermissionCodes.ShipmentsRead, Name = "Podgląd wysyłek", Description = "Wyświetlanie wysyłek między magazynami." },
             new Permission { Id = PermissionIds.ShipmentsCreate, Code = PermissionCodes.ShipmentsCreate, Name = "Tworzenie wysyłek", Description = "Tworzenie wysyłek z magazynu pracownika." },
-            new Permission { Id = PermissionIds.ShipmentsApprove, Code = PermissionCodes.ShipmentsApprove, Name = "Akceptacja wysyłek", Description = "Akceptowanie wysyłek i przygotowanie WZ." });
+            new Permission { Id = PermissionIds.ShipmentsApprove, Code = PermissionCodes.ShipmentsApprove, Name = "Akceptacja wysyłek", Description = "Akceptowanie wysyłek i przygotowanie WZ." },
+            new Permission { Id = PermissionIds.PurchaseOrdersRead, Code = PermissionCodes.PurchaseOrdersRead, Name = "Podgląd zamówień zewnętrznych", Description = "Wyświetlanie zamówień do magazynu od dostawców." },
+            new Permission { Id = PermissionIds.PurchaseOrdersCreate, Code = PermissionCodes.PurchaseOrdersCreate, Name = "Tworzenie zamówień zewnętrznych", Description = "Tworzenie zamówień do aktywnego magazynu." },
+            new Permission { Id = PermissionIds.PurchaseOrdersApprove, Code = PermissionCodes.PurchaseOrdersApprove, Name = "Akceptacja zamówień zewnętrznych", Description = "Akceptowanie zamówień, faktur i dokumentów przyjęcia." });
     }
 }

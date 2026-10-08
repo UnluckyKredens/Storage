@@ -1,0 +1,106 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Zakupy do spakowania"
+    backLink="/main/management"
+    [showAddButton]="false"
+  />
+
+  <div class="table-wrapper">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <table mat-table [dataSource]="orders()" aria-label="Tabela: Zakupy do spakowania">
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>Numer</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.number }}</strong>
+          <span class="subtle">{{ row.currentLocation }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef>Klient</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.customerName }}</strong>
+          <span class="subtle">{{ row.customerEmail }}</span>
+          @if (row.deliveryAddress) {
+            <span class="subtle">{{ row.deliveryAddress }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="warehouse">
+        <th mat-header-cell *matHeaderCellDef>Magazyn</th>
+        <td mat-cell *matCellDef="let row">{{ row.assignedWarehouseName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdOnUtc">
+        <th mat-header-cell *matHeaderCellDef>Zakup</th>
+        <td mat-cell *matCellDef="let row">{{ row.createdOnUtc | date: 'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="items">
+        <th mat-header-cell *matHeaderCellDef>Pozycje</th>
+        <td mat-cell *matCellDef="let row">
+          <div class="items-list">
+            @for (item of row.items; track item.id) {
+              <span>
+                {{ item.productName }} x {{ item.quantity | number: '1.0-3' }}
+                <small>{{ item.allocations.length ? allocationLabel(item.allocations) : 'brak alokacji' }}</small>
+              </span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalValue">
+        <th mat-header-cell *matHeaderCellDef>Wartość</th>
+        <td mat-cell *matCellDef="let row">{{ row.totalValue | number: '1.2-2' }} zł</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-pill">{{ row.status }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            @if (canPack && row.status === 'Nowe') {
+              <button
+                mat-button
+                type="button"
+                [disabled]="processing() === row.id"
+                (click)="accept(row)"
+              >
+                Akceptuj
+              </button>
+            }
+            @if (canPack && row.status === 'Przyjęte do realizacji') {
+              <button
+                mat-button
+                type="button"
+                [disabled]="processing() === row.id"
+                (click)="pack(row)"
+              >
+                Spakuj
+              </button>
+            }
+            <button mat-button type="button" (click)="printDocument(row)">Lista</button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          {{ loading() ? 'Ładowanie zakupów...' : 'Brak zakupów do spakowania.' }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>

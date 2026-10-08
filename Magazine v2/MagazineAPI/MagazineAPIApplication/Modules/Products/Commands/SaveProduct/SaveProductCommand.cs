@@ -9,6 +9,7 @@ public class SaveProductCommand : ICommand<Guid>
     public string Sku { get; set; } = string.Empty;
     public string? Barcode { get; set; }
     public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
     public Guid UnitOfMeasureId { get; set; }
     public Guid CategoryId { get; set; }
     public decimal PurchasePrice { get; set; }

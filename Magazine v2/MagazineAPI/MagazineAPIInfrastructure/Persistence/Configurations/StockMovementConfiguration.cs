@@ -90,7 +90,7 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         {
             tableBuilder.HasCheckConstraint(
                 "CK_StockMovements_Type",
-                $"[Type] IN ({(int)StockMovementType.ManualAdjustment}, {(int)StockMovementType.TransferOut}, {(int)StockMovementType.TransferIn}, {(int)StockMovementType.Reservation}, {(int)StockMovementType.ReservationRelease}, {(int)StockMovementType.Correction}, {(int)StockMovementType.InventoryCount}, {(int)StockMovementType.InternalReceipt}, {(int)StockMovementType.InternalIssue}, {(int)StockMovementType.InternalTransferOut}, {(int)StockMovementType.InternalTransferIn})");
+                $"[Type] IN ({(int)StockMovementType.ManualAdjustment}, {(int)StockMovementType.TransferOut}, {(int)StockMovementType.TransferIn}, {(int)StockMovementType.Reservation}, {(int)StockMovementType.ReservationRelease}, {(int)StockMovementType.Correction}, {(int)StockMovementType.InventoryCount}, {(int)StockMovementType.InternalReceipt}, {(int)StockMovementType.InternalIssue}, {(int)StockMovementType.InternalTransferOut}, {(int)StockMovementType.InternalTransferIn}, {(int)StockMovementType.ExternalPurchaseReceipt})");
         });
     }
 }

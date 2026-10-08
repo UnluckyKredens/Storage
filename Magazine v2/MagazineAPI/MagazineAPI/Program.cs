@@ -127,6 +127,9 @@ var app = builder.Build();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 {
     var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
@@ -166,6 +169,13 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+app.UseCors(c =>
+{
+    c.AllowAnyHeader();
+    c.AllowAnyMethod();
+    c.AllowAnyOrigin();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -21,6 +21,7 @@ export interface ProductForm {
   minimumQuantity: number;
   optimumQuantity: number | null;
   description: string;
+  imageUrl: string;
   isActive: boolean;
 }
 

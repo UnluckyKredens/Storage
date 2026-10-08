@@ -15,4 +15,7 @@ public class User
     public ICollection<Shipment> CreatedShipments { get; set; } = new List<Shipment>();
     public ICollection<Shipment> ApprovedShipments { get; set; } = new List<Shipment>();
     public ICollection<Shipment> ReceivedShipments { get; set; } = new List<Shipment>();
+    public ICollection<PurchaseOrder> CreatedPurchaseOrders { get; set; } = new List<PurchaseOrder>();
+    public ICollection<PurchaseOrder> ApprovedPurchaseOrders { get; set; } = new List<PurchaseOrder>();
+    public ICollection<PurchaseOrder> ReceivedPurchaseOrders { get; set; } = new List<PurchaseOrder>();
 }

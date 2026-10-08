@@ -20,4 +20,7 @@ public static class PermissionCodes
     public const string ShipmentsRead = "shipments.read";
     public const string ShipmentsCreate = "shipments.create";
     public const string ShipmentsApprove = "shipments.approve";
+    public const string PurchaseOrdersRead = "purchase-orders.read";
+    public const string PurchaseOrdersCreate = "purchase-orders.create";
+    public const string PurchaseOrdersApprove = "purchase-orders.approve";
 }

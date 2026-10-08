@@ -47,6 +47,7 @@ public sealed class GetProductsQueryHandler(
                 Sku = product.Sku,
                 Barcode = product.Barcode,
                 Description = product.Description,
+                ImageUrl = product.ImageUrl,
                 UnitOfMeasure = unit == null ? string.Empty : unit.Name,
                 Category = category == null ? string.Empty : category.Name,
                 PurchasePrice = product.PurchasePrice,

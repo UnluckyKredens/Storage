@@ -27,6 +27,7 @@ public sealed class GetProductQueryHandler(
             Sku = product.Sku,
             Barcode = product.Barcode,
             Description = product.Description,
+            ImageUrl = product.ImageUrl,
             Category = category?.Name ?? string.Empty,
             UnitOfMeasure = unit?.Name,
             PurchasePrice = product.PurchasePrice,

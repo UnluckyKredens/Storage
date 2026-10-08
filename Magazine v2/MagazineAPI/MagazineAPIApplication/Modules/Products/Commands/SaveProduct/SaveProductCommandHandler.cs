@@ -52,6 +52,7 @@ public sealed class SaveProductCommandHandler(
         product.Sku = sku;
         product.Barcode = command.Barcode?.Trim();
         product.Description = command.Description?.Trim();
+        product.ImageUrl = command.ImageUrl?.Trim();
         product.CategoryId = command.CategoryId;
         product.UnitOfMeasureId = command.UnitOfMeasureId;
         product.PurchasePrice = command.PurchasePrice;

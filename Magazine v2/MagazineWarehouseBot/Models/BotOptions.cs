@@ -27,12 +27,16 @@ public sealed class WarehouseBotOptions
 
 public sealed class ActionCadenceOptions
 {
+    public int InitialDelaySeconds { get; set; } = 15;
     public int WarehouseOperationSeconds { get; set; } = 150;
     public int InventoryChangeSeconds { get; set; } = 120;
     public int ShipmentRequestSeconds { get; set; } = 300;
     public int ShipmentCreateSeconds { get; set; } = 420;
     public int ShipmentApproveSeconds { get; set; } = 180;
     public int ShipmentReceiveSeconds { get; set; } = 240;
+    public int PurchaseOrderCreateSeconds { get; set; } = 360;
+    public int PurchaseOrderApproveSeconds { get; set; } = 210;
+    public int PurchaseOrderReceiveSeconds { get; set; } = 260;
     public int ProductCreateSeconds { get; set; } = 600;
     public int CleanupSeconds { get; set; } = 900;
     public int JitterPercent { get; set; } = 25;

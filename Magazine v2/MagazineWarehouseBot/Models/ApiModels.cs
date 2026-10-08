@@ -13,13 +13,15 @@ public sealed record CategoryView(Guid Id, string Name, string? Description);
 public sealed record UnitOfMeasureView(Guid Id, string Name, string Symbol);
 public sealed record CategorySaveRequest(Guid? Id, string Name, string? Description);
 public sealed record UnitOfMeasureSaveRequest(Guid? Id, string Name, string Symbol);
+public sealed record ContractorView(Guid Id, string Name, string TaxNumber, int Type, string? Email, string? Phone, string? Address);
+public sealed record ContractorSaveRequest(Guid? Id, string Name, string TaxNumber, int Type, string? Email, string? Phone, string? Address);
 public sealed record ProductPageData(IReadOnlyList<CategoryView> Categories, IReadOnlyList<UnitOfMeasureView> Units);
 public sealed record ProductReadModel(Guid ProductId, Guid CategoryId, Guid UnitOfMeasureId,
-    string Name, string Sku, string? Barcode, string? Description, string? UnitOfMeasure,
+    string Name, string Sku, string? Barcode, string? Description, string? ImageUrl, string? UnitOfMeasure,
     string Category, decimal PurchasePrice, decimal SalePrice, bool IsActive);
 
 public sealed record ProductSaveRequest(string Name, string Sku, string? Barcode, string? Description,
-    Guid UnitOfMeasureId, Guid CategoryId, decimal PurchasePrice, decimal SalePrice, bool IsActive);
+    string? ImageUrl, Guid UnitOfMeasureId, Guid CategoryId, decimal PurchasePrice, decimal SalePrice, bool IsActive);
 
 public sealed record WarehouseView(Guid Id, string Name, string? Address, string? Description);
 public sealed record LocationView(Guid Id, Guid WarehouseId, string WarehouseName, string LocationCode, string? Description);
@@ -51,3 +53,19 @@ public sealed record CreateShipmentItem(string? Barcode, Guid? ProductId, decima
 public sealed record CreateShipmentRequest(Guid DestinationWarehouseId, IReadOnlyList<CreateShipmentItem> Items);
 public sealed record CreateShipmentDemandRequest(IReadOnlyList<CreateShipmentItem> Items);
 public sealed record ReceiveShipmentRequest(IReadOnlyCollection<Guid> CheckedItemIds, string? Notes);
+
+public sealed record PurchaseOrderPageDataView(WarehouseView Warehouse,
+    IReadOnlyList<PurchaseOrderContractorView> Suppliers,
+    IReadOnlyList<PurchaseOrderProductView> Products);
+public sealed record PurchaseOrderContractorView(Guid Id, string Name, string TaxNumber);
+public sealed record PurchaseOrderProductView(Guid ProductId, string Name, string Sku, string Barcode, decimal PurchasePrice);
+public sealed record PurchaseOrderView(Guid Id, string Number, Guid WarehouseId, string WarehouseName,
+    Guid ContractorId, string ContractorName, string Status, DateTime CreatedOnUtc,
+    DateTime? ApprovedOnUtc, DateTime? ReceivedOnUtc, string? InvoiceNumber,
+    string? PaperDocumentNumber, string? Notes, decimal TotalValue, IReadOnlyList<PurchaseOrderItemView> Items);
+public sealed record PurchaseOrderItemView(Guid Id, Guid ProductId, string ProductName, string Sku,
+    string Barcode, decimal Quantity, decimal UnitPrice, decimal TotalPrice);
+public sealed record CreatePurchaseOrderRequest(Guid ContractorId, IReadOnlyList<CreatePurchaseOrderItem> Items, string? Notes);
+public sealed record CreatePurchaseOrderItem(Guid ProductId, decimal Quantity, decimal? UnitPrice);
+public sealed record ApprovePurchaseOrderRequest(string InvoiceNumber, string PaperDocumentNumber, string? Notes);
+public sealed record ReceivePurchaseOrderRequest(IReadOnlyCollection<Guid> CheckedItemIds, string? Notes);

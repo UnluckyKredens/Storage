@@ -16,8 +16,21 @@ public static class DatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var historyDbContext = scope.ServiceProvider.GetRequiredService<HistoryDbContext>();
 
-        await dbContext.Database.MigrateAsync();
-        await historyDbContext.Database.MigrateAsync();
+        var resetOnStartup = configuration.GetValue<bool>("DatabaseResetOnStartup", false);
+
+        if (resetOnStartup)
+        {
+            await dbContext.Database.EnsureDeletedAsync();
+            await historyDbContext.Database.EnsureDeletedAsync();
+
+            await dbContext.Database.EnsureCreatedAsync();
+            await historyDbContext.Database.EnsureCreatedAsync();
+        }
+        else
+        {
+            await dbContext.Database.MigrateAsync();
+            await historyDbContext.Database.MigrateAsync();
+        }
 
         var options = configuration
             .GetSection(InitialAdminOptions.SectionName)

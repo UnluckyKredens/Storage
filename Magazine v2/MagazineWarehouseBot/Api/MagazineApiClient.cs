@@ -74,6 +74,15 @@ public sealed class MagazineApiClient(HttpClient httpClient)
         CancellationToken cancellationToken) =>
         await SendAsync<UnitOfMeasureView>(HttpMethod.Post, "UnitsOfMeasure", token, request, cancellationToken);
 
+    public async Task<IReadOnlyList<ContractorView>> ContractorsAsync(string token, CancellationToken cancellationToken) =>
+        await SendAsync<IReadOnlyList<ContractorView>>(HttpMethod.Get, "Contractors", token, null, cancellationToken) ?? [];
+
+    public async Task<ContractorView?> CreateContractorAsync(
+        string token,
+        ContractorSaveRequest request,
+        CancellationToken cancellationToken) =>
+        await SendAsync<ContractorView>(HttpMethod.Post, "Contractors", token, request, cancellationToken);
+
     public async Task<IReadOnlyList<RoleView>> RolesAsync(string token, CancellationToken cancellationToken) =>
         await SendAsync<IReadOnlyList<RoleView>>(HttpMethod.Get, "Roles", token, null, cancellationToken) ?? [];
 
@@ -227,6 +236,48 @@ public sealed class MagazineApiClient(HttpClient httpClient)
         ReceiveShipmentRequest request,
         CancellationToken cancellationToken) =>
         SendNoContentAsync(HttpMethod.Post, $"Shipments/{shipmentId}/receive", token, request, null, cancellationToken);
+
+    public async Task<PurchaseOrderPageDataView?> PurchaseOrderPageDataAsync(
+        string token,
+        Guid? warehouseContextId,
+        CancellationToken cancellationToken) =>
+        await SendAsync<PurchaseOrderPageDataView>(
+            HttpMethod.Get,
+            "PurchaseOrders/page-data",
+            token,
+            null,
+            cancellationToken,
+            warehouseContextId);
+
+    public async Task<IReadOnlyList<PurchaseOrderView>> PurchaseOrdersAsync(string token, CancellationToken cancellationToken) =>
+        await SendAsync<IReadOnlyList<PurchaseOrderView>>(HttpMethod.Get, "PurchaseOrders", token, null, cancellationToken) ?? [];
+
+    public async Task<PurchaseOrderView?> CreatePurchaseOrderAsync(
+        string token,
+        CreatePurchaseOrderRequest request,
+        Guid? warehouseContextId,
+        CancellationToken cancellationToken) =>
+        await SendAsync<PurchaseOrderView>(
+            HttpMethod.Post,
+            "PurchaseOrders",
+            token,
+            request,
+            cancellationToken,
+            warehouseContextId);
+
+    public Task ApprovePurchaseOrderAsync(
+        string token,
+        Guid orderId,
+        ApprovePurchaseOrderRequest request,
+        CancellationToken cancellationToken) =>
+        SendNoContentAsync(HttpMethod.Post, $"PurchaseOrders/{orderId}/approve", token, request, null, cancellationToken);
+
+    public Task ReceivePurchaseOrderAsync(
+        string token,
+        Guid orderId,
+        ReceivePurchaseOrderRequest request,
+        CancellationToken cancellationToken) =>
+        SendNoContentAsync(HttpMethod.Post, $"PurchaseOrders/{orderId}/receive", token, request, null, cancellationToken);
 
     private async Task SendNoContentAsync(
         HttpMethod method,

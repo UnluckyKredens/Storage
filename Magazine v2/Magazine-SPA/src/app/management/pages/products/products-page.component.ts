@@ -25,7 +25,7 @@ import { ProductService } from '../../services/product.service';
     TableNavigationComponent,
   ],
   templateUrl: './products-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrls: ['../management-page.scss', './products-page.component.scss'],
 })
 export class ProductsPageComponent implements OnInit {
   private readonly service = inject(ProductService);
@@ -34,6 +34,7 @@ export class ProductsPageComponent implements OnInit {
   private readonly notification = inject(NotificationService);
 
   readonly displayedColumns = [
+    'image',
     'name',
     'sku',
     'category',

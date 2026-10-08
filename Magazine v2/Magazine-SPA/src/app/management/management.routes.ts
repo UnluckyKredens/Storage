@@ -80,6 +80,24 @@ export const managementRoutes: Routes = [
     loadChildren: () => import('./shipments.routes').then((m) => m.shipmentRoutes),
   },
   {
+    path: 'purchase-orders',
+    canActivate: [permissionGuard],
+    data: { permission: 'purchase-orders.read' },
+    loadComponent: () =>
+      import('./pages/purchase-orders/purchase-orders-page.component').then(
+        (m) => m.PurchaseOrdersPageComponent,
+      ),
+  },
+  {
+    path: 'storefront-packing',
+    canActivate: [permissionGuard],
+    data: { permission: 'shipments.read' },
+    loadComponent: () =>
+      import('./pages/storefront-packing/storefront-packing-page.component').then(
+        (m) => m.StorefrontPackingPageComponent,
+      ),
+  },
+  {
     path: 'contractors',
     canActivate: [permissionGuard],
     data: { permission: 'contractors.read' },

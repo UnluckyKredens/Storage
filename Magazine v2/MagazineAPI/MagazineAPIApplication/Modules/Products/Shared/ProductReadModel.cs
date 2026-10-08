@@ -9,6 +9,7 @@ public class ProductReadModel
     public string Sku { get; set; } = string.Empty;
     public string? Barcode { get; set; }
     public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
     public string? UnitOfMeasure { get; set; }
     public string Category { get; set; } = string.Empty;
     public decimal PurchasePrice { get; set; }

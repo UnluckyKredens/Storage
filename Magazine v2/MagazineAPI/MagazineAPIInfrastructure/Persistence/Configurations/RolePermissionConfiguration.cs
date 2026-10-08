@@ -37,9 +37,14 @@ public sealed class RolePermissionConfiguration : IEntityTypeConfiguration<RoleP
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ShipmentsRead },
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ShipmentsCreate },
             new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.ShipmentsApprove },
+            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.PurchaseOrdersRead },
+            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.PurchaseOrdersCreate },
+            new RolePermission { RoleId = RoleIds.Manager, PermissionId = PermissionIds.PurchaseOrdersApprove },
             new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ProductsRead },
             new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.InventoryRead },
             new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ShipmentsRead },
-            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ShipmentsCreate });
+            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.ShipmentsCreate },
+            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.PurchaseOrdersRead },
+            new RolePermission { RoleId = RoleIds.User, PermissionId = PermissionIds.PurchaseOrdersCreate });
     }
 }

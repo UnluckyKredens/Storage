@@ -31,6 +31,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(product => product.Description)
             .HasMaxLength(1000);
 
+        builder.Property(product => product.ImageUrl)
+            .HasMaxLength(1000);
+
         builder.Property(product => product.UnitOfMeasureId)
             .HasColumnName("UnitOfMeasureID");
 

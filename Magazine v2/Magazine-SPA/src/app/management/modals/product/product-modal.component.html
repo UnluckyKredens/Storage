@@ -3,6 +3,10 @@
 @if (data.mode === 'details') {
   <mat-dialog-content>
     <dl>
+      @if (data.row?.imageUrl) {
+        <dt>Podgląd</dt>
+        <dd><img class="product-preview" [src]="data.row?.imageUrl ?? ''" [alt]="data.row?.name ?? 'Zdjęcie produktu'" /></dd>
+      }
       <dt>ID</dt>
       <dd>{{ display(data.row?.productId) }}</dd>
       <dt>Nazwa</dt>
@@ -25,6 +29,8 @@
       <dd>{{ display(data.row?.optimumQuantity) }}</dd>
       <dt>Opis</dt>
       <dd>{{ display(data.row?.description) }}</dd>
+      <dt>Zdjęcie</dt>
+      <dd>{{ display(data.row?.imageUrl) }}</dd>
       <dt>Aktywny</dt>
       <dd>{{ display(data.row?.isActive) }}</dd>
     </dl>
@@ -100,6 +106,13 @@
           name="description"
           [(ngModel)]="form.description"
           [rows]="3"
+        />
+        <app-form-input
+          class="full-width"
+          label="Adres zdjęcia"
+          name="imageUrl"
+          [(ngModel)]="form.imageUrl"
+          placeholder="https://..."
         />
         <app-form-checkbox label="Aktywny" name="isActive" [(ngModel)]="form.isActive" />
       </div>

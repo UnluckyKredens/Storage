@@ -30,7 +30,7 @@ interface ProductModalData {
     SearchSelectComponent,
   ],
   templateUrl: './product-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrls: ['../management-modal.scss', './product-modal.component.scss'],
 })
 export class ProductModalComponent implements OnInit {
   readonly data = inject<ProductModalData>(MAT_DIALOG_DATA);
@@ -51,6 +51,7 @@ export class ProductModalComponent implements OnInit {
       ? null
       : Number(this.data.row.optimumQuantity),
     description: String(this.data.row?.description ?? ''),
+    imageUrl: String(this.data.row?.imageUrl ?? ''),
     isActive: this.data.row?.isActive === undefined ? true : Boolean(this.data.row.isActive),
   };
   saving = false;

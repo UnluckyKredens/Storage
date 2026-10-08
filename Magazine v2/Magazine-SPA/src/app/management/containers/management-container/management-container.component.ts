@@ -87,6 +87,22 @@ export class ManagementContainerComponent implements OnInit {
       category: 'Magazyn',
     },
     {
+      path: 'purchase-orders',
+      label: 'Zamówienia zewnętrzne',
+      description: 'Dostawcy, faktury, dokumenty i przyjęcia',
+      icon: 'receipt_long',
+      permission: 'purchase-orders.read',
+      category: 'Magazyn',
+    },
+    {
+      path: 'storefront-packing',
+      label: 'Zakupy do spakowania',
+      description: 'Zamówienia ze sklepu, kompletacja i pakowanie',
+      icon: 'inventory',
+      permission: 'shipments.read',
+      category: 'Magazyn',
+    },
+    {
       path: 'contractors',
       label: 'Kontrahenci',
       description: 'Dostawcy, firmy serwisowe i odbiorcy',

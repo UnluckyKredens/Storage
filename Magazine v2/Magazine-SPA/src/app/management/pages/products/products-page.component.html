@@ -19,6 +19,17 @@
       (matSortChange)="sortChanged($event)"
       aria-label="Tabela produktów"
     >
+      <ng-container matColumnDef="image">
+        <th mat-header-cell *matHeaderCellDef>Zdjęcie</th>
+        <td mat-cell *matCellDef="let product">
+          @if (product.imageUrl) {
+            <img class="product-thumb" [src]="product.imageUrl" [alt]="product.name" />
+          } @else {
+            <span class="product-thumb product-thumb--empty">Brak</span>
+          }
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Nazwa</th>
         <td mat-cell *matCellDef="let product">{{ product.name }}</td>

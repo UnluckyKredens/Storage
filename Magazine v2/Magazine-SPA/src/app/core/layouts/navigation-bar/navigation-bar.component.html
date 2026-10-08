@@ -28,6 +28,18 @@
         ><mat-icon>local_shipping</mat-icon><span>Wysyłki</span></a
       >
       <a
+        routerLink="/main/management/purchase-orders"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>receipt_long</mat-icon><span>Zamówienia</span></a
+      >
+      <a
+        routerLink="/main/management/storefront-packing"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ><mat-icon>inventory</mat-icon><span>Pakowanie</span></a
+      >
+      <a
         routerLink="/main/management"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"

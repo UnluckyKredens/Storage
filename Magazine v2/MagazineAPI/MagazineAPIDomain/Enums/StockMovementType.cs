@@ -12,5 +12,6 @@ public enum StockMovementType
     InternalReceipt = 8,
     InternalIssue = 9,
     InternalTransferOut = 10,
-    InternalTransferIn = 11
+    InternalTransferIn = 11,
+    ExternalPurchaseReceipt = 12
 }

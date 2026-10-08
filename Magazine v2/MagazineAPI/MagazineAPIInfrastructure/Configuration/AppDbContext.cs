@@ -18,6 +18,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<Shipment> Shipments => Set<Shipment>();
     public DbSet<ShipmentItem> ShipmentItems => Set<ShipmentItem>();
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+    public DbSet<PurchaseOrderItem> PurchaseOrderItems => Set<PurchaseOrderItem>();
+    public DbSet<StorefrontOrder> StorefrontOrders => Set<StorefrontOrder>();
+    public DbSet<StorefrontOrderItem> StorefrontOrderItems => Set<StorefrontOrderItem>();
+    public DbSet<StorefrontOrderAllocation> StorefrontOrderAllocations => Set<StorefrontOrderAllocation>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<DocumentNumberSequence> DocumentNumberSequences => Set<DocumentNumberSequence>();

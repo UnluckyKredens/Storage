@@ -355,6 +355,27 @@ namespace MagazineAPInfrastructure.Migrations
                             Code = "shipments.approve",
                             Description = "Akceptowanie wysyłek i przygotowanie WZ.",
                             Name = "Akceptacja wysyłek"
+                        },
+                        new
+                        {
+                            Id = new Guid("20000000-0000-0000-0000-000000000015"),
+                            Code = "purchase-orders.read",
+                            Description = "Wyświetlanie zamówień do magazynu od dostawców.",
+                            Name = "Podgląd zamówień zewnętrznych"
+                        },
+                        new
+                        {
+                            Id = new Guid("20000000-0000-0000-0000-000000000016"),
+                            Code = "purchase-orders.create",
+                            Description = "Tworzenie zamówień do aktywnego magazynu.",
+                            Name = "Tworzenie zamówień zewnętrznych"
+                        },
+                        new
+                        {
+                            Id = new Guid("20000000-0000-0000-0000-000000000017"),
+                            Code = "purchase-orders.approve",
+                            Description = "Akceptowanie zamówień, faktur i dokumentów przyjęcia.",
+                            Name = "Akceptacja zamówień zewnętrznych"
                         });
                 });
 
@@ -374,6 +395,10 @@ namespace MagazineAPInfrastructure.Migrations
                         .HasColumnName("CategoryID");
 
                     b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ImageUrl")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -427,6 +452,119 @@ namespace MagazineAPInfrastructure.Migrations
                             t.HasCheckConstraint("CK_Products_Prices", "[PurchasePrice] >= 0 AND [SalePrice] >= 0");
 
                             t.HasCheckConstraint("CK_Products_QuantityThresholds", "[MinimumQuantity] >= 0 AND ([OptimumQuantity] IS NULL OR [OptimumQuantity] >= [MinimumQuantity])");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.PurchaseOrder", b =>
+                {
+                    b.Property<Guid>("PurchaseOrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ContractorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PaperDocumentNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("ReceivedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ReceivedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PurchaseOrderId");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("ContractorId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("ReceivedByUserId");
+
+                    b.HasIndex("Status", "CreatedOnUtc");
+
+                    b.HasIndex("WarehouseId", "CreatedOnUtc");
+
+                    b.ToTable("PurchaseOrders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_PurchaseOrders_Status", "[Status] IN (1, 2, 3)");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.PurchaseOrderItem", b =>
+                {
+                    b.Property<Guid>("PurchaseOrderItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Barcode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PurchaseOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("PurchaseOrderItemId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("PurchaseOrderId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("PurchaseOrderItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_PurchaseOrderItems_Quantity", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_PurchaseOrderItems_UnitPrice", "[UnitPrice] >= 0");
                         });
                 });
 
@@ -528,6 +666,21 @@ namespace MagazineAPInfrastructure.Migrations
                         },
                         new
                         {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000015")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000016")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000017")
+                        },
+                        new
+                        {
                             RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
                             PermissionId = new Guid("20000000-0000-0000-0000-000000000001")
                         },
@@ -545,6 +698,16 @@ namespace MagazineAPInfrastructure.Migrations
                         {
                             RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
                             PermissionId = new Guid("20000000-0000-0000-0000-000000000013")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000015")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
+                            PermissionId = new Guid("20000000-0000-0000-0000-000000000016")
                         });
                 });
 
@@ -729,7 +892,7 @@ namespace MagazineAPInfrastructure.Migrations
 
                     b.ToTable("StockMovements", null, t =>
                         {
-                            t.HasCheckConstraint("CK_StockMovements_Type", "[Type] IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)");
+                            t.HasCheckConstraint("CK_StockMovements_Type", "[Type] IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)");
                         });
                 });
 
@@ -805,6 +968,155 @@ namespace MagazineAPInfrastructure.Migrations
                             t.HasCheckConstraint("CK_StockReservations_QuantityValues", "[Quantity] > 0 AND [ReleasedQuantity] >= 0 AND [ReleasedQuantity] <= [Quantity]");
 
                             t.HasCheckConstraint("CK_StockReservations_Status", "[Status] IN (1, 2, 3, 4)");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrder", b =>
+                {
+                    b.Property<Guid>("StorefrontOrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AcceptedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("AssignedWarehouseId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("AssignedWarehouseID");
+
+                    b.Property<DateTime?>("CompletedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("DeliveryAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("StorefrontOrderId");
+
+                    b.HasIndex("CreatedOnUtc");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("AssignedWarehouseId", "Status");
+
+                    b.ToTable("StorefrontOrders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StorefrontOrders_Status", "[Status] IN (1, 2, 3, 4)");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrderAllocation", b =>
+                {
+                    b.Property<Guid>("StorefrontOrderAllocationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ConsumedQuantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("InventoryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("InventoryID");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LocationID");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ProductID");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("StorefrontOrderItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("WarehouseID");
+
+                    b.HasKey("StorefrontOrderAllocationId");
+
+                    b.HasIndex("InventoryId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("StorefrontOrderItemId");
+
+                    b.HasIndex("WarehouseId", "ProductId");
+
+                    b.ToTable("StorefrontOrderAllocations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StorefrontOrderAllocations_QuantityValues", "[Quantity] > 0 AND [ConsumedQuantity] >= 0 AND [ConsumedQuantity] <= [Quantity]");
+                        });
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrderItem", b =>
+                {
+                    b.Property<Guid>("StorefrontOrderItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("StorefrontOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("StorefrontOrderItemId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("StorefrontOrderId");
+
+                    b.ToTable("StorefrontOrderItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StorefrontOrderItems_Quantity", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_StorefrontOrderItems_UnitPrice", "[UnitPrice] >= 0");
                         });
                 });
 
@@ -1080,6 +1392,66 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("UnitOfMeasure");
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.PurchaseOrder", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.User", "ApprovedByUser")
+                        .WithMany("ApprovedPurchaseOrders")
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MagazineAPIDomain.Entities.Contractor", "Contractor")
+                        .WithMany("PurchaseOrders")
+                        .HasForeignKey("ContractorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.User", "CreatedByUser")
+                        .WithMany("CreatedPurchaseOrders")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.User", "ReceivedByUser")
+                        .WithMany("ReceivedPurchaseOrders")
+                        .HasForeignKey("ReceivedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
+                        .WithMany("PurchaseOrders")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedByUser");
+
+                    b.Navigation("Contractor");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("ReceivedByUser");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.PurchaseOrderItem", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.Product", "Product")
+                        .WithMany("PurchaseOrderItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("Items")
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("PurchaseOrder");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.RolePermission", b =>
                 {
                     b.HasOne("MagazineAPIDomain.Entities.Permission", "Permission")
@@ -1244,6 +1616,78 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrder", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "AssignedWarehouse")
+                        .WithMany("StorefrontOrders")
+                        .HasForeignKey("AssignedWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AssignedWarehouse");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrderAllocation", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.Inventory", "Inventory")
+                        .WithMany()
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.StorefrontOrderItem", "StorefrontOrderItem")
+                        .WithMany("Allocations")
+                        .HasForeignKey("StorefrontOrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Inventory");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("StorefrontOrderItem");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrderItem", b =>
+                {
+                    b.HasOne("MagazineAPIDomain.Entities.Product", "Product")
+                        .WithMany("StorefrontOrderItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MagazineAPIDomain.Entities.StorefrontOrder", "StorefrontOrder")
+                        .WithMany("Items")
+                        .HasForeignKey("StorefrontOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("StorefrontOrder");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.User", b =>
                 {
                     b.HasOne("MagazineAPIDomain.Entities.Role", "Role")
@@ -1327,6 +1771,11 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.Contractor", b =>
+                {
+                    b.Navigation("PurchaseOrders");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.Location", b =>
                 {
                     b.Navigation("Inventories");
@@ -1341,7 +1790,16 @@ namespace MagazineAPInfrastructure.Migrations
                 {
                     b.Navigation("Inventories");
 
+                    b.Navigation("PurchaseOrderItems");
+
                     b.Navigation("ShipmentItems");
+
+                    b.Navigation("StorefrontOrderItems");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.PurchaseOrder", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("MagazineAPIDomain.Entities.Role", b =>
@@ -1356,6 +1814,16 @@ namespace MagazineAPInfrastructure.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrder", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("MagazineAPIDomain.Entities.StorefrontOrderItem", b =>
+                {
+                    b.Navigation("Allocations");
+                });
+
             modelBuilder.Entity("MagazineAPIDomain.Entities.UnitOfMeasure", b =>
                 {
                     b.Navigation("Products");
@@ -1363,9 +1831,15 @@ namespace MagazineAPInfrastructure.Migrations
 
             modelBuilder.Entity("MagazineAPIDomain.Entities.User", b =>
                 {
+                    b.Navigation("ApprovedPurchaseOrders");
+
                     b.Navigation("ApprovedShipments");
 
+                    b.Navigation("CreatedPurchaseOrders");
+
                     b.Navigation("CreatedShipments");
+
+                    b.Navigation("ReceivedPurchaseOrders");
 
                     b.Navigation("ReceivedShipments");
                 });
@@ -1376,7 +1850,11 @@ namespace MagazineAPInfrastructure.Migrations
 
                     b.Navigation("Locations");
 
+                    b.Navigation("PurchaseOrders");
+
                     b.Navigation("SourceShipments");
+
+                    b.Navigation("StorefrontOrders");
 
                     b.Navigation("Users");
                 });

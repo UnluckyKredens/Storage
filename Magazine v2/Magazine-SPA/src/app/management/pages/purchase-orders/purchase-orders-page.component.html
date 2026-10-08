@@ -1,0 +1,85 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Zamówienia zewnętrzne"
+    backLink="/main/management"
+    [showAddButton]="canCreate"
+    addLabel="Dodaj zamówienie"
+    (add)="add()"
+  />
+
+  <div class="table-wrapper">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <table mat-table [dataSource]="orders()" aria-label="Tabela: Zamówienia zewnętrzne">
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>Numer</th>
+        <td mat-cell *matCellDef="let row">{{ row.number }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="contractorName">
+        <th mat-header-cell *matHeaderCellDef>Dostawca</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.contractorName }}</strong>
+          <span class="subtle">{{ row.warehouseName }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdOnUtc">
+        <th mat-header-cell *matHeaderCellDef>Utworzono</th>
+        <td mat-cell *matCellDef="let row">{{ row.createdOnUtc | date: 'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="documents">
+        <th mat-header-cell *matHeaderCellDef>Dokumenty</th>
+        <td mat-cell *matCellDef="let row">
+          <span>{{ row.invoiceNumber || 'Brak faktury' }}</span>
+          <span class="subtle">{{ row.paperDocumentNumber || 'Brak papieru' }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="items">
+        <th mat-header-cell *matHeaderCellDef>Pozycje</th>
+        <td mat-cell *matCellDef="let row">{{ row.items.length }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalValue">
+        <th mat-header-cell *matHeaderCellDef>Wartość</th>
+        <td mat-cell *matCellDef="let row">{{ row.totalValue | number: '1.2-2' }} zł</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-pill">{{ row.status }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            @if (canApprove && row.status === 'Oczekuje na akceptację') {
+              <button mat-button type="button" (click)="approve(row)">Akceptuj</button>
+            }
+            @if (canApprove && row.status === 'Zaakceptowane') {
+              <button mat-button type="button" (click)="receive(row)">Przyjmij</button>
+              <button mat-button type="button" (click)="printDocument(row)">Dokument</button>
+            }
+            @if (row.status === 'Przyjęte') {
+              <button mat-button type="button" (click)="printDocument(row)">Dokument</button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          {{ loading() ? 'Ładowanie zamówień...' : 'Brak zamówień zewnętrznych.' }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>

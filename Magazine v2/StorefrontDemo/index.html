@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Magazine Storefront</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Magazine Storefront</p>
+        <h1>Kup przesyłkę i śledź jej stan</h1>
+      </div>
+      <form class="api-form" id="apiForm">
+        <label for="apiUrl">API</label>
+        <input id="apiUrl" name="apiUrl" value="http://localhost:5292/api/Storefront" />
+        <button type="submit">Połącz</button>
+      </form>
+    </header>
+
+    <main class="layout">
+      <section class="shop-panel">
+        <div id="shop"></div>
+      </section>
+
+      <aside class="tracking-panel">
+        <h2>Śledzenie</h2>
+        <form id="trackingForm" class="tracking-form">
+          <label for="trackingIdentifier">Numer lub ID zamówienia</label>
+          <input id="trackingIdentifier" name="trackingIdentifier" placeholder="SW/20261007/1234" />
+          <button type="submit">Sprawdź</button>
+        </form>
+
+        <section id="trackingResult" class="tracking-result">
+          <p class="muted">Po zakupie numer zamówienia pojawi się tutaj automatycznie.</p>
+        </section>
+      </aside>
+    </main>
+
+    <script
+      id="storeClientScript"
+      src="http://localhost:5292/sw.js"
+      data-api-url="http://localhost:5292/api/Storefront"
+    ></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
