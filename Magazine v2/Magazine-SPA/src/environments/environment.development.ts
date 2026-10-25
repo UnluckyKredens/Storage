@@ -1,4 +1,4 @@
 export const environment = {
-  apiUrl: 'https://magazineapi.krdns.pl/api',
+  apiUrl: 'https://magazynapi.krdns.pl/api',
   production: false,
 };
