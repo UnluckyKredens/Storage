@@ -59,3 +59,24 @@ export interface WarehouseFlowStats {
   topProducts: WarehouseFlowProduct[];
   shipments: WarehouseShipmentFlow;
 }
+
+export interface ProductSales {
+  productId: string;
+  productName: string;
+  sku: string;
+  soldQuantity: number;
+  revenue: number;
+  orderCount: number;
+  stockQuantity: number;
+}
+
+export interface ProductSalesStats {
+  days: number;
+  fromUtc: string;
+  toUtc: string;
+  orderCount: number;
+  soldQuantity: number;
+  revenue: number;
+  bestSellers: ProductSales[];
+  worstSellers: ProductSales[];
+}

@@ -1,4 +1,6 @@
 using System.Data;
+using System.Globalization;
+using System.Text;
 using MagazineAPIApplication.Common.Interfaces;
 using MagazineAPIDomain.Entities;
 using MagazineAPInfrastructure.Persistence;
@@ -52,27 +54,36 @@ public sealed class DocumentNumberGenerator(AppDbContext dbContext, MagazineAPID
             sequence.UpdatedOnUtc = utcNow;
 
             await dbContext.SaveChangesAsync(cancellationToken);
-            var otherWarehouseIds = await dbContext.Warehouses
+            var otherWarehouses = await dbContext.Warehouses
                 .AsNoTracking()
                 .Where(item => item.Id != warehouseId)
-                .Select(item => item.Id)
                 .ToListAsync(ct);
-            number = $"{WarehousePrefix(warehouse.Id, otherWarehouseIds)}/{normalizedType}/{year}/{sequence.LastNumber:000000}";
+            number = $"{WarehousePrefix(warehouse, otherWarehouses)}/{normalizedType}/{year}/{sequence.LastNumber:000000}";
         }, cancellationToken);
         return number;
     }
 
-    // Short, stable and readable warehouse prefix; widened only if two warehouses would share it.
-    private static string WarehousePrefix(Guid warehouseId, IReadOnlyCollection<Guid> otherWarehouseIds)
+    // Readable prefix taken from the warehouse name ("Warszawa – Oddział" -> "WARSZAWA"); a short id suffix
+    // is added only when another warehouse would produce the same prefix.
+    private static string WarehousePrefix(Warehouse warehouse, IReadOnlyCollection<Warehouse> others)
     {
-        var hex = warehouseId.ToString("N").ToUpperInvariant();
-        for (var length = 6; length < hex.Length; length += 2)
-        {
-            var prefix = hex[..length];
-            if (otherWarehouseIds.All(other => !other.ToString("N").StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
-                return $"MAG-{prefix}";
-        }
-        return $"MAG-{hex}";
+        var prefix = Slug(warehouse.Name);
+        if (prefix.Length == 0)
+            prefix = "MAG";
+        return others.Any(other => Slug(other.Name) == prefix)
+            ? $"{prefix}-{warehouse.Id.ToString("N")[..4].ToUpperInvariant()}"
+            : prefix;
+    }
+
+    private static string Slug(string name)
+    {
+        var head = name.Split(new[] { " – ", " - ", " — " }, StringSplitOptions.None)[0];
+        var letters = head.Normalize(NormalizationForm.FormD)
+            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            .Select(c => c == 'ł' ? 'l' : c == 'Ł' ? 'L' : c)
+            .Where(char.IsLetterOrDigit)
+            .Take(16);
+        return new string(letters.ToArray()).ToUpperInvariant();
     }
 
     private static string NormalizeDocumentType(string value)

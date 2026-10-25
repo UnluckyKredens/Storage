@@ -1,48 +1,134 @@
 <!doctype html>
 <html lang="pl">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Magazine Storefront</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <div>
-        <p class="eyebrow">Magazine Storefront</p>
-        <h1>Kup przesyłkę i śledź jej stan</h1>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magazine Store</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="#" aria-label="Magazine Store">
+        <span class="brand-mark">M</span>
+        <span class="brand-name">Magazine <b>Store</b></span>
+      </a>
+
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="searchInput" type="search" placeholder="Szukaj części, SKU, EAN..." autocomplete="off">
+      </label>
+
+      <nav class="header-actions">
+        <button class="btn ghost" id="trackingOpen" type="button">Śledź zamówienie</button>
+        <button class="icon-btn" id="settingsOpen" type="button" aria-label="Ustawienia API" title="Ustawienia API">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </button>
+        <button class="btn primary cart-btn" id="cartOpen" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/></svg>
+          <span>Koszyk</span>
+          <span class="badge" id="cartCount">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Części komputerowe od ręki</h1>
+      <p>Procesory, karty graficzne, pamięci i dyski z magazynów w Krakowie, Gdańsku, Warszawie i Poznaniu.</p>
+    </div>
+  </section>
+
+  <main class="container">
+    <div class="toolbar">
+      <p class="result-count" id="resultCount" aria-live="polite"></p>
+      <div class="toolbar-controls">
+        <label class="check"><input id="onlyAvailable" type="checkbox" checked> Tylko dostępne</label>
+        <select id="sortSelect" aria-label="Sortowanie">
+          <option value="name">Nazwa A–Z</option>
+          <option value="priceAsc">Cena rosnąco</option>
+          <option value="priceDesc">Cena malejąco</option>
+          <option value="stock">Najwięcej sztuk</option>
+        </select>
+        <button class="btn ghost" id="refreshBtn" type="button">Odśwież</button>
       </div>
-      <form class="api-form" id="apiForm">
-        <label for="apiUrl">API</label>
-        <input id="apiUrl" name="apiUrl" value="http://localhost:5392/api/Storefront" />
-        <button type="submit">Połącz</button>
+    </div>
+
+    <div id="statusMessage" class="status" hidden></div>
+    <div id="productGrid" class="grid"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Demo sklepu zasilanego przez API Magazine v2</div>
+  </footer>
+
+  <dialog id="cartDrawer" class="drawer">
+    <div class="dialog-head">
+      <h2>Twój koszyk</h2>
+      <button class="icon-btn" data-close type="button" aria-label="Zamknij">×</button>
+    </div>
+    <div class="drawer-body">
+      <div id="cartItems"></div>
+
+      <form id="checkoutForm" class="form" autocomplete="on">
+        <h3>Dane do zamówienia</h3>
+        <label>Imię i nazwisko<input name="customerName" required autocomplete="name"></label>
+        <label>E-mail<input name="customerEmail" type="email" required autocomplete="email"></label>
+        <label>Telefon<input name="customerPhone" type="tel" autocomplete="tel"></label>
+        <label>Adres dostawy<input name="deliveryAddress" autocomplete="street-address"></label>
+        <label>Uwagi<textarea name="notes" rows="2"></textarea></label>
+        <div class="total-row"><span>Razem</span><strong id="cartTotal">0,00 zł</strong></div>
+        <button class="btn primary block" id="submitOrder" type="submit">Złóż zamówienie</button>
+        <p class="form-error" id="checkoutError" hidden></p>
       </form>
-    </header>
+    </div>
+  </dialog>
 
-    <main class="layout">
-      <section class="shop-panel">
-        <div id="shop"></div>
-      </section>
+  <dialog id="confirmDialog" class="modal">
+    <div class="dialog-head">
+      <h2>Zamówienie przyjęte</h2>
+      <button class="icon-btn" data-close type="button" aria-label="Zamknij">×</button>
+    </div>
+    <div class="modal-body">
+      <p>Numer zamówienia: <strong id="confirmNumber"></strong></p>
+      <p class="muted">Zachowaj token – to jedyny sposób, aby śledzić zamówienie.</p>
+      <div class="token-box">
+        <code id="confirmToken"></code>
+        <button class="btn ghost" id="copyToken" type="button">Kopiuj</button>
+      </div>
+      <button class="btn primary block" id="confirmTrack" type="button">Śledź zamówienie</button>
+    </div>
+  </dialog>
 
-      <aside class="tracking-panel">
-        <h2>Śledzenie</h2>
-        <form id="trackingForm" class="tracking-form">
-          <label for="trackingIdentifier">Token śledzenia zamówienia</label>
-          <input id="trackingIdentifier" name="trackingIdentifier" placeholder="64-znakowy token z potwierdzenia" />
-          <button type="submit">Sprawdź</button>
-        </form>
+  <dialog id="trackingDialog" class="modal wide">
+    <div class="dialog-head">
+      <h2>Śledzenie zamówienia</h2>
+      <button class="icon-btn" data-close type="button" aria-label="Zamknij">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="trackingForm" class="inline-form">
+        <input id="trackingIdentifier" placeholder="64-znakowy token z potwierdzenia" aria-label="Token śledzenia zamówienia" autocomplete="off" spellcheck="false">
+        <button class="btn primary" type="submit">Sprawdź</button>
+      </form>
+      <div id="trackingResult"></div>
+    </div>
+  </dialog>
 
-        <section id="trackingResult" class="tracking-result">
-          <p class="muted">Po zakupie token śledzenia pojawi się tutaj automatycznie.</p>
-        </section>
-      </aside>
-    </main>
+  <dialog id="settingsDialog" class="modal">
+    <div class="dialog-head">
+      <h2>Ustawienia API</h2>
+      <button class="icon-btn" data-close type="button" aria-label="Zamknij">×</button>
+    </div>
+    <form id="apiForm" class="modal-body form">
+      <label>Adres API sklepu<input id="apiUrl" type="url" value="http://magazynapi.krdns.pl/api/Storefront" required></label>
+      <button class="btn primary block" type="submit">Zapisz i odśwież</button>
+    </form>
+  </dialog>
 
-    <script
-      id="storeClientScript"
-      src="http://localhost:5392/sw.js"
-      data-api-url="http://localhost:5392/api/Storefront"
-    ></script>
-    <script src="./app.js"></script>
-  </body>
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script id="storeClientScript" src="http://magazynapi.krdns.pl/sw.js" data-api-url="http://magazynapi.krdns.pl/api/Storefront"></script>
+  <script src="./app.js"></script>
+</body>
 </html>

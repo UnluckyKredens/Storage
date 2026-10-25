@@ -190,6 +190,8 @@ export class PurchaseOrdersPageComponent implements OnInit {
             table { border-collapse: collapse; width: 100%; margin-top: 24px; }
             th, td { border: 1px solid #999; padding: 8px; text-align: left; }
             .meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; }
+            .signatures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 48px; margin-top: 72px; }
+            .signature { border-top: 1px solid #111; padding-top: 6px; text-align: center; font-size: 13px; }
           </style>
         </head>
         <body>
@@ -206,6 +208,10 @@ export class PurchaseOrdersPageComponent implements OnInit {
             </thead>
             <tbody>${items}</tbody>
           </table>
+          <div class="signatures">
+            <div class="signature">Podpis przyjmującego</div>
+            <div class="signature">Podpis dostawcy</div>
+          </div>
           <script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 150); });</script>
         </body>
       </html>

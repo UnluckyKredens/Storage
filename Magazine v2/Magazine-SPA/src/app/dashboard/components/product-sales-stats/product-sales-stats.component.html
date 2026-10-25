@@ -1,0 +1,120 @@
+<section class="sales" aria-labelledby="sales-title">
+  <header class="sales-header">
+    <div>
+      <h2 id="sales-title">Sprzedaż produktów</h2>
+      <p>Najlepiej i najsłabiej sprzedające się produkty na podstawie zrealizowanych zamówień sklepu.</p>
+    </div>
+    <div class="period" role="group" aria-label="Okres statystyk sprzedaży">
+      @for (period of periods; track period) {
+        <button
+          type="button"
+          [class.active]="days() === period"
+          [attr.aria-pressed]="days() === period"
+          (click)="selectPeriod(period)"
+        >
+          {{ period }} dni
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+  @if (error()) {
+    <p class="sales-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (stats(); as stats) {
+    <div class="kpis">
+      <div class="kpi">
+        <strong>{{ stats.orderCount }}</strong>
+        <span>Zrealizowane zamówienia</span>
+      </div>
+      <div class="kpi">
+        <strong>{{ stats.soldQuantity | number: '1.0-3' }}</strong>
+        <span>Sprzedane sztuki</span>
+      </div>
+      <div class="kpi">
+        <strong>{{ stats.revenue | number: '1.2-2' }} zł</strong>
+        <span>Przychód</span>
+      </div>
+    </div>
+
+    <div class="columns">
+      <div class="panel">
+        <div class="panel-head"><h3>Najlepiej sprzedające się</h3></div>
+        @if (stats.bestSellers.length > 0) {
+          <apx-chart
+            role="img"
+            aria-label="Wykres najlepiej sprzedających się produktów"
+            [series]="bestSeries()"
+            [chart]="chart"
+            [colors]="bestColors"
+            [plotOptions]="plotOptions"
+            [stroke]="stroke"
+            [dataLabels]="dataLabels"
+            [grid]="grid"
+            [xaxis]="bestXaxis()"
+            [yaxis]="yaxis"
+            [legend]="legend"
+            [tooltip]="tooltip"
+          />
+          <table>
+            <thead>
+              <tr><th>Produkt</th><th>Zamówień</th><th>Przychód</th></tr>
+            </thead>
+            <tbody>
+              @for (item of stats.bestSellers; track item.productId) {
+                <tr>
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.orderCount }}</td>
+                  <td>{{ item.revenue | number: '1.2-2' }} zł</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="empty">Brak sprzedaży w wybranym okresie.</p>
+        }
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Najsłabiej sprzedające się</h3></div>
+        @if (stats.worstSellers.length > 0) {
+          <apx-chart
+            role="img"
+            aria-label="Wykres najsłabiej sprzedających się produktów: sprzedaż i stan"
+            [series]="worstSeries()"
+            [chart]="chart"
+            [colors]="worstColors"
+            [plotOptions]="plotOptions"
+            [stroke]="stroke"
+            [dataLabels]="dataLabels"
+            [grid]="grid"
+            [xaxis]="worstXaxis()"
+            [yaxis]="yaxis"
+            [legend]="legend"
+            [tooltip]="tooltip"
+          />
+          <table>
+            <thead>
+              <tr><th>Produkt</th><th>Sprzedano</th><th>Na stanie</th></tr>
+            </thead>
+            <tbody>
+              @for (item of stats.worstSellers; track item.productId) {
+                <tr>
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.soldQuantity | number: '1.0-3' }}</td>
+                  <td>{{ item.stockQuantity | number: '1.0-3' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="empty">Brak produktów na stanie.</p>
+        }
+      </div>
+    </div>
+  }
+</section>

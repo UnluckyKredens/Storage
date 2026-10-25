@@ -39,7 +39,17 @@
 
     @if (canSeeFlow) {
       <app-warehouse-flow-stats />
+      <app-product-sales-stats />
     }
+
+    <div class="alerts-head">
+      <h2>Alerty magazynowe</h2>
+      @if (canOrder && dashboard.alerts.length > 0) {
+        <button mat-flat-button type="button" [disabled]="opening()" (click)="createReplenishmentOrder()">
+          {{ opening() ? 'Ładowanie...' : 'Utwórz zamówienie z alertów' }}
+        </button>
+      }
+    </div>
 
     <div class="table-wrapper">
       <table mat-table [dataSource]="dashboard.alerts" aria-label="Tabela: Alerty magazynowe">

@@ -1,6 +1,8 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
@@ -8,6 +10,9 @@ import { administratorRoleId } from '../../../auth/roles';
 import { AccountService } from '../../../auth/services/account.service';
 import { TableNavigationComponent } from '../../../shared/components/table-navigation-component/table-navigation-component.component';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { PurchaseOrderService } from '../../../management/services/purchase-order.service';
+import { ReplenishmentOrderModalComponent } from '../../components/replenishment-order-modal/replenishment-order-modal.component';
+import { ProductSalesStatsComponent } from '../../components/product-sales-stats/product-sales-stats.component';
 import { WarehouseFlowStatsComponent } from '../../components/warehouse-flow-stats/warehouse-flow-stats.component';
 import { WarehouseDashboard } from '../../models/dashboard.models';
 import { WarehouseDashboardService } from '../../services/warehouse-dashboard.service';
@@ -16,8 +21,10 @@ import { WarehouseDashboardService } from '../../services/warehouse-dashboard.se
   selector: 'app-warehouse-dashboard-page',
   imports: [
     DecimalPipe,
+    MatButtonModule,
     MatProgressBarModule,
     MatTableModule,
+    ProductSalesStatsComponent,
     TableNavigationComponent,
     WarehouseFlowStatsComponent,
   ],
@@ -31,6 +38,9 @@ export class WarehouseDashboardPageComponent implements OnInit {
   private readonly service = inject(WarehouseDashboardService);
   private readonly account = inject(AccountService);
   private readonly notification = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
+  private readonly purchaseOrders = inject(PurchaseOrderService);
+  readonly opening = signal(false);
 
   readonly alertColumns = [
     'warehouseName',
@@ -55,6 +65,47 @@ export class WarehouseDashboardPageComponent implements OnInit {
       this.account.user()?.roleId === administratorRoleId ||
       this.account.permissionCodes().includes('shipments.approve')
     );
+  }
+
+  get canOrder(): boolean {
+    return (
+      this.account.user()?.roleId === administratorRoleId ||
+      this.account.permissionCodes().includes('purchase-orders.create')
+    );
+  }
+
+  createReplenishmentOrder(): void {
+    const dashboard = this.dashboard();
+    if (!dashboard || this.opening()) return;
+    this.opening.set(true);
+    this.purchaseOrders
+      .getPageData()
+      .pipe(finalize(() => this.opening.set(false)))
+      .subscribe({
+        next: (pageData) => {
+          const alerts = dashboard.alerts.filter((alert) => alert.warehouseId === pageData.warehouse.id);
+          if (pageData.suppliers.length === 0) {
+            this.notification.error('Brak dostawców. Dodaj kontrahenta typu Dostawca.');
+            return;
+          }
+          if (alerts.length === 0) {
+            this.notification.error('Brak alertów w aktywnym magazynie.');
+            return;
+          }
+          this.dialog
+            .open(ReplenishmentOrderModalComponent, {
+              width: '820px',
+              maxWidth: '96vw',
+              data: { pageData, alerts },
+            })
+            .afterClosed()
+            .subscribe((created) => {
+              if (created) this.notification.success('Zamówienie zostało utworzone.');
+            });
+        },
+        error: (error: HttpErrorResponse) =>
+          this.notification.error(error.error?.message ?? 'Nie udało się pobrać danych zamówienia.'),
+      });
   }
 
   ngOnInit(): void {

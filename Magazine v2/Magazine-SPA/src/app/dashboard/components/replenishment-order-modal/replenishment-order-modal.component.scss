@@ -1,0 +1,56 @@
+.hint {
+  margin: 0 0 16px;
+  color: var(--app-muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+
+  select {
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+    background: var(--app-surface);
+    font: inherit;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+  }
+
+  input {
+    width: 90px;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid var(--app-border);
+    border-radius: 6px;
+    font: inherit;
+  }
+}
+
+.empty,
+.error {
+  text-align: center;
+  color: var(--app-muted);
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.total {
+  margin: 16px 0 0;
+  text-align: right;
+}

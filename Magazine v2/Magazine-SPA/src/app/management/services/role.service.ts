@@ -46,10 +46,16 @@ export class RoleService {
       map((items) =>
         items.map((item) => ({
           value: item.code,
-          label: `${item.name} (${item.code})`,
+          label: item.name,
         })),
       ),
     );
+  }
+
+  getPermissionNames(): Observable<Record<string, string>> {
+    return this.http
+      .get<{ code: string; name: string }[]>(`${this.apiUrl}/permissions`)
+      .pipe(map((items) => Object.fromEntries(items.map((item) => [item.code, item.name]))));
   }
 
   private savePermissions(id: string, permissionCodes: string[]): Observable<Role> {

@@ -194,7 +194,7 @@ Poniższa lista pozwala sprawdzić każdą funkcję osobno. Wynik oczekiwany pod
 
 ### D. Dokumenty magazynowe (jako administrator lub kierownik)
 
-- [ ] **PW:** przyjmij 50 szt. produktu do `REC-01` → stan 50, w *Ruchach magazynowych* wpis „Przyjęcie wewnętrzne" ze zmianą +50. Numer dokumentu ma postać `MAG-XXXXXX/PW/2026/000001`.
+- [ ] **PW:** przyjmij 50 szt. produktu do `REC-01` → stan 50, w *Ruchach magazynowych* wpis „Przyjęcie wewnętrzne" ze zmianą +50. Numer dokumentu ma postać `ODDZIAŁ/PW/2026/000001`, np. `WARSZAWA/PW/2026/000001`.
 - [ ] **RW** ponad stan (np. 9999) → **„Brak wystarczającej dostępnej ilości dla RW."**, stan bez zmian.
 - [ ] **PW 0,5 szt.** produktu w jednostce `szt.` → **„Ilość musi być liczbą całkowitą dla tej jednostki miary."** Dla jednostki `m` ułamek jest dozwolony.
 - [ ] **PW powyżej 1 000 000 szt.** → **„Ilość nie może przekraczać 1.000.000."**
@@ -264,7 +264,7 @@ Poniższa lista pozwala sprawdzić każdą funkcję osobno. Wynik oczekiwany pod
 | **Rezerwacje** | Wysyłka (od utworzenia) i zamówienie ze sklepu rezerwują towar. Zarezerwowanego towaru nie da się przesunąć ani wydać innym dokumentem. |
 | **Magazyn dla zamówienia ze sklepu** | Całe zamówienie musi się zmieścić w jednym magazynie. Wygrywa ten, który po realizacji zostaje z **najmniejszą nadwyżką** (a nie najbliższy). |
 | **Źródło dla prośby o wysyłkę** | Magazyn z pełnym zapotrzebowaniem i największą dostępnością żądanych pozycji. |
-| **Numery dokumentów** | `MAG-<6 znaków magazynu>/<TYP>/<rok>/<000001>`, np. `PW`, `RW`, `WZ` (wysyłka), `ZZ` (zamówienie zewnętrzne), `SW` (sklep), `REQ` (prośba). Numeracja jest osobna dla magazynu, typu i roku. |
+| **Numery dokumentów** | `<ODDZIAŁ>/<TYP>/<rok>/<000001>` (nazwa oddziału bez polskich znaków, np. `WARSZAWA`), typy: `PW`, `RW`, `WZ` (wysyłka), `ZZ` (zamówienie zewnętrzne), `SW` (sklep), `REQ` (prośba). Numeracja jest osobna dla magazynu, typu i roku. |
 | **Jednostki** | Ułamki ilości są dozwolone tylko dla jednostek ciągłych: `kg`, `g`, `t`, `m`, `mb`, `cm`, `mm`, `l`, `ml`, `m2`, `m3` (maks. 3 miejsca po przecinku, limit 1 000 000). |
 | **Historia** | Zdarzenia stanów i wysyłek trafiają do osobnej bazy historii przez outbox, z opóźnieniem 2–3 s. |
 | **Limity zapytań (na adres IP, na minutę)** | logowanie 10, zakupy w sklepie 20, śledzenie zamówienia 120. |

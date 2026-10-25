@@ -21,3 +21,21 @@
 .metric span {
   color: #667085;
 }
+
+.alerts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 28px 0 14px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  button {
+    height: 44px;
+    padding: 0 22px;
+  }
+}

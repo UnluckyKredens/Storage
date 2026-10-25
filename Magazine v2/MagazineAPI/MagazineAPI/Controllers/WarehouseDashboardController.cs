@@ -25,4 +25,13 @@ public sealed class WarehouseDashboardController(ISender sender) : ControllerBas
     {
         return Ok(await sender.Send(new GetWarehouseFlowStatsQuery(days), cancellationToken));
     }
+
+    [HttpGet("sales")]
+    [HasPermission(PermissionCodes.ShipmentsApprove)]
+    public async Task<ActionResult<ProductSalesStatsView>> GetSales(
+        [FromQuery] int days = 30,
+        CancellationToken cancellationToken = default)
+    {
+        return Ok(await sender.Send(new GetProductSalesStatsQuery(days), cancellationToken));
+    }
 }

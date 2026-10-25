@@ -53,17 +53,12 @@ export class WarehouseFlowStatsComponent {
       y: value,
     });
     return [
-      { name: 'Przyjęcia', type: 'column', data: daily.map((day) => point(day.inbound, day.date)) },
-      { name: 'Wydania', type: 'column', data: daily.map((day) => point(day.outbound, day.date)) },
+      { name: 'Przyjęcia', type: 'line', data: daily.map((day) => point(day.inbound, day.date)) },
+      { name: 'Wydania', type: 'line', data: daily.map((day) => point(day.outbound, day.date)) },
       {
         name: 'Saldo dnia',
         type: 'line',
-        // Days without movements stay empty so the line connects only the days that had activity.
-        data: daily.map((day) =>
-          day.inbound === 0 && day.outbound === 0
-            ? { x: Date.parse(`${day.date}T00:00:00Z`), y: null }
-            : point(day.inbound - day.outbound, day.date),
-        ),
+        data: daily.map((day) => point(day.inbound - day.outbound, day.date)),
       },
     ];
   });
@@ -137,18 +132,14 @@ export class WarehouseFlowStatsComponent {
     WarehouseFlowStatsComponent.outboundColor,
     WarehouseFlowStatsComponent.netColor,
   ];
-  readonly plotOptions: ApexPlotOptions = {
-    bar: { columnWidth: '68%', borderRadius: 4, borderRadiusApplication: 'end' },
-  };
   readonly stroke: ApexStroke = {
-    width: [0, 0, 2],
-    curve: 'straight',
+    width: [3, 3, 2],
+    curve: 'smooth',
     lineCap: 'round',
+    dashArray: [0, 0, 5],
   };
-  readonly fill: ApexFill = { opacity: [1, 1, 1] };
   readonly markers: ApexMarkers = {
-    size: [0, 0, 5],
-    colors: ['#0f172a'],
+    size: 4,
     strokeColors: '#ffffff',
     strokeWidth: 2,
     hover: { size: 7 },

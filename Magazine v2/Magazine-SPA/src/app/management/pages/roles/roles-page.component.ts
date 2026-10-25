@@ -37,8 +37,10 @@ export class RolesPageComponent implements OnInit, AfterViewInit {
   readonly displayedColumns = ['name', 'permissionCodes', 'actions'];
   readonly dataSource = new MatTableDataSource<Role>([]);
   loading = false;
+  permissionNames: Record<string, string> = {};
 
   ngOnInit(): void {
+    this.service.getPermissionNames().subscribe((names) => (this.permissionNames = names));
     this.account.load().subscribe();
     this.account.loadPermissions().subscribe();
     this.load();
@@ -65,6 +67,11 @@ export class RolesPageComponent implements OnInit, AfterViewInit {
       },
       error: (error: HttpErrorResponse) => this.showError(error),
     });
+  }
+
+  permissionLabels(row: Role): string {
+    if (row.hasAllPermissions) return 'Wszystkie';
+    return row.permissionCodes.map((code) => this.permissionNames[code] ?? code).join(', ') || 'Brak';
   }
 
   search(value: string): void {

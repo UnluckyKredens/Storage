@@ -44,7 +44,18 @@ export class RoleModalComponent implements OnInit {
   saving = false;
   permissions: SelectOption[] = [];
 
+  permissionNames: Record<string, string> = {};
+
+  get detailPermissions(): string {
+    if (this.data.row?.hasAllPermissions) return 'Wszystkie';
+    const codes: string[] = this.data.row?.permissionCodes ?? [];
+    return codes.map((code) => this.permissionNames[code] ?? code).join(', ') || '—';
+  }
+
   ngOnInit(): void {
+    if (this.data.mode === 'details') {
+      this.service.getPermissionNames().subscribe((names) => (this.permissionNames = names));
+    }
     if (this.data.mode !== 'form') return;
     this.service.getFormOptions().subscribe({
       next: (permissions) => (this.permissions = permissions),

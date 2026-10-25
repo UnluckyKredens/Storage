@@ -1,0 +1,56 @@
+<app-dialog-header title="Zamówienie uzupełniające" />
+
+<mat-dialog-content>
+  <p class="hint">
+    Pozycje poniżej minimum lub optimum w magazynie „{{ data.pageData.warehouse.name }}”.
+    Ilości uzupełniają stan do optimum – możesz je zmienić lub usunąć pozycję.
+  </p>
+
+  <label class="field">
+    <span>Dostawca</span>
+    <select [(ngModel)]="contractorId" name="contractorId">
+      @for (supplier of data.pageData.suppliers; track supplier.id) {
+        <option [value]="supplier.id">{{ supplier.name }} / NIP {{ supplier.taxNumber }}</option>
+      }
+    </select>
+  </label>
+
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <table>
+    <thead>
+      <tr>
+        <th>Produkt</th>
+        <th>Dostępne</th>
+        <th>Zamów</th>
+        <th>Cena</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (line of lines; track line.productId) {
+        <tr>
+          <td>
+            {{ line.name }}<br /><small>{{ line.sku }}</small>
+          </td>
+          <td>{{ line.available | number: '1.0-3' }}</td>
+          <td><input type="number" min="0" step="any" [(ngModel)]="line.quantity" [name]="'q' + line.productId" /></td>
+          <td>{{ line.unitPrice | number: '1.2-2' }}</td>
+          <td><button mat-button type="button" (click)="remove(line)">Usuń</button></td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="empty">Brak pozycji do zamówienia.</td></tr>
+      }
+    </tbody>
+  </table>
+  <p class="total">Wartość: <strong>{{ totalValue | number: '1.2-2' }} zł</strong></p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Anuluj</button>
+  <button mat-flat-button type="button" [disabled]="!canSave" (click)="save()">
+    {{ saving() ? 'Tworzenie...' : 'Utwórz zamówienie' }}
+  </button>
+</mat-dialog-actions>
