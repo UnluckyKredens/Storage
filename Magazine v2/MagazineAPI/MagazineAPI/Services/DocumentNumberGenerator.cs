@@ -31,7 +31,6 @@ public sealed class DocumentNumberGenerator(AppDbContext dbContext, MagazineAPID
                 .SingleOrDefaultAsync(item => item.Id == warehouseId, cancellationToken)
                 ?? throw new InvalidOperationException("Magazyn do numeracji dokumentu nie istnieje.");
 
-            // Take the update lock on the first read; read-then-update would deadlock concurrent requests.
             var sequence = await dbContext.DocumentNumberSequences
                 .FromSqlInterpolated($"SELECT * FROM [DocumentNumberSequences] WITH (UPDLOCK, ROWLOCK) WHERE [WarehouseId] = {warehouseId} AND [DocumentType] = {normalizedType} AND [Year] = {year}")
                 .SingleOrDefaultAsync(cancellationToken);
@@ -63,8 +62,6 @@ public sealed class DocumentNumberGenerator(AppDbContext dbContext, MagazineAPID
         return number;
     }
 
-    // Readable prefix taken from the warehouse name ("Warszawa – Oddział" -> "WARSZAWA"); a short id suffix
-    // is added only when another warehouse would produce the same prefix.
     private static string WarehousePrefix(Warehouse warehouse, IReadOnlyCollection<Warehouse> others)
     {
         var prefix = Slug(warehouse.Name);

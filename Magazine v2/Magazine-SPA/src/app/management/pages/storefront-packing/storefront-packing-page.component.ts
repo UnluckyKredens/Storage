@@ -13,6 +13,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import {
   StorefrontPackingAllocation,
   StorefrontPackingOrder,
+  StorefrontPoolOrder,
 } from '../../models/management.models';
 import { StorefrontPackingService } from '../../services/storefront-packing.service';
 
@@ -46,6 +47,8 @@ export class StorefrontPackingPageComponent implements OnInit {
     'actions',
   ];
   readonly orders = signal<StorefrontPackingOrder[]>([]);
+  readonly pool = signal<StorefrontPoolOrder[]>([]);
+  readonly poolColumns = ['number', 'customer', 'items', 'totalValue', 'actions'];
   readonly loading = signal(false);
   readonly processing = signal<string | null>(null);
   private initialized = false;
@@ -81,6 +84,10 @@ export class StorefrontPackingPageComponent implements OnInit {
 
   load(): void {
     this.loading.set(true);
+    this.service.getPool().subscribe({
+      next: (pool) => this.pool.set(pool),
+      error: () => this.pool.set([]),
+    });
     this.service.getPackingOrders().subscribe({
       next: (orders) => {
         this.orders.set(orders);
@@ -89,6 +96,22 @@ export class StorefrontPackingPageComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.loading.set(false);
         this.notification.error(error.error?.message ?? 'Nie udało się pobrać zakupów do spakowania.');
+      },
+    });
+  }
+
+  claim(row: StorefrontPoolOrder): void {
+    if (!this.canPack || this.processing()) return;
+    this.processing.set(row.id);
+    this.service.claim(row.id).subscribe({
+      next: () => {
+        this.processing.set(null);
+        this.notification.success('Zamówienie przyjęte przez Twój magazyn. Towar został zarezerwowany.');
+        this.load();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.showActionError(error);
+        this.load();
       },
     });
   }

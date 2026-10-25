@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogHeaderComponent } from '../../../shared/components/dialog-header/dialog-header.component';
 import { FormInputComponent } from '../../../shared/components/form-input/form-input.component';
+import { SearchSelectComponent } from '../../../shared/components/search-select/search-select.component';
 import { FormSelectComponent } from '../../../shared/components/form-select/form-select.component';
 import { InventoryItem, SelectOption } from '../../models/management.models';
 import { InventoryService } from '../../services/inventory.service';
@@ -23,6 +24,7 @@ interface InventoryModalData {
     DialogHeaderComponent,
     FormInputComponent,
     FormSelectComponent,
+    SearchSelectComponent,
   ],
   templateUrl: './inventory-modal.component.html',
   styleUrl: '../management-modal.scss',

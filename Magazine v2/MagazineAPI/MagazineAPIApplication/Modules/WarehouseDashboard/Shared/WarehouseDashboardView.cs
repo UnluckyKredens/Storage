@@ -10,7 +10,14 @@ public sealed record WarehouseDashboardView(
     int PendingShipmentCount,
     int SentShipmentCount,
     int InTransitShipmentCount,
-    IReadOnlyList<WarehouseDashboardAlertView> Alerts);
+    IReadOnlyList<WarehouseDashboardAlertView> Alerts,
+    IReadOnlyList<WarehouseDashboardBackorderView> Backorders);
+
+public sealed record WarehouseDashboardBackorderView(
+    Guid WarehouseId,
+    Guid ProductId,
+    string ProductName,
+    decimal Quantity);
 
 public sealed record WarehouseDashboardAlertView(
     string Type,

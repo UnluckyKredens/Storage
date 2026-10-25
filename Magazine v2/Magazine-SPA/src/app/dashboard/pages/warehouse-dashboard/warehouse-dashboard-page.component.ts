@@ -70,7 +70,8 @@ export class WarehouseDashboardPageComponent implements OnInit {
   get canOrder(): boolean {
     return (
       this.account.user()?.roleId === administratorRoleId ||
-      this.account.permissionCodes().includes('purchase-orders.create')
+      this.account.permissionCodes().includes('purchase-orders.create') ||
+      this.account.permissionCodes().includes('shipments.create')
     );
   }
 
@@ -84,11 +85,14 @@ export class WarehouseDashboardPageComponent implements OnInit {
       .subscribe({
         next: (pageData) => {
           const alerts = dashboard.alerts.filter((alert) => alert.warehouseId === pageData.warehouse.id);
-          if (pageData.suppliers.length === 0) {
+          const hubName = pageData.hubWarehouseName;
+          const mode = pageData.warehouse.isHub || !hubName ? 'purchase' : 'request';
+          if (mode === 'purchase' && pageData.suppliers.length === 0) {
             this.notification.error('Brak dostawców. Dodaj kontrahenta typu Dostawca.');
             return;
           }
-          if (alerts.length === 0) {
+          const backorders = dashboard.backorders.filter((item) => item.warehouseId === pageData.warehouse.id);
+          if (alerts.length === 0 && backorders.length === 0) {
             this.notification.error('Brak alertów w aktywnym magazynie.');
             return;
           }
@@ -96,11 +100,14 @@ export class WarehouseDashboardPageComponent implements OnInit {
             .open(ReplenishmentOrderModalComponent, {
               width: '820px',
               maxWidth: '96vw',
-              data: { pageData, alerts },
+              data: { mode, hubName, pageData, alerts, backorders },
             })
             .afterClosed()
             .subscribe((created) => {
-              if (created) this.notification.success('Zamówienie zostało utworzone.');
+              if (!created) return;
+              this.notification.success(
+                mode === 'request' ? 'Prośba o wysyłkę została złożona.' : 'Zamówienie zostało utworzone.',
+              );
             });
         },
         error: (error: HttpErrorResponse) =>

@@ -28,7 +28,6 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .container { width: min(1200px, 100% - 32px); margin: 0 auto; }
 .muted { color: var(--muted); }
 
-/* header */
 .site-header { position: sticky; top: 0; z-index: 10; background: rgb(255 255 255 / 92%); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .header-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 500; }
@@ -39,7 +38,6 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; padding: 10px 0; font: inherit; color: var(--text); }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 
-/* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border: 1px solid transparent; border-radius: 10px; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: background .15s, border-color .15s; white-space: nowrap; }
 .btn.primary { background: var(--brand); color: #fff; }
 .btn.primary:hover:not(:disabled) { background: var(--brand-dark); }
@@ -52,12 +50,10 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .icon-btn:hover { border-color: var(--brand); color: var(--brand); }
 .badge { min-width: 22px; padding: 0 6px; border-radius: 999px; background: #fff; color: var(--brand); font-size: 12px; text-align: center; }
 
-/* hero */
 .hero { background: linear-gradient(135deg, #12356d, var(--brand)); color: #fff; padding: 36px 0; }
 .hero h1 { margin: 0 0 6px; font-size: clamp(24px, 4vw, 34px); }
 .hero p { margin: 0; opacity: .85; max-width: 640px; }
 
-/* toolbar */
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 0 14px; }
 .result-count { margin: 0; color: var(--muted); font-size: 14px; }
 .toolbar-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
@@ -68,7 +64,6 @@ select { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; 
 .status { padding: 14px 16px; margin-bottom: 16px; border-radius: 10px; background: var(--brand-soft); color: var(--brand-dark); }
 .status.error { background: #fef2f2; color: var(--danger); }
 
-/* product grid */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: 18px; padding-bottom: 48px; }
 .card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: box-shadow .2s, transform .2s; }
 .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
@@ -89,7 +84,6 @@ select { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; 
 .card-actions { display: flex; gap: 6px; }
 .card-actions .btn { padding: 8px 12px; }
 
-/* dialogs */
 dialog { border: 0; padding: 0; color: var(--text); background: var(--surface); box-shadow: 0 24px 64px rgb(15 23 42 / 30%); }
 dialog::backdrop { background: rgb(15 23 42 / 50%); backdrop-filter: blur(2px); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--line); }
@@ -101,7 +95,6 @@ dialog::backdrop { background: rgb(15 23 42 / 50%); backdrop-filter: blur(2px); 
 .drawer[open] { display: flex; }
 .drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px 24px; }
 
-/* cart */
 .empty { padding: 28px 0; text-align: center; color: var(--muted); }
 .cart-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .cart-item strong { font-size: 14px; }
@@ -113,7 +106,6 @@ dialog::backdrop { background: rgb(15 23 42 / 50%); backdrop-filter: blur(2px); 
 .link-btn { border: 0; background: none; color: var(--danger); font-size: 12px; cursor: pointer; padding: 0; }
 .cart-line-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 
-/* forms */
 .form { display: flex; flex-direction: column; gap: 12px; }
 .form h3 { margin: 20px 0 0; font-size: 15px; }
 .form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -125,7 +117,6 @@ dialog::backdrop { background: rgb(15 23 42 / 50%); backdrop-filter: blur(2px); 
 .inline-form { display: flex; gap: 8px; margin-bottom: 16px; }
 .inline-form input { flex: 1; min-width: 0; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
 
-/* confirm + tracking */
 .token-box { display: flex; align-items: center; gap: 8px; margin: 12px 0 16px; padding: 10px; border: 1px dashed var(--brand); border-radius: 10px; background: var(--brand-soft); }
 .token-box code { flex: 1; min-width: 0; word-break: break-all; font-size: 12px; }
 .track-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-bottom: 16px; }

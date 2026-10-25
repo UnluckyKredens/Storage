@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogHeaderComponent } from '../../../shared/components/dialog-header/dialog-header.component';
+import { administratorRoleId } from '../../../auth/roles';
+import { AccountService } from '../../../auth/services/account.service';
+import { FormCheckboxComponent } from '../../../shared/components/form-checkbox/form-checkbox.component';
 import { FormInputComponent } from '../../../shared/components/form-input/form-input.component';
 import { FormTextareaComponent } from '../../../shared/components/form-textarea/form-textarea.component';
 import { NotificationService } from '../../../shared/services/notification.service';
@@ -24,6 +27,7 @@ interface WarehouseModalData {
     DialogHeaderComponent,
     FormInputComponent,
     FormTextareaComponent,
+    FormCheckboxComponent,
   ],
   templateUrl: './warehouse-modal.component.html',
   styleUrl: '../management-modal.scss',
@@ -38,7 +42,9 @@ export class WarehouseModalComponent {
     name: String(this.data.row?.name ?? ''),
     address: String(this.data.row?.address ?? ''),
     description: String(this.data.row?.description ?? ''),
+    isHub: Boolean(this.data.row?.isHub),
   };
+  readonly isAdministrator = inject(AccountService).user()?.roleId === administratorRoleId;
   saving = false;
 
   get title(): string {

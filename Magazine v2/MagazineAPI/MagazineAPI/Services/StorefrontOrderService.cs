@@ -14,7 +14,6 @@ public sealed class StorefrontOrderService(AppDbContext db, IAuditLogWriter audi
     public IQueryable<StorefrontOrder> OrdersWithAllocations() => db.StorefrontOrders
         .Include(order => order.Items).ThenInclude(item => item.Allocations);
 
-    // The caller holds the operational transaction and has checked access/status.
     public async Task ReleaseAsync(StorefrontOrder order, string reason, CancellationToken ct)
     {
         if (order.Status is StorefrontOrderStatus.Cancelled or StorefrontOrderStatus.Completed or StorefrontOrderStatus.Shipped) return;

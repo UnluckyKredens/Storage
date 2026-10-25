@@ -2,8 +2,6 @@ namespace MagazineAPIDomain.Authorization;
 
 public static class PermissionCodes
 {
-    // Uprawnienie systemowe: nie występuje w katalogu i jest dostępne wyłącznie
-    // przez administracyjny bypass w PermissionAuthorizationHandler.
     public const string RolesManage = "roles.manage";
 
     public const string ProductsRead = "products.read";

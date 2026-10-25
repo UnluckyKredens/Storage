@@ -4,7 +4,6 @@ using Mediator;
 
 namespace MagazineAPI.Services;
 
-// The entire handler (including its initial checks and outbox writes) is retried.
 public sealed class CommandTransactionBehavior<TMessage, TResponse>(IUnitOfWork unitOfWork)
     : IPipelineBehavior<TMessage, TResponse> where TMessage : IMessage
 {

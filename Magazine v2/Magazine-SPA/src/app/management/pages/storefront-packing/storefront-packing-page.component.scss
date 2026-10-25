@@ -38,3 +38,22 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+.section-title {
+  margin: 8px 0 4px;
+  font-size: 1.1rem;
+}
+
+.section-hint {
+  margin: 0 0 12px;
+  color: var(--app-muted);
+}
+
+.pool-table {
+  margin-bottom: 28px;
+}
+
+.items-list small.short {
+  color: #b91c1c;
+  font-weight: 600;
+}

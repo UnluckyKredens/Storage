@@ -35,6 +35,10 @@ public sealed class CreatePurchaseOrderCommandHandler(
             ?? throw new CommandValidationException("Magazyn nie istnieje.");
         if (!warehouseContext.CanAccess(warehouse.Id))
             throw new ForbiddenOperationException("Brak dostępu do magazynu zamówienia.");
+        var hub = await warehouseRepository.FirstOrDefaultAsync(item => item.IsHub, cancellationToken);
+        if (hub is not null && hub.Id != warehouse.Id)
+            throw new CommandValidationException(
+                $"Zamówienia zewnętrzne przyjmuje magazyn przeładunkowy „{hub.Name}”. Pozostałe magazyny składają prośbę o wysyłkę.");
 
         var contractor = await contractorRepository.FirstOrDefaultAsync(
             item => item.Id == command.ContractorId,

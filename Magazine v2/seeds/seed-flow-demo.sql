@@ -76,6 +76,10 @@ BEGIN TRY
     WHERE w.Name IN (@GdanskName, @KrakowName, @WarszawaName, @PoznanName)
       AND NOT EXISTS (SELECT 1 FROM dbo.Locations x WHERE x.WarehouseId = w.Id AND x.LocationCode = l.Code);
 
+    -- Gdańsk jest magazynem przeładunkowym (hubem), jeśli żaden hub nie został jeszcze wskazany.
+    IF NOT EXISTS (SELECT 1 FROM dbo.Warehouses WHERE IsHub = 1)
+        UPDATE dbo.Warehouses SET IsHub = 1 WHERE Name = @GdanskName;
+
     DECLARE @Gda uniqueidentifier = (SELECT Id FROM dbo.Warehouses WHERE Name = @GdanskName);
     DECLARE @Krk uniqueidentifier = (SELECT Id FROM dbo.Warehouses WHERE Name = @KrakowName);
     DECLARE @Waw uniqueidentifier = (SELECT Id FROM dbo.Warehouses WHERE Name = @WarszawaName);

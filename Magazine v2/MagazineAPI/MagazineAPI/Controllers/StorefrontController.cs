@@ -56,7 +56,7 @@ public sealed class StorefrontController(
         Guid Id,
         string Number,
         decimal TotalValue,
-        Guid AssignedWarehouseId,
+        Guid? AssignedWarehouseId,
         string AssignedWarehouseName,
         string TrackingToken);
 
@@ -78,6 +78,26 @@ public sealed class StorefrontController(
         decimal Quantity,
         decimal UnitPrice,
         decimal TotalPrice);
+
+    public sealed record StorefrontPoolItemResponse(
+        string ProductName,
+        string Sku,
+        decimal Quantity,
+        decimal UnitPrice,
+        decimal TotalPrice,
+        decimal AvailableHere);
+
+    public sealed record StorefrontPoolOrderResponse(
+        Guid Id,
+        string Number,
+        string CustomerName,
+        string? DeliveryAddress,
+        string? Notes,
+        DateTime CreatedOnUtc,
+        DateTime ExpiresOnUtc,
+        decimal TotalValue,
+        bool CanFulfil,
+        IReadOnlyList<StorefrontPoolItemResponse> Items);
 
     public sealed record ShipOrderRequest(string CarrierName, string? TrackingNumber);
 
@@ -128,6 +148,7 @@ public sealed class StorefrontController(
         decimal Quantity,
         decimal UnitPrice,
         decimal TotalPrice,
+        decimal StockQuantity,
         IReadOnlyList<StorefrontPackingAllocationResponse> Allocations);
 
     public sealed record StorefrontPackingAllocationResponse(
@@ -144,7 +165,6 @@ public sealed class StorefrontController(
             .GroupBy(item => new { item.ProductId, item.Location.WarehouseId })
             .Select(group => new { group.Key.ProductId, Quantity = group.Sum(item => item.AvailableQuantity) })
             .ToArrayAsync(ct);
-        // A single order must fit in one warehouse; do not advertise an unusable cross-warehouse sum.
         var available = quantities.GroupBy(item => item.ProductId).ToDictionary(group => group.Key, group => group.Max(item => item.Quantity));
         return Ok(products.Select(product => new StorefrontProductResponse(product.Id, product.Name,
             product.Sku, product.Barcode, product.Description, product.ImageUrl, product.SalePrice,
@@ -156,7 +176,6 @@ public sealed class StorefrontController(
     public Task<ActionResult<StorefrontOrderResponse>> CreateOrder([FromBody] StorefrontOrderRequest request, CancellationToken ct)
         => InTransactionAsync<StorefrontOrderResponse>(async () =>
     {
-        // Checkouts touch the same stock and numbering rows; queue them instead of deadlocking.
         await dbContext.Database.ExecuteSqlInterpolatedAsync(
             $"EXEC sp_getapplock @Resource = N'storefront-checkout', @LockMode = N'Exclusive', @LockOwner = N'Transaction', @LockTimeout = 15000", ct);
         if (string.IsNullOrWhiteSpace(request.CustomerName) || string.IsNullOrWhiteSpace(request.CustomerEmail))
@@ -204,12 +223,14 @@ public sealed class StorefrontController(
         var now = DateTime.UtcNow;
         var order = new StorefrontOrder {
             Id = Guid.NewGuid(),
-            Number = await numberGenerator.GenerateAsync(warehouse.WarehouseId, "SW", now, ct),
+            Number = await numberGenerator.GenerateAsync(
+                (await dbContext.Warehouses.AsNoTracking().Where(item => item.IsHub).Select(item => (Guid?)item.Id).FirstOrDefaultAsync(ct))
+                    ?? warehouse.WarehouseId, "SW", now, ct),
             TrackingToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant(),
             IdempotencyKey = key, RequestFingerprint = fingerprint,
             CustomerName = request.CustomerName.Trim(), CustomerEmail = request.CustomerEmail.Trim().ToLowerInvariant(),
             CustomerPhone = request.CustomerPhone?.Trim(), DeliveryAddress = request.DeliveryAddress?.Trim(), Notes = request.Notes?.Trim(),
-            CreatedOnUtc = now, ExpiresOnUtc = now.AddMinutes(30), AssignedWarehouseId = warehouse.WarehouseId,
+            CreatedOnUtc = now, ExpiresOnUtc = now.AddHours(24), AssignedWarehouseId = null,
             Status = StorefrontOrderStatus.New,
             Items = requestedItems.Select(item => new StorefrontOrderItem {
                 Id = Guid.NewGuid(), ProductId = item.ProductId,
@@ -217,16 +238,15 @@ public sealed class StorefrontController(
             }).ToList()
         };
         dbContext.StorefrontOrders.Add(order);
-        foreach (var item in order.Items) await ReserveItemAsync(order, item, warehouse, ct);
         await auditLogWriter.RecordAsync(new AuditLogRecord("Create", nameof(StorefrontOrder),
             order.Id.ToString(), $"Utworzono zamówienie {order.Number}."), ct);
         await dbContext.SaveChangesAsync(ct);
-        return Created($"/api/Storefront/orders/{order.TrackingToken}/tracking", OrderResponse(order, warehouse.WarehouseName));
+        return Created($"/api/Storefront/orders/{order.TrackingToken}/tracking", OrderResponse(order, string.Empty));
     }, ct);
 
     private static StorefrontOrderResponse OrderResponse(StorefrontOrder order, string warehouseName) => new(
         order.Id, order.Number, order.Items.Sum(item => item.Quantity * item.UnitPrice),
-        order.AssignedWarehouseId!.Value, warehouseName, order.TrackingToken);
+        order.AssignedWarehouseId, warehouseName, order.TrackingToken);
 
     [HttpGet("orders/packing")]
     [HasPermission(PermissionCodes.ShipmentsRead)]
@@ -236,8 +256,80 @@ public sealed class StorefrontController(
             throw new ForbiddenOperationException("Użytkownik nie ma przypisanego magazynu.");
         var orders = await PackingOrderQuery().Where(order => order.Status == StorefrontOrderStatus.New || order.Status == StorefrontOrderStatus.Accepted)
             .OrderBy(order => order.CreatedOnUtc).ToArrayAsync(ct);
-        return Ok(orders.Select(ToPackingResponse).ToArray());
+
+        var warehouseIds = orders.Select(order => order.AssignedWarehouseId).OfType<Guid>().Distinct().ToArray();
+        var productIds = orders.SelectMany(order => order.Items).Select(item => item.ProductId).Distinct().ToArray();
+        var stock = await dbContext.Inventory.AsNoTracking()
+            .Where(item => warehouseIds.Contains(item.Location.WarehouseId) && productIds.Contains(item.ProductId))
+            .GroupBy(item => new { item.Location.WarehouseId, item.ProductId })
+            .Select(group => new { group.Key.WarehouseId, group.Key.ProductId, Quantity = group.Sum(item => item.Quantity) })
+            .ToDictionaryAsync(row => (row.WarehouseId, row.ProductId), row => row.Quantity, ct);
+        return Ok(orders.Select(order => ToPackingResponse(order, stock)).ToArray());
     }
+
+    [HttpGet("orders/pool")]
+    [HasPermission(PermissionCodes.ShipmentsRead)]
+    public async Task<ActionResult<IReadOnlyList<StorefrontPoolOrderResponse>>> Pool(CancellationToken ct)
+    {
+        var now = DateTime.UtcNow;
+        var orders = await dbContext.StorefrontOrders.AsNoTracking()
+            .Include(order => order.Items).ThenInclude(item => item.Product)
+            .Where(order => order.Status == StorefrontOrderStatus.New && order.AssignedWarehouseId == null && order.ExpiresOnUtc > now)
+            .OrderBy(order => order.CreatedOnUtc).Take(200).ToArrayAsync(ct);
+
+        var here = warehouseContext.WarehouseId;
+        var productIds = orders.SelectMany(order => order.Items).Select(item => item.ProductId).Distinct().ToArray();
+        var available = here is null
+            ? new Dictionary<Guid, decimal>()
+            : await dbContext.Inventory.AsNoTracking()
+                .Where(item => item.Location.WarehouseId == here && productIds.Contains(item.ProductId))
+                .GroupBy(item => item.ProductId)
+                .Select(group => new { ProductId = group.Key, Quantity = group.Sum(item => item.AvailableQuantity) })
+                .ToDictionaryAsync(row => row.ProductId, row => row.Quantity, ct);
+
+        return Ok(orders.Select(order =>
+        {
+            var items = order.Items.OrderBy(item => item.Product.Name).Select(item => new StorefrontPoolItemResponse(
+                item.Product.Name, item.Product.Sku, item.Quantity, item.UnitPrice, item.Quantity * item.UnitPrice,
+                available.GetValueOrDefault(item.ProductId))).ToArray();
+            return new StorefrontPoolOrderResponse(order.Id, order.Number, order.CustomerName, order.DeliveryAddress,
+                order.Notes, order.CreatedOnUtc, order.ExpiresOnUtc, items.Sum(item => item.TotalPrice),
+                here is not null && items.All(item => item.AvailableHere >= item.Quantity), items);
+        }).ToArray());
+    }
+
+    [HttpPost("orders/{id:guid}/claim")]
+    [HasPermission(PermissionCodes.ShipmentsApprove)]
+    public Task<ActionResult> ClaimOrder(Guid id, CancellationToken ct) => InTransactionAsync(async () =>
+    {
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"EXEC sp_getapplock @Resource = N'storefront-checkout', @LockMode = N'Exclusive', @LockOwner = N'Transaction', @LockTimeout = 15000", ct);
+        var warehouseId = warehouseContext.WarehouseId
+            ?? throw new CommandValidationException("Wybierz magazyn, który ma zrealizować zamówienie.");
+        var warehouse = await dbContext.Warehouses.AsNoTracking().SingleAsync(item => item.Id == warehouseId, ct);
+        var order = await orderService.OrdersWithAllocations().SingleOrDefaultAsync(item => item.Id == id, ct)
+            ?? throw new ResourceNotFoundException("Nie znaleziono zamówienia.");
+        if (order.AssignedWarehouseId == warehouseId && order.Status != StorefrontOrderStatus.New) return NoContent();
+        if (order.AssignedWarehouseId is not null || order.Status != StorefrontOrderStatus.New)
+            throw new ResourceConflictException("Zamówienie zostało już przyjęte przez inny magazyn albo nie jest już dostępne.");
+        if (order.ExpiresOnUtc <= DateTime.UtcNow)
+        {
+            await orderService.ReleaseAsync(order, "Upłynął termin przyjęcia zamówienia.", ct);
+            return BadRequest(new { message = "Zamówienie wygasło." });
+        }
+
+        var selection = new WarehouseSelection(warehouse.Id, warehouse.Name, new Dictionary<Guid, decimal>(), 0);
+        foreach (var item in order.Items) await ReserveItemAsync(order, item, selection, ct);
+        order.AssignedWarehouseId = warehouse.Id;
+        order.Status = StorefrontOrderStatus.Accepted;
+        order.AcceptedOnUtc = DateTime.UtcNow;
+        order.AcceptedByUserId = warehouseContext.UserId;
+        order.ExpiresOnUtc = DateTime.UtcNow.AddHours(24);
+        await auditLogWriter.RecordAsync(new AuditLogRecord("Claim", nameof(StorefrontOrder), id.ToString(),
+            $"Zamówienie przyjął magazyn „{warehouse.Name}”."), ct);
+        await dbContext.SaveChangesAsync(ct);
+        return NoContent();
+    }, ct);
 
     [HttpPost("orders/{id:guid}/accept")]
     [HasPermission(PermissionCodes.ShipmentsApprove)]
@@ -430,7 +522,8 @@ public sealed class StorefrontController(
         .ThenInclude(item => item.Allocations)
         .ThenInclude(allocation => allocation.Location);
 
-    private static StorefrontPackingOrderResponse ToPackingResponse(StorefrontOrder order)
+    private static StorefrontPackingOrderResponse ToPackingResponse(
+        StorefrontOrder order, IReadOnlyDictionary<(Guid WarehouseId, Guid ProductId), decimal> stock)
     {
         var items = new List<StorefrontPackingOrderItemResponse>();
 
@@ -454,6 +547,7 @@ public sealed class StorefrontController(
                 item.Quantity,
                 item.UnitPrice,
                 item.Quantity * item.UnitPrice,
+                order.AssignedWarehouseId is { } warehouseId ? stock.GetValueOrDefault((warehouseId, item.ProductId)) : 0,
                 allocations));
         }
 
@@ -550,7 +644,6 @@ public sealed class StorefrontController(
         WarehouseSelection selectedWarehouse,
         CancellationToken cancellationToken)
     {
-        // Lock the rows while reading: concurrent orders for the same product must queue, not deadlock.
         var inventories = await dbContext.Inventory
             .FromSqlInterpolated($"SELECT * FROM [Inventory] WITH (UPDLOCK, ROWLOCK) WHERE [ProductId] = {item.ProductId}")
             .Include(inventory => inventory.Location)
@@ -582,8 +675,6 @@ public sealed class StorefrontController(
                 ConsumedQuantity = 0
             };
             item.Allocations.Add(allocation);
-            // The movement event below saves changes mid-way. Without an explicit state EF would treat an
-            // allocation attached to an already saved order item as existing (key is set) and issue an UPDATE.
             dbContext.Entry(allocation).State = EntityState.Added;
 
             await publisher.Publish(new StockMovementRecordedEvent(selectedWarehouse.WarehouseId,
@@ -596,7 +687,7 @@ public sealed class StorefrontController(
         }
 
         if (remaining > 0)
-            throw new CommandValidationException("Nie udało się zaalokować całego zamówienia.");
+            throw new CommandValidationException("Magazyn nie ma wystarczającego stanu dla całego zamówienia.");
     }
 
     private static string DisplayStatus(StorefrontOrderStatus status) => status switch
@@ -621,7 +712,7 @@ public sealed class StorefrontController(
 
     private static string TrackingDescription(StorefrontOrderStatus status) => status switch
     {
-        StorefrontOrderStatus.New => "Zamówienie zostało zapisane i czeka na potwierdzenie przez obsługę.",
+        StorefrontOrderStatus.New => "Zamówienie zostało zapisane i czeka na przyjęcie przez jeden z magazynów.",
         StorefrontOrderStatus.Accepted => "Zamówienie jest kompletowane w magazynie.",
         StorefrontOrderStatus.Completed => "Zamówienie zostało spakowane i czeka na przekazanie kurierowi.",
         StorefrontOrderStatus.Shipped => "Zamówienie zostało przekazane przewoźnikowi.",

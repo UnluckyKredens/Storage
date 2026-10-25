@@ -16,7 +16,6 @@ public static class DatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var historyDbContext = scope.ServiceProvider.GetRequiredService<HistoryDbContext>();
 
-        // Validate every option before migrations; startup only applies migrations and never deletes data.
         var adminOptions = configuration.GetSection(InitialAdminOptions.SectionName).Get<InitialAdminOptions>();
         if (adminOptions?.Enabled == true) Validate(adminOptions);
         await dbContext.Database.MigrateAsync();

@@ -1,19 +1,27 @@
-<app-dialog-header title="Zamówienie uzupełniające" />
+<app-dialog-header [title]="data.mode === 'request' ? 'Prośba o wysyłkę z magazynu przeładunkowego' : 'Zamówienie uzupełniające'" />
 
 <mat-dialog-content>
   <p class="hint">
     Pozycje poniżej minimum lub optimum w magazynie „{{ data.pageData.warehouse.name }}”.
     Ilości uzupełniają stan do optimum – możesz je zmienić lub usunąć pozycję.
+    @if (data.mode === 'purchase' && data.backorders.length > 0) {
+      Kolumna „Dla wysyłek” to ilości, których brakuje do prośb o wysyłkę złożonych do tego magazynu.
+    }
+    @if (data.mode === 'request') {
+      Towar zostanie zamówiony z magazynu przeładunkowego „{{ data.hubName }}”.
+    }
   </p>
 
-  <label class="field">
-    <span>Dostawca</span>
-    <select [(ngModel)]="contractorId" name="contractorId">
-      @for (supplier of data.pageData.suppliers; track supplier.id) {
-        <option [value]="supplier.id">{{ supplier.name }} / NIP {{ supplier.taxNumber }}</option>
-      }
-    </select>
-  </label>
+  @if (data.mode === 'purchase') {
+    <label class="field">
+      <span>Dostawca</span>
+      <select [(ngModel)]="contractorId" name="contractorId">
+        @for (supplier of data.pageData.suppliers; track supplier.id) {
+          <option [value]="supplier.id">{{ supplier.name }} / NIP {{ supplier.taxNumber }}</option>
+        }
+      </select>
+    </label>
+  }
 
   @if (error) {
     <p class="error">{{ error }}</p>
@@ -24,6 +32,9 @@
       <tr>
         <th>Produkt</th>
         <th>Dostępne</th>
+        @if (data.mode === 'purchase') {
+          <th>Dla wysyłek</th>
+        }
         <th>Zamów</th>
         <th>Cena</th>
         <th></th>
@@ -36,12 +47,15 @@
             {{ line.name }}<br /><small>{{ line.sku }}</small>
           </td>
           <td>{{ line.available | number: '1.0-3' }}</td>
+          @if (data.mode === 'purchase') {
+            <td>{{ line.backorder | number: '1.0-3' }}</td>
+          }
           <td><input type="number" min="0" step="any" [(ngModel)]="line.quantity" [name]="'q' + line.productId" /></td>
           <td>{{ line.unitPrice | number: '1.2-2' }}</td>
           <td><button mat-button type="button" (click)="remove(line)">Usuń</button></td>
         </tr>
       } @empty {
-        <tr><td colspan="5" class="empty">Brak pozycji do zamówienia.</td></tr>
+        <tr><td colspan="6" class="empty">Brak pozycji do zamówienia.</td></tr>
       }
     </tbody>
   </table>
@@ -51,6 +65,6 @@
 <mat-dialog-actions align="end">
   <button mat-button type="button" mat-dialog-close>Anuluj</button>
   <button mat-flat-button type="button" [disabled]="!canSave" (click)="save()">
-    {{ saving() ? 'Tworzenie...' : 'Utwórz zamówienie' }}
+    {{ saving() ? 'Zapisywanie...' : data.mode === 'request' ? 'Złóż prośbę' : 'Utwórz zamówienie' }}
   </button>
 </mat-dialog-actions>

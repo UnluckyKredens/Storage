@@ -15,6 +15,7 @@ public sealed class GetWarehouseDashboardQueryHandler(
     IRepository<Warehouse> warehouseRepository,
     IRepository<StockReservation> reservationRepository,
     IRepository<Shipment> shipmentRepository,
+    IRepository<ShipmentItem> shipmentItemRepository,
     IWarehouseContext warehouseContext) : IQueryHandler<GetWarehouseDashboardQuery, WarehouseDashboardView>
 {
     public async ValueTask<WarehouseDashboardView> Handle(GetWarehouseDashboardQuery query, CancellationToken cancellationToken)
@@ -141,6 +142,8 @@ public sealed class GetWarehouseDashboardQueryHandler(
             .Take(50)
             .ToArray();
 
+        var backorders = await BuildBackordersAsync(warehouseIds, cancellationToken);
+
         return new WarehouseDashboardView(
             inventories.Select(inventory => inventory.ProductId).Distinct().Count(),
             inventories.Length,
@@ -151,6 +154,54 @@ public sealed class GetWarehouseDashboardQueryHandler(
             shipmentCounts.GetValueOrDefault(ShipmentStatus.PendingApproval),
             shipmentCounts.GetValueOrDefault(ShipmentStatus.Sent),
             shipmentCounts.GetValueOrDefault(ShipmentStatus.InTransit),
-            alerts);
+            alerts,
+            backorders);
+    }
+
+    private async Task<IReadOnlyList<WarehouseDashboardBackorderView>> BuildBackordersAsync(
+        IReadOnlySet<Guid> warehouseIds, CancellationToken cancellationToken)
+    {
+        var pending = await shipmentRepository.Query()
+            .Where(shipment => shipment.Status == ShipmentStatus.PendingApproval && warehouseIds.Contains(shipment.SourceWarehouseId))
+            .Select(shipment => new { shipment.Id, shipment.SourceWarehouseId })
+            .ToListAsync(cancellationToken);
+        if (pending.Count == 0) return [];
+
+        var shipmentIds = pending.Select(shipment => shipment.Id).ToArray();
+        var items = await shipmentItemRepository.Query()
+            .Where(item => shipmentIds.Contains(item.ShipmentId))
+            .Select(item => new { item.Id, item.ShipmentId, item.ProductId, item.Quantity })
+            .ToListAsync(cancellationToken);
+        var reserved = (await reservationRepository.Query()
+            .Where(reservation => reservation.SourceType == "Shipment" && reservation.Status == StockReservationStatus.Active &&
+                                  reservation.SourceItemId != null && shipmentIds.Contains(reservation.SourceId))
+            .Select(reservation => new { reservation.SourceItemId, Open = reservation.Quantity - reservation.ReleasedQuantity })
+            .ToListAsync(cancellationToken))
+            .GroupBy(reservation => reservation.SourceItemId!.Value)
+            .ToDictionary(group => group.Key, group => group.Sum(reservation => reservation.Open));
+        var warehouseByShipment = pending.ToDictionary(shipment => shipment.Id, shipment => shipment.SourceWarehouseId);
+
+        var shortages = items
+            .Select(item => new
+            {
+                WarehouseId = warehouseByShipment[item.ShipmentId],
+                item.ProductId,
+                Missing = item.Quantity - reserved.GetValueOrDefault(item.Id)
+            })
+            .Where(row => row.Missing > 0)
+            .GroupBy(row => (row.WarehouseId, row.ProductId))
+            .Select(group => new { group.Key.WarehouseId, group.Key.ProductId, Quantity = group.Sum(row => row.Missing) })
+            .ToList();
+        if (shortages.Count == 0) return [];
+
+        var productIds = shortages.Select(row => row.ProductId).Distinct().ToArray();
+        var names = await productRepository.Query()
+            .Where(product => productIds.Contains(product.Id))
+            .ToDictionaryAsync(product => product.Id, product => product.Name, cancellationToken);
+        return shortages
+            .Select(row => new WarehouseDashboardBackorderView(
+                row.WarehouseId, row.ProductId, names.GetValueOrDefault(row.ProductId, string.Empty), row.Quantity))
+            .OrderBy(row => row.ProductName)
+            .ToArray();
     }
 }

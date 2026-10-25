@@ -15,7 +15,6 @@ public sealed class SaveWarehouseCommandHandler(
     {
         if (string.IsNullOrWhiteSpace(command.Name)) throw new CommandValidationException("Pole Name jest wymagane.");
 
-
         if (command.Id is null)
         {
             if (!warehouseContext.IsAdministrator)
@@ -25,8 +24,10 @@ public sealed class SaveWarehouseCommandHandler(
                 Id = Guid.NewGuid(),
                 Name = command.Name.Trim(),
                 Address = command.Address?.Trim(),
-                Description = command.Description?.Trim()
+                Description = command.Description?.Trim(),
+                IsHub = command.IsHub == true
             };
+            if (item.IsHub) await ClearOtherHubsAsync(item.Id, cancellationToken);
             await repository.AddAsync(item, cancellationToken);
             return WarehouseMapper.ToView(item);
         }
@@ -38,7 +39,23 @@ public sealed class SaveWarehouseCommandHandler(
         existing.Name = command.Name.Trim();
         existing.Address = command.Address?.Trim();
         existing.Description = command.Description?.Trim();
+        if (command.IsHub is { } isHub && isHub != existing.IsHub)
+        {
+            if (!warehouseContext.IsAdministrator)
+                throw new ForbiddenOperationException("Tylko administrator może wskazać magazyn przeładunkowy.");
+            existing.IsHub = isHub;
+            if (isHub) await ClearOtherHubsAsync(existing.Id, cancellationToken);
+        }
         await repository.UpdateAsync(existing, cancellationToken);
         return WarehouseMapper.ToView(existing);
+    }
+
+    private async Task ClearOtherHubsAsync(Guid keepId, CancellationToken cancellationToken)
+    {
+        foreach (var other in await repository.FilterByAsync(x => x.IsHub && x.Id != keepId, cancellationToken))
+        {
+            other.IsHub = false;
+            await repository.UpdateAsync(other, cancellationToken);
+        }
     }
 }

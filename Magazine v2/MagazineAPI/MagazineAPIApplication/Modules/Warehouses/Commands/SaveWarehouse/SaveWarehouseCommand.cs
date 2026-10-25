@@ -6,4 +6,5 @@ public sealed record SaveWarehouseCommand(
     Guid? Id,
     string Name,
     string? Address,
-    string? Description) : ICommand<WarehouseView>;
+    string? Description,
+    bool? IsHub = null) : ICommand<WarehouseView>;

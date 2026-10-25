@@ -24,5 +24,8 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 
         builder.Property(warehouse => warehouse.Description)
             .HasMaxLength(1000);
+
+        builder.Property(warehouse => warehouse.IsHub)
+            .HasDefaultValue(false);
     }
 }

@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MagazineAPIApplication.Modules.WarehouseDashboard;
 
-/// <summary>Stock and shipment flow statistics built from the history database.</summary>
 public sealed class GetWarehouseFlowStatsQueryHandler(
     IRepository<InventoryHistory> inventoryHistoryRepository,
     IRepository<ShipmentHistory> shipmentHistoryRepository,
@@ -38,7 +37,6 @@ public sealed class GetWarehouseFlowStatsQueryHandler(
         var locationIds = locations.Select(location => location.LocationId).ToArray();
         var warehouseIds = locations.Select(location => location.WarehouseId).Distinct().ToArray();
 
-        // Rows with a zero change are reservations, which do not move stock.
         var changes = await inventoryHistoryRepository.Query()
             .Where(item => item.CreatedOn >= fromUtc && item.QuantityChange != 0 && locationIds.Contains(item.LocationId))
             .Select(item => new { item.CreatedOn, item.ProductId, item.QuantityChange })
@@ -95,7 +93,6 @@ public sealed class GetWarehouseFlowStatsQueryHandler(
 
         int Count(string eventType) => events.Count(item => item.EventType == eventType);
 
-        // Durations are measured per shipment from its first event (created or requested).
         var approvalHours = new List<double>();
         var deliveryHours = new List<double>();
         foreach (var shipment in events.GroupBy(item => item.ShipmentId))

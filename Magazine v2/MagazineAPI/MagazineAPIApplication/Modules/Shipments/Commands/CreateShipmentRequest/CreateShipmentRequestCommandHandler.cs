@@ -65,6 +65,7 @@ public sealed class CreateShipmentRequestCommandHandler(
             destinationWarehouse.Id,
             requestedItems,
             cancellationToken);
+        var sourceIsHub = sourceWarehouse.IsHub;
 
         var now = DateTime.UtcNow;
         var shipment = new Shipment
@@ -94,7 +95,8 @@ public sealed class CreateShipmentRequestCommandHandler(
                 shipment,
                 shipment.Items.ToArray(),
                 "Rezerwacja towaru pod zapotrzebowanie.",
-                ct);
+                ct,
+                allowPartial: sourceIsHub);
             await auditLogWriter.RecordAsync(
                 new AuditLogRecord(
                     "Create",
@@ -120,8 +122,11 @@ public sealed class CreateShipmentRequestCommandHandler(
         IReadOnlyList<RequestedShipmentItem> requestedItems,
         CancellationToken cancellationToken)
     {
-        var warehouses = (await warehouseRepository.AllAsync(cancellationToken))
+        var allWarehouses = await warehouseRepository.AllAsync(cancellationToken);
+        var hub = allWarehouses.FirstOrDefault(warehouse => warehouse.IsHub);
+        var warehouses = allWarehouses
             .Where(warehouse => warehouse.Id != destinationWarehouseId)
+            .Where(warehouse => hub is null || hub.Id == destinationWarehouseId || warehouse.Id == hub.Id)
             .OrderBy(warehouse => warehouse.Name)
             .ToArray();
         var locations = await locationRepository.AllAsync(cancellationToken);
@@ -146,6 +151,9 @@ public sealed class CreateShipmentRequestCommandHandler(
                 group => (group.Key.WarehouseId, group.Key.ProductId),
                 group => group.Sum(inventory => inventory.AvailableQuantity));
 
+        if (hub is not null && hub.Id != destinationWarehouseId)
+            return hub;
+
         var sourceWarehouse = warehouses
             .Select(warehouse => new
             {
@@ -163,7 +171,9 @@ public sealed class CreateShipmentRequestCommandHandler(
             .FirstOrDefault();
 
         return sourceWarehouse
-            ?? throw new CommandValidationException("Nie znaleziono magazynu z pełnym zapotrzebowaniem dla tej prośby.");
+            ?? throw new CommandValidationException(hub is not null && hub.Id != destinationWarehouseId
+                ? $"Magazyn przeładunkowy „{hub.Name}” nie ma pełnego zapotrzebowania. Zmniejsz ilości albo zamów towar w magazynie przeładunkowym."
+                : "Nie znaleziono magazynu z pełnym zapotrzebowaniem dla tej prośby.");
     }
 
     private async Task<Product> ResolveProductAsync(

@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MagazineAPIApplication.Modules.WarehouseDashboard;
 
-/// <summary>Best and worst selling products from completed storefront orders, with the current stock of each.</summary>
 public sealed class GetProductSalesStatsQueryHandler(
     IRepository<StorefrontOrder> orderRepository,
     IRepository<Inventory> inventoryRepository,
@@ -58,7 +57,6 @@ public sealed class GetProductSalesStatsQueryHandler(
                 group => (Quantity: group.Sum(row => row.Quantity), Revenue: group.Sum(row => row.Value),
                           Orders: group.Select(row => row.OrderId).Distinct().Count()));
 
-        // Candidates: everything that sold, plus active products that sit in stock without selling.
         var candidateIds = soldByProduct.Keys.Union(stock.Where(row => row.Value > 0).Select(row => row.Key)).ToArray();
         var products = await productRepository.Query()
             .Where(product => candidateIds.Contains(product.Id) && (product.IsActive || soldByProduct.Keys.Contains(product.Id)))

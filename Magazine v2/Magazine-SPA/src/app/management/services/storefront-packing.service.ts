@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { StorefrontOrderHistory, StorefrontPackingOrder } from '../models/management.models';
+import { StorefrontOrderHistory, StorefrontPackingOrder, StorefrontPoolOrder } from '../models/management.models';
 
 @Injectable({ providedIn: 'root' })
 export class StorefrontPackingService {
@@ -29,5 +29,13 @@ export class StorefrontPackingService {
 
   ship(id: string, carrierName: string, trackingNumber: string | null): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${id}/ship`, { carrierName, trackingNumber });
+  }
+
+  getPool(): Observable<StorefrontPoolOrder[]> {
+    return this.http.get<StorefrontPoolOrder[]>(`${this.apiUrl}/pool`);
+  }
+
+  claim(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/claim`, {});
   }
 }

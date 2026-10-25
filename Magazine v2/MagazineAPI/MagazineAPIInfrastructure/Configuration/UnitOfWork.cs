@@ -18,7 +18,6 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
         var executionStrategy = dbContext.Database.CreateExecutionStrategy();
         await executionStrategy.ExecuteAsync(async () =>
         {
-            // A failed attempt has rolled back its saves. Never reuse its tracked objects.
             dbContext.ChangeTracker.Clear();
             await using var transaction = await dbContext.Database.BeginTransactionAsync(
                 IsolationLevel.Serializable,

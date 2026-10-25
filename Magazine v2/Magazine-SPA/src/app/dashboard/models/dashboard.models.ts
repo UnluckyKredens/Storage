@@ -10,6 +10,13 @@ export interface WarehouseDashboardAlert {
   message: string;
 }
 
+export interface WarehouseDashboardBackorder {
+  warehouseId: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+}
+
 export interface WarehouseDashboard {
   productCount: number;
   inventoryItemCount: number;
@@ -21,6 +28,7 @@ export interface WarehouseDashboard {
   sentShipmentCount: number;
   inTransitShipmentCount: number;
   alerts: WarehouseDashboardAlert[];
+  backorders: WarehouseDashboardBackorder[];
 }
 
 export interface WarehouseFlowDay {

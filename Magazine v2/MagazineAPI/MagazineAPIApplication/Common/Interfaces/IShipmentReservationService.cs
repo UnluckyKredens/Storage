@@ -8,5 +8,12 @@ public interface IShipmentReservationService
         Shipment shipment,
         IReadOnlyCollection<ShipmentItem> items,
         string note,
+        CancellationToken cancellationToken = default,
+        bool allowPartial = false);
+
+    Task ReserveMissingAsync(
+        Shipment shipment,
+        IReadOnlyCollection<ShipmentItem> items,
+        string note,
         CancellationToken cancellationToken = default);
 }

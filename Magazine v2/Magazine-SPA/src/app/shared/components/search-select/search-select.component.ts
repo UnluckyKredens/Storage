@@ -1,4 +1,4 @@
-import { booleanAttribute, Component, forwardRef, Input } from '@angular/core';
+import { booleanAttribute, Component, ElementRef, forwardRef, Input, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   ControlValueAccessor,
@@ -39,6 +39,8 @@ export class SearchSelectComponent implements ControlValueAccessor, Validator {
   @Input({ transform: booleanAttribute }) required = false;
   @Input({ transform: booleanAttribute }) disabled = false;
 
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+
   value: string | number | null = '';
   search = '';
 
@@ -74,6 +76,7 @@ export class SearchSelectComponent implements ControlValueAccessor, Validator {
 
   openedChanged(opened: boolean): void {
     if (!opened) this.search = '';
+    else setTimeout(() => this.searchInput?.nativeElement.focus());
   }
 
   touch(): void {

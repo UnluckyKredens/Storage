@@ -6,6 +6,7 @@ public class Warehouse
     public string Name { get; set; } = string.Empty;
     public string? Address { get; set; }
     public string? Description { get; set; }
+    public bool IsHub { get; set; }
 
     public ICollection<Location> Locations { get; set; } = new List<Location>();
     public ICollection<User> Users { get; set; } = new List<User>();

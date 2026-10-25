@@ -38,6 +38,7 @@ export interface Warehouse {
   name: string;
   address: string | null;
   description: string | null;
+  isHub: boolean;
 }
 
 export interface Location {
@@ -260,6 +261,7 @@ export interface PurchaseOrderPageData {
   warehouse: Warehouse;
   suppliers: PurchaseOrderContractor[];
   products: PurchaseOrderProduct[];
+  hubWarehouseName: string | null;
 }
 
 export interface StorefrontPackingAllocation {
@@ -276,6 +278,7 @@ export interface StorefrontPackingOrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  stockQuantity: number;
   allocations: StorefrontPackingAllocation[];
 }
 
@@ -326,4 +329,26 @@ export interface StorefrontOrderHistory {
   carrierTrackingNumber: string | null;
   totalValue: number;
   items: StorefrontOrderHistoryItem[];
+}
+
+export interface StorefrontPoolItem {
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  availableHere: number;
+}
+
+export interface StorefrontPoolOrder {
+  id: string;
+  number: string;
+  customerName: string;
+  deliveryAddress: string | null;
+  notes: string | null;
+  createdOnUtc: string;
+  expiresOnUtc: string;
+  totalValue: number;
+  canFulfil: boolean;
+  items: StorefrontPoolItem[];
 }

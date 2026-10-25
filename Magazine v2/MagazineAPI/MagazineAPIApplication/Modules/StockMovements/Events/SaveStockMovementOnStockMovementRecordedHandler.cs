@@ -6,7 +6,6 @@ using Mediator;
 
 namespace MagazineAPIApplication.Modules.StockMovements;
 
-// Runs synchronously inside the publisher's transaction, so the ledger entry commits or rolls back with the stock change.
 public sealed class SaveStockMovementOnStockMovementRecordedHandler(
     IRepository<StockMovement> movementRepository,
     IWarehouseContext currentUser) : INotificationHandler<StockMovementRecordedEvent>

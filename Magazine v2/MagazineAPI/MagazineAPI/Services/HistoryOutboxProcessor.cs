@@ -40,7 +40,6 @@ public sealed class HistoryOutboxProcessor(IServiceScopeFactory scopes, ILogger<
                     history.ShipmentHistories.Add(JsonSerializer.Deserialize<ShipmentHistory>(message.Payload)!);
             }
             else throw new InvalidOperationException($"Nieobsługiwany typ outboxa: {message.EntityType}.");
-            // Crash between these saves is safe: the history primary key deduplicates delivery.
             await history.SaveChangesAsync(cancellationToken);
             message.ProcessedOnUtc = DateTime.UtcNow;
             await source.SaveChangesAsync(cancellationToken);

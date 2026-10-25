@@ -44,12 +44,19 @@
 
     <div class="alerts-head">
       <h2>Alerty magazynowe</h2>
-      @if (canOrder && dashboard.alerts.length > 0) {
+      @if (canOrder && (dashboard.alerts.length > 0 || dashboard.backorders.length > 0)) {
         <button mat-flat-button type="button" [disabled]="opening()" (click)="createReplenishmentOrder()">
           {{ opening() ? 'Ładowanie...' : 'Utwórz zamówienie z alertów' }}
         </button>
       }
     </div>
+
+    @if (dashboard.backorders.length > 0) {
+      <p class="backorder-note" role="status">
+        Prośby o wysyłkę czekają na towar, którego brakuje w tym magazynie ({{ dashboard.backorders.length }} poz.).
+        Utwórz zamówienie, aby je uzupełnić.
+      </p>
+    }
 
     <div class="table-wrapper">
       <table mat-table [dataSource]="dashboard.alerts" aria-label="Tabela: Alerty magazynowe">

@@ -4,4 +4,5 @@ public sealed record WarehouseView(
     Guid Id,
     string Name,
     string? Address,
-    string? Description);
+    string? Description,
+    bool IsHub);

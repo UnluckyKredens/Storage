@@ -11,6 +11,8 @@
       <dd>{{ display(data.row?.address) }}</dd>
       <dt>Opis</dt>
       <dd>{{ display(data.row?.description) }}</dd>
+      <dt>Magazyn przeładunkowy</dt>
+      <dd>{{ display(data.row?.isHub) }}</dd>
     </dl>
   </mat-dialog-content>
   <mat-dialog-actions align="end">
@@ -35,6 +37,14 @@
           [(ngModel)]="form.description"
           [rows]="3"
         />
+        @if (isAdministrator) {
+          <app-form-checkbox
+            class="full-width"
+            label="Magazyn przeładunkowy (hub): przyjmuje zamówienia zewnętrzne i zaopatruje pozostałe magazyny"
+            name="isHub"
+            [(ngModel)]="form.isHub"
+          />
+        }
       </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">

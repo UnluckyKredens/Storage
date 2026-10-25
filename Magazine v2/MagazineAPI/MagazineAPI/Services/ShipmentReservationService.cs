@@ -18,7 +18,8 @@ public sealed class ShipmentReservationService(
         Shipment shipment,
         IReadOnlyCollection<ShipmentItem> items,
         string note,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool allowPartial = false)
     {
         var sourceLocations = await locationRepository.FilterByAsync(
             location => location.WarehouseId == shipment.SourceWarehouseId,
@@ -30,13 +31,42 @@ public sealed class ShipmentReservationService(
 
         foreach (var item in items)
         {
-            await ReserveItemAsync(shipment, item, sourceLocationIds, locationById, note, cancellationToken);
+            await ReserveItemAsync(shipment, item, item.Quantity, allowPartial, sourceLocationIds, locationById, note, cancellationToken);
+        }
+    }
+
+    public async Task ReserveMissingAsync(
+        Shipment shipment,
+        IReadOnlyCollection<ShipmentItem> items,
+        string note,
+        CancellationToken cancellationToken = default)
+    {
+        var sourceLocations = await locationRepository.FilterByAsync(
+            location => location.WarehouseId == shipment.SourceWarehouseId,
+            cancellationToken);
+        var sourceLocationIds = sourceLocations.Select(location => location.Id).ToHashSet();
+        var locationById = sourceLocations.ToDictionary(location => location.Id);
+        var reservations = await reservationRepository.FilterByAsync(
+            reservation => reservation.SourceType == "Shipment" && reservation.SourceId == shipment.Id &&
+                           reservation.Status == StockReservationStatus.Active,
+            cancellationToken);
+
+        foreach (var item in items)
+        {
+            var reserved = reservations
+                .Where(reservation => reservation.SourceItemId == item.Id)
+                .Sum(reservation => reservation.Quantity - reservation.ReleasedQuantity);
+            var missing = item.Quantity - reserved;
+            if (missing > 0)
+                await ReserveItemAsync(shipment, item, missing, false, sourceLocationIds, locationById, note, cancellationToken);
         }
     }
 
     private async Task ReserveItemAsync(
         Shipment shipment,
         ShipmentItem item,
+        decimal quantity,
+        bool allowPartial,
         IReadOnlySet<Guid> sourceLocationIds,
         IReadOnlyDictionary<Guid, Location> locationById,
         string note,
@@ -50,10 +80,11 @@ public sealed class ShipmentReservationService(
             .ToList();
 
         var available = inventories.Sum(inventory => inventory.AvailableQuantity);
-        if (available < item.Quantity)
-            throw new CommandValidationException($"Brak wystarczającej ilości dla kodu {item.Barcode}.");
+        if (available < quantity && !allowPartial)
+            throw new CommandValidationException(
+                $"Brak wystarczającej ilości dla kodu {item.Barcode}: brakuje {quantity - available:0.###}. Towar czeka na dostawę.");
 
-        var remaining = item.Quantity;
+        var remaining = quantity;
         foreach (var inventory in inventories)
         {
             if (remaining <= 0) break;

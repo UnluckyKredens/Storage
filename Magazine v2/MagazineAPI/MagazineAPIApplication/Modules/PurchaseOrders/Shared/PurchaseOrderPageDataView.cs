@@ -5,7 +5,8 @@ namespace MagazineAPIApplication.Modules.PurchaseOrders;
 public sealed record PurchaseOrderPageDataView(
     WarehouseView Warehouse,
     IReadOnlyList<PurchaseOrderContractorView> Suppliers,
-    IReadOnlyList<PurchaseOrderProductView> Products);
+    IReadOnlyList<PurchaseOrderProductView> Products,
+    string? HubWarehouseName = null);
 
 public sealed record PurchaseOrderContractorView(Guid Id, string Name, string TaxNumber);
 

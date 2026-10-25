@@ -15,6 +15,7 @@ public sealed class ApproveShipmentCommandHandler(
     IRepository<Inventory> inventoryRepository,
     IRepository<Location> locationRepository,
     IRepository<StockReservation> reservationRepository,
+    IShipmentReservationService shipmentReservationService,
     IWarehouseContext warehouseContext,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork,
@@ -41,6 +42,7 @@ public sealed class ApproveShipmentCommandHandler(
 
         await unitOfWork.ExecuteInTransactionAsync(async ct =>
         {
+            await shipmentReservationService.ReserveMissingAsync(shipment, items, "Uzupełnienie rezerwacji przed wysłaniem.", ct);
             var activeReservations = await reservationRepository.FilterByAsync(
                 reservation =>
                     reservation.SourceType == "Shipment" &&

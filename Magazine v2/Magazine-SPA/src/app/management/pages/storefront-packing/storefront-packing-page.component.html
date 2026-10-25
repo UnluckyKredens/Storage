@@ -5,6 +5,74 @@
     [showAddButton]="false"
   />
 
+  @if (pool().length > 0) {
+    <h2 class="section-title">Zamówienia do przyjęcia ({{ pool().length }})</h2>
+    <p class="section-hint">
+      Nowe zamówienia ze sklepu nie mają jeszcze magazynu. Pierwszy magazyn, który je przyjmie, rezerwuje towar i realizuje zamówienie.
+    </p>
+    <div class="table-wrapper pool-table">
+      <table mat-table [dataSource]="pool()" aria-label="Tabela: Zamówienia do przyjęcia">
+        <ng-container matColumnDef="number">
+          <th mat-header-cell *matHeaderCellDef>Numer</th>
+          <td mat-cell *matCellDef="let row">
+            <strong>{{ row.number }}</strong>
+            <span class="subtle">{{ row.createdOnUtc | date: 'dd.MM.yyyy HH:mm' }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef>Klient</th>
+          <td mat-cell *matCellDef="let row">
+            <strong>{{ row.customerName }}</strong>
+            @if (row.deliveryAddress) {
+              <span class="subtle">{{ row.deliveryAddress }}</span>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="items">
+          <th mat-header-cell *matHeaderCellDef>Pozycje (stan w moim magazynie)</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="items-list">
+              @for (item of row.items; track item.sku) {
+                <span>
+                  {{ item.productName }}
+                  <small [class.short]="item.availableHere < item.quantity">
+                    Potrzeba: <strong>{{ item.quantity | number: '1.0-3' }}</strong> / wolne na stanie:
+                    <strong>{{ item.availableHere | number: '1.0-3' }}</strong>
+                  </small>
+                </span>
+              }
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="totalValue">
+          <th mat-header-cell *matHeaderCellDef>Wartość</th>
+          <td mat-cell *matCellDef="let row">{{ row.totalValue | number: '1.2-2' }} zł</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <div class="actions">
+              @if (canPack) {
+                <button
+                  mat-flat-button
+                  type="button"
+                  [disabled]="!row.canFulfil || processing() === row.id"
+                  [title]="row.canFulfil ? '' : 'Ten magazyn nie ma pełnego stanu na to zamówienie'"
+                  (click)="claim(row)"
+                >
+                  Przyjmij do realizacji
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="poolColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: poolColumns"></tr>
+      </table>
+    </div>
+    <h2 class="section-title">Moje zamówienia do spakowania</h2>
+  }
+
   <div class="table-wrapper">
     @if (loading()) {
       <mat-progress-bar mode="indeterminate" />
@@ -45,8 +113,12 @@
           <div class="items-list">
             @for (item of row.items; track item.id) {
               <span>
-                {{ item.productName }} x {{ item.quantity | number: '1.0-3' }}
-                <small>{{ item.allocations.length ? allocationLabel(item.allocations) : 'brak alokacji' }}</small>
+                {{ item.productName }}
+                <small [class.short]="item.stockQuantity < item.quantity">
+                  Potrzeba: <strong>{{ item.quantity | number: '1.0-3' }}</strong> / na stanie:
+                  <strong>{{ item.stockQuantity | number: '1.0-3' }}</strong>
+                </small>
+                <small>{{ item.allocations.length ? 'Zarezerwowano: ' + allocationLabel(item.allocations) : 'brak alokacji' }}</small>
               </span>
             }
           </div>

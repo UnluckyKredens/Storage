@@ -8,18 +8,22 @@
     (openedChange)="openedChanged($event)"
     (closed)="touch()"
   >
-    <mat-option>
+    <div class="search-box">
       <input
-        matInput
+        #searchInput
         type="search"
         [attr.aria-label]="searchLabel"
         [(ngModel)]="search"
+        [ngModelOptions]="{ standalone: true }"
         placeholder="Szukaj..."
         autocomplete="off"
         (click)="$event.stopPropagation()"
         (keydown)="$event.stopPropagation()"
       />
-    </mat-option>
+    </div>
+    @if (filteredOptions.length === 0) {
+      <div class="no-results">Brak wyników</div>
+    }
     @for (option of filteredOptions; track option.value) {
       <mat-option [value]="option.value">{{ option.label }}</mat-option>
     }

@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace MagazineAPI.Services;
 
-/// <summary>Timestamps are stored as UTC; always send them with a Z so clients convert to local time.</summary>
 public sealed class UtcDateTimeJsonConverter : JsonConverter<DateTime>
 {
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>

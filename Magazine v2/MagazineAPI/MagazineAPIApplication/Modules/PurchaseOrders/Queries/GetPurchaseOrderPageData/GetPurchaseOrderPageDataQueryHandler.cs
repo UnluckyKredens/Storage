@@ -47,6 +47,11 @@ public sealed class GetPurchaseOrderPageDataQueryHandler(
                 product.PurchasePrice))
             .ToArrayAsync(cancellationToken);
 
-        return new PurchaseOrderPageDataView(WarehouseMapper.ToView(warehouse), suppliers, products);
+        var hubName = await warehouseRepository.Query()
+            .Where(item => item.IsHub)
+            .Select(item => item.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return new PurchaseOrderPageDataView(WarehouseMapper.ToView(warehouse), suppliers, products, hubName);
     }
 }

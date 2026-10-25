@@ -41,7 +41,6 @@ export class WarehouseFlowStatsComponent {
 
   readonly hasMovements = computed(() => (this.stats()?.movementCount ?? 0) > 0);
 
-  // Inbound blue and outbound amber are validated for colour-blind separation; the net line uses neutral ink.
   private static readonly inboundColor = '#1f5fbf';
   private static readonly outboundColor = '#d97706';
   private static readonly netColor = '#0f172a';

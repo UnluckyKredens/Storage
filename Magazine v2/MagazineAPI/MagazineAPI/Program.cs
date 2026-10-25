@@ -29,8 +29,6 @@ if (builder.Environment.IsDevelopment())
         .AddEnvironmentVariables().AddCommandLine(args);
 ConfigurationValidator.Validate(builder.Configuration, builder.Environment);
 
-// Add services to the container.
-
 builder.Services.AddControllers(options => options.Filters.Add<RequestValidationFilter>())
     .AddJsonOptions(options =>
     {
@@ -76,7 +74,6 @@ builder.Services.AddHostedService<HistoryOutboxProcessor>();
 builder.Services.AddHostedService<StorefrontReservationExpiryWorker>();
 builder.Services.AddScoped<StorefrontOrderService>();
 
-// Any origin may call the API. Access is protected by JWT bearer tokens (no cookies), not by the browser origin.
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")));
 builder.Services.AddRateLimiter(options =>
@@ -157,7 +154,6 @@ builder.Services.AddDbContext<HistoryDbContext>(opt =>
             sqlServerOptions.EnableRetryOnFailure();
         }));
 
-
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IRepository<InventoryHistory>, HistoryRepository<InventoryHistory>>();
 builder.Services.AddScoped<IRepository<ShipmentHistory>, HistoryRepository<ShipmentHistory>>();
@@ -176,8 +172,6 @@ var app = builder.Build();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 
-// CORS runs first so error responses produced by the exception handler below still carry the CORS headers;
-// otherwise the browser reports a server error as a CORS failure.
 app.UseCors();
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -209,7 +203,6 @@ app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
     await context.Response.WriteAsJsonAsync(new { message });
 }));
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
