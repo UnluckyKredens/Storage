@@ -17,7 +17,7 @@ public sealed class StorefrontOrderService(AppDbContext db, IAuditLogWriter audi
     // The caller holds the operational transaction and has checked access/status.
     public async Task ReleaseAsync(StorefrontOrder order, string reason, CancellationToken ct)
     {
-        if (order.Status is StorefrontOrderStatus.Cancelled or StorefrontOrderStatus.Completed) return;
+        if (order.Status is StorefrontOrderStatus.Cancelled or StorefrontOrderStatus.Completed or StorefrontOrderStatus.Shipped) return;
         foreach (var allocation in order.Items.SelectMany(item => item.Allocations))
         {
             var quantity = allocation.Quantity - allocation.ConsumedQuantity;

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { StorefrontPackingOrder } from '../models/management.models';
+import { StorefrontOrderHistory, StorefrontPackingOrder } from '../models/management.models';
 
 @Injectable({ providedIn: 'root' })
 export class StorefrontPackingService {
@@ -19,5 +19,15 @@ export class StorefrontPackingService {
 
   pack(id: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${id}/pack`, {});
+  }
+
+  getHistory(status: number | null, days: number): Observable<StorefrontOrderHistory[]> {
+    const params: Record<string, number> = { days };
+    if (status !== null) params['status'] = status;
+    return this.http.get<StorefrontOrderHistory[]>(`${this.apiUrl}/history`, { params });
+  }
+
+  ship(id: string, carrierName: string, trackingNumber: string | null): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/ship`, { carrierName, trackingNumber });
   }
 }

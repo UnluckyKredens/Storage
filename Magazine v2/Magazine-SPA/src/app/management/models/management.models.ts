@@ -296,3 +296,34 @@ export interface StorefrontPackingOrder {
   totalValue: number;
   items: StorefrontPackingOrderItem[];
 }
+
+export interface StorefrontOrderHistoryItem {
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface StorefrontOrderHistory {
+  id: string;
+  number: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  deliveryAddress: string | null;
+  notes: string | null;
+  assignedWarehouseName: string;
+  status: string;
+  createdOnUtc: string;
+  acceptedOnUtc: string | null;
+  acceptedBy: string | null;
+  packedOnUtc: string | null;
+  packedBy: string | null;
+  shippedOnUtc: string | null;
+  shippedBy: string | null;
+  carrierName: string | null;
+  carrierTrackingNumber: string | null;
+  totalValue: number;
+  items: StorefrontOrderHistoryItem[];
+}

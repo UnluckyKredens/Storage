@@ -51,6 +51,9 @@ public class StorefrontOrderConfiguration : IEntityTypeConfiguration<StorefrontO
 
         builder.Property(order => order.CompletedOnUtc);
 
+        builder.Property(order => order.CarrierName).HasMaxLength(100);
+        builder.Property(order => order.CarrierTrackingNumber).HasMaxLength(100);
+
         builder.HasIndex(order => order.Number)
             .IsUnique();
 
@@ -73,7 +76,7 @@ public class StorefrontOrderConfiguration : IEntityTypeConfiguration<StorefrontO
         {
             tableBuilder.HasCheckConstraint(
                 "CK_StorefrontOrders_Status",
-                $"[Status] IN ({(int)StorefrontOrderStatus.New}, {(int)StorefrontOrderStatus.Accepted}, {(int)StorefrontOrderStatus.Completed}, {(int)StorefrontOrderStatus.Cancelled})");
+                $"[Status] IN ({(int)StorefrontOrderStatus.New}, {(int)StorefrontOrderStatus.Accepted}, {(int)StorefrontOrderStatus.Completed}, {(int)StorefrontOrderStatus.Cancelled}, {(int)StorefrontOrderStatus.Shipped})");
         });
     }
 }

@@ -68,7 +68,9 @@ public sealed class StorefrontController(
         string Description,
         DateTime CreatedOnUtc,
         decimal TotalValue,
-        IReadOnlyList<StorefrontTrackingItemResponse> Items);
+        IReadOnlyList<StorefrontTrackingItemResponse> Items,
+        string? CarrierName = null,
+        string? CarrierTrackingNumber = null);
 
     public sealed record StorefrontTrackingItemResponse(
         string ProductName,
@@ -76,6 +78,30 @@ public sealed class StorefrontController(
         decimal Quantity,
         decimal UnitPrice,
         decimal TotalPrice);
+
+    public sealed record ShipOrderRequest(string CarrierName, string? TrackingNumber);
+
+    public sealed record StorefrontOrderHistoryResponse(
+        Guid Id,
+        string Number,
+        string CustomerName,
+        string CustomerEmail,
+        string? CustomerPhone,
+        string? DeliveryAddress,
+        string? Notes,
+        string AssignedWarehouseName,
+        string Status,
+        DateTime CreatedOnUtc,
+        DateTime? AcceptedOnUtc,
+        string? AcceptedBy,
+        DateTime? PackedOnUtc,
+        string? PackedBy,
+        DateTime? ShippedOnUtc,
+        string? ShippedBy,
+        string? CarrierName,
+        string? CarrierTrackingNumber,
+        decimal TotalValue,
+        IReadOnlyList<StorefrontTrackingItemResponse> Items);
 
     public sealed record StorefrontPackingOrderResponse(
         Guid Id,
@@ -227,6 +253,7 @@ public sealed class StorefrontController(
         }
         order.Status = StorefrontOrderStatus.Accepted;
         order.AcceptedOnUtc = DateTime.UtcNow;
+        order.AcceptedByUserId = warehouseContext.UserId;
         order.ExpiresOnUtc = DateTime.UtcNow.AddHours(24);
         await auditLogWriter.RecordAsync(new AuditLogRecord("Accept", nameof(StorefrontOrder), id.ToString(), "Przyjęto do kompletacji."), ct);
         await dbContext.SaveChangesAsync(ct);
@@ -238,7 +265,7 @@ public sealed class StorefrontController(
     public Task<ActionResult> PackOrder(Guid id, CancellationToken ct) => InTransactionAsync(async () =>
     {
         var order = await PackingOrderAsync(id, ct);
-        if (order.Status == StorefrontOrderStatus.Completed) return NoContent();
+        if (order.Status is StorefrontOrderStatus.Completed or StorefrontOrderStatus.Shipped) return NoContent();
         if (order.Status != StorefrontOrderStatus.Accepted) throw new CommandValidationException("Najpierw przyjmij zamówienie do kompletacji.");
         if (order.ExpiresOnUtc <= DateTime.UtcNow)
         {
@@ -268,17 +295,77 @@ public sealed class StorefrontController(
         }
         order.Status = StorefrontOrderStatus.Completed;
         order.CompletedOnUtc = DateTime.UtcNow;
+        order.PackedByUserId = warehouseContext.UserId;
         await auditLogWriter.RecordAsync(new AuditLogRecord("Pack", nameof(StorefrontOrder), id.ToString(), "Spakowano zamówienie."), ct);
         await dbContext.SaveChangesAsync(ct);
         return NoContent();
     }, ct);
+
+    [HttpPost("orders/{id:guid}/ship")]
+    [HasPermission(PermissionCodes.ShipmentsApprove)]
+    public Task<ActionResult> ShipOrder(Guid id, [FromBody] ShipOrderRequest request, CancellationToken ct) => InTransactionAsync(async () =>
+    {
+        var carrier = request.CarrierName?.Trim();
+        if (string.IsNullOrEmpty(carrier) || carrier.Length > 100)
+            throw new CommandValidationException("Podaj przewoźnika (do 100 znaków).");
+        var trackingNumber = string.IsNullOrWhiteSpace(request.TrackingNumber) ? null : request.TrackingNumber.Trim();
+        if (trackingNumber is { Length: > 100 })
+            throw new CommandValidationException("Numer przesyłki może mieć najwyżej 100 znaków.");
+
+        var order = await PackingOrderAsync(id, ct);
+        if (order.Status == StorefrontOrderStatus.Shipped) return NoContent();
+        if (order.Status != StorefrontOrderStatus.Completed)
+            throw new CommandValidationException("Wysłać można tylko spakowane zamówienie.");
+        order.Status = StorefrontOrderStatus.Shipped;
+        order.ShippedOnUtc = DateTime.UtcNow;
+        order.ShippedByUserId = warehouseContext.UserId;
+        order.CarrierName = carrier;
+        order.CarrierTrackingNumber = trackingNumber;
+        await auditLogWriter.RecordAsync(new AuditLogRecord("Ship", nameof(StorefrontOrder), id.ToString(),
+            $"Przekazano przewoźnikowi: {carrier}{(trackingNumber is null ? string.Empty : $", przesyłka {trackingNumber}")}."), ct);
+        await dbContext.SaveChangesAsync(ct);
+        return NoContent();
+    }, ct);
+
+    [HttpGet("orders/history")]
+    [HasPermission(PermissionCodes.ShipmentsRead)]
+    public async Task<ActionResult<IReadOnlyList<StorefrontOrderHistoryResponse>>> OrderHistory(
+        [FromQuery] int? status, [FromQuery] int days = 90, CancellationToken ct = default)
+    {
+        if (!warehouseContext.IsAdministrator && warehouseContext.WarehouseId is null)
+            throw new ForbiddenOperationException("Użytkownik nie ma przypisanego magazynu.");
+        var fromUtc = DateTime.UtcNow.AddDays(-Math.Clamp(days, 1, 730));
+        var query = PackingOrderQuery().Where(order => order.CreatedOnUtc >= fromUtc);
+        if (status is { } value && Enum.IsDefined(typeof(StorefrontOrderStatus), value))
+            query = query.Where(order => order.Status == (StorefrontOrderStatus)value);
+        var orders = await query.OrderByDescending(order => order.CreatedOnUtc).Take(500).ToArrayAsync(ct);
+
+        var userIds = orders.SelectMany(order => new[] { order.AcceptedByUserId, order.PackedByUserId, order.ShippedByUserId })
+            .OfType<Guid>().Distinct().ToArray();
+        var users = await dbContext.Users.AsNoTracking().Where(user => userIds.Contains(user.Id))
+            .ToDictionaryAsync(user => user.Id, user => $"{user.FirstName} {user.LastName}".Trim(), ct);
+        string? Name(Guid? id) => id is { } key ? users.GetValueOrDefault(key, "Usunięty użytkownik") : null;
+
+        return Ok(orders.Select(order =>
+        {
+            var items = order.Items.OrderBy(item => item.Product.Name).Select(item => new StorefrontTrackingItemResponse(
+                item.Product.Name, item.Product.Sku, item.Quantity, item.UnitPrice, item.Quantity * item.UnitPrice)).ToArray();
+            return new StorefrontOrderHistoryResponse(
+                order.Id, order.Number, order.CustomerName, order.CustomerEmail, order.CustomerPhone, order.DeliveryAddress,
+                order.Notes, order.AssignedWarehouse?.Name ?? "Nieprzypisany", DisplayStatus(order.Status), order.CreatedOnUtc,
+                order.AcceptedOnUtc, Name(order.AcceptedByUserId), order.CompletedOnUtc, Name(order.PackedByUserId),
+                order.ShippedOnUtc, Name(order.ShippedByUserId), order.CarrierName, order.CarrierTrackingNumber,
+                items.Sum(item => item.TotalPrice), items);
+        }).ToArray());
+    }
 
     [HttpPost("orders/{id:guid}/cancel")]
     [HasPermission(PermissionCodes.ShipmentsApprove)]
     public Task<ActionResult> CancelPackingOrder(Guid id, CancellationToken ct) => InTransactionAsync(async () =>
     {
         var order = await PackingOrderAsync(id, ct);
-        if (order.Status == StorefrontOrderStatus.Completed) throw new CommandValidationException("Zrealizowanego zamówienia nie można anulować.");
+        if (order.Status is StorefrontOrderStatus.Completed or StorefrontOrderStatus.Shipped)
+            throw new CommandValidationException("Spakowanego zamówienia nie można anulować.");
         await orderService.ReleaseAsync(order, "Anulowanie przez obsługę magazynu.", ct);
         return NoContent();
     }, ct);
@@ -307,7 +394,8 @@ public sealed class StorefrontController(
         var items = order.Items.OrderBy(item => item.Product.Name).Select(item => new StorefrontTrackingItemResponse(
             item.Product.Name, item.Product.Sku, item.Quantity, item.UnitPrice, item.Quantity * item.UnitPrice)).ToArray();
         return Ok(new StorefrontTrackingResponse(order.Id, order.Number, DisplayStatus(order.Status),
-            CurrentLocation(order), TrackingDescription(order.Status), order.CreatedOnUtc, items.Sum(item => item.TotalPrice), items));
+            CurrentLocation(order), TrackingDescription(order.Status), order.CreatedOnUtc, items.Sum(item => item.TotalPrice), items,
+            order.CarrierName, order.CarrierTrackingNumber));
     }
 
     private async Task<StorefrontOrder> PackingOrderAsync(Guid id, CancellationToken ct)
@@ -515,7 +603,8 @@ public sealed class StorefrontController(
     {
         StorefrontOrderStatus.New => "Nowe",
         StorefrontOrderStatus.Accepted => "Przyjęte do realizacji",
-        StorefrontOrderStatus.Completed => "Zrealizowane",
+        StorefrontOrderStatus.Completed => "Spakowane",
+        StorefrontOrderStatus.Shipped => "Wysłane",
         StorefrontOrderStatus.Cancelled => "Anulowane",
         _ => status.ToString()
     };
@@ -524,7 +613,8 @@ public sealed class StorefrontController(
     {
         StorefrontOrderStatus.New => FormatLocation("Biuro obsługi zamówień", order.AssignedWarehouse?.Name),
         StorefrontOrderStatus.Accepted => FormatLocation("Magazyn kompletacji", order.AssignedWarehouse?.Name),
-        StorefrontOrderStatus.Completed => "Wydane do klienta",
+        StorefrontOrderStatus.Completed => FormatLocation("Strefa wysyłek", order.AssignedWarehouse?.Name),
+        StorefrontOrderStatus.Shipped => string.IsNullOrWhiteSpace(order.CarrierName) ? "Przekazane przewoźnikowi" : $"Przekazane przewoźnikowi: {order.CarrierName}",
         StorefrontOrderStatus.Cancelled => "Zamówienie zamknięte",
         _ => "System Magazine"
     };
@@ -533,7 +623,8 @@ public sealed class StorefrontController(
     {
         StorefrontOrderStatus.New => "Zamówienie zostało zapisane i czeka na potwierdzenie przez obsługę.",
         StorefrontOrderStatus.Accepted => "Zamówienie jest kompletowane w magazynie.",
-        StorefrontOrderStatus.Completed => "Zamówienie zostało zakończone.",
+        StorefrontOrderStatus.Completed => "Zamówienie zostało spakowane i czeka na przekazanie kurierowi.",
+        StorefrontOrderStatus.Shipped => "Zamówienie zostało przekazane przewoźnikowi.",
         StorefrontOrderStatus.Cancelled => "Zamówienie zostało anulowane.",
         _ => "Status zamówienia został zarejestrowany w systemie."
     };

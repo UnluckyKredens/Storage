@@ -98,6 +98,15 @@ export const managementRoutes: Routes = [
       ),
   },
   {
+    path: 'storefront-orders',
+    canActivate: [permissionGuard],
+    data: { permission: 'shipments.read' },
+    loadComponent: () =>
+      import('./pages/storefront-orders/storefront-orders-page.component').then(
+        (m) => m.StorefrontOrdersPageComponent,
+      ),
+  },
+  {
     path: 'contractors',
     canActivate: [permissionGuard],
     data: { permission: 'contractors.read' },

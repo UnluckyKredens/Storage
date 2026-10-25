@@ -30,7 +30,8 @@ public sealed class GetProductSalesStatsQueryHandler(
         var warehouseId = warehouseContext.WarehouseId;
 
         var orders = orderRepository.Query()
-            .Where(order => order.Status == StorefrontOrderStatus.Completed && order.CompletedOnUtc >= fromUtc);
+            .Where(order => (order.Status == StorefrontOrderStatus.Completed || order.Status == StorefrontOrderStatus.Shipped)
+                && order.CompletedOnUtc >= fromUtc);
         if (warehouseId is not null)
             orders = orders.Where(order => order.AssignedWarehouseId == warehouseId);
 

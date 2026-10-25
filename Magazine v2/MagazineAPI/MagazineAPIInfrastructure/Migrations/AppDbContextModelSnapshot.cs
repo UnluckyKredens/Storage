@@ -1017,11 +1017,22 @@ namespace MagazineAPInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AcceptedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("AcceptedOnUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("AssignedWarehouseId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CarrierName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CarrierTrackingNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("CompletedOnUtc")
                         .HasColumnType("datetime2");
@@ -1063,6 +1074,9 @@ namespace MagazineAPInfrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("PackedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("RequestFingerprint")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
@@ -1072,6 +1086,12 @@ namespace MagazineAPInfrastructure.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<Guid?>("ShippedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ShippedOnUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1101,7 +1121,7 @@ namespace MagazineAPInfrastructure.Migrations
 
                     b.ToTable("StorefrontOrders", null, t =>
                         {
-                            t.HasCheckConstraint("CK_StorefrontOrders_Status", "[Status] IN (1, 2, 3, 4)");
+                            t.HasCheckConstraint("CK_StorefrontOrders_Status", "[Status] IN (1, 2, 3, 4, 5)");
                         });
                 });
 

@@ -103,6 +103,14 @@ export class ManagementContainerComponent implements OnInit {
       category: 'Magazyn',
     },
     {
+      path: 'storefront-orders',
+      label: 'Zamówienia sklepu',
+      description: 'Klienci, wysyłka do przewoźnika i dokumenty',
+      icon: 'local_shipping',
+      permission: 'shipments.read',
+      category: 'Magazyn',
+    },
+    {
       path: 'contractors',
       label: 'Kontrahenci',
       description: 'Dostawcy, firmy serwisowe i odbiorcy',

@@ -78,7 +78,7 @@ builder.Services.AddScoped<StorefrontOrderService>();
 
 // Any origin may call the API. Access is protected by JWT bearer tokens (no cookies), not by the browser origin.
 builder.Services.AddCors(options =>
-    options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+    options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")));
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -176,6 +176,9 @@ var app = builder.Build();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 
+// CORS runs first so error responses produced by the exception handler below still carry the CORS headers;
+// otherwise the browser reports a server error as a CORS failure.
+app.UseCors();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
@@ -217,8 +220,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
-
-app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

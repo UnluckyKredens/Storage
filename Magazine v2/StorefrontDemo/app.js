@@ -1,7 +1,7 @@
 (() => {
   const API_KEY = 'magazine-store-api-url';
   const TRACKING_KEY = 'magazine-store-tracking-id';
-  const STEPS = ['Nowe', 'Przyjęte do realizacji', 'Zrealizowane'];
+  const STEPS = ['Nowe', 'Przyjęte do realizacji', 'Spakowane', 'Wysłane'];
   const GLYPHS = {
     CPU: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
     GPU: '<rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="9" cy="12" r="2.5"/><circle cx="16" cy="12" r="2.5"/>',
@@ -262,7 +262,7 @@
   function renderTracking(order, token) {
     const cancelled = order.status === 'Anulowane';
     const stepIndex = STEPS.indexOf(order.status);
-    const pillClass = cancelled ? 'cancelled' : order.status === 'Zrealizowane' ? 'done' : '';
+    const pillClass = cancelled ? 'cancelled' : order.status === 'Wysłane' ? 'done' : '';
     const steps = cancelled
       ? `<ol class="steps cancelled"><li class="on">Nowe</li><li class="on">Anulowane</li></ol>`
       : `<ol class="steps">${STEPS.map((s, i) => `<li class="${i <= stepIndex ? 'on' : ''}">${s}</li>`).join('')}</ol>`;
@@ -275,6 +275,7 @@
       ${steps}
       <p class="track-meta"><strong>Lokalizacja:</strong> ${escapeHtml(order.currentLocation)}</p>
       <p class="muted">${escapeHtml(order.description)}</p>
+      ${order.carrierName ? `<p class="track-meta"><strong>Przewoźnik:</strong> ${escapeHtml(order.carrierName)}${order.carrierTrackingNumber ? ' · nr przesyłki ' + escapeHtml(order.carrierTrackingNumber) : ''}</p>` : ''}
       <div>${(order.items || []).map((item) => `
         <div class="track-item"><span>${escapeHtml(item.productName)} × ${item.quantity}</span><strong>${money(item.totalPrice)}</strong></div>`).join('')}
         <div class="track-item"><span>Razem</span><strong>${money(order.totalValue)}</strong></div>

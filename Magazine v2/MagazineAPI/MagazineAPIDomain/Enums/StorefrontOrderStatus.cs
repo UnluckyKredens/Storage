@@ -5,5 +5,6 @@ public enum StorefrontOrderStatus
     New = 1,
     Accepted = 2,
     Completed = 3,
-    Cancelled = 4
+    Cancelled = 4,
+    Shipped = 5
 }

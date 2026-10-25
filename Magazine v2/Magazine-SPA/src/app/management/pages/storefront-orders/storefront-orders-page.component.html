@@ -1,0 +1,121 @@
+<section class="management-page">
+  <app-table-navigation-component
+    title="Zamówienia sklepu"
+    backLink="/main/management"
+    [showAddButton]="false"
+  />
+
+  <div class="filters">
+    <label>
+      <span>Status</span>
+      <select [(ngModel)]="status" name="status" (ngModelChange)="load()">
+        @for (option of statusOptions; track option.label) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Okres</span>
+      <select [(ngModel)]="days" name="days" (ngModelChange)="load()">
+        @for (period of periods; track period) {
+          <option [ngValue]="period">{{ period }} dni</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <div class="table-wrapper">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <table mat-table [dataSource]="orders()" aria-label="Tabela: Zamówienia sklepu">
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>Numer</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.number }}</strong>
+          <span class="subtle">{{ row.createdOnUtc | date: 'dd.MM.yyyy HH:mm' }}</span>
+          <span class="subtle">{{ row.assignedWarehouseName }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef>Klient</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.customerName }}</strong>
+          <span class="subtle">{{ row.customerEmail }}</span>
+          @if (row.customerPhone) {
+            <span class="subtle">{{ row.customerPhone }}</span>
+          }
+          @if (row.deliveryAddress) {
+            <span class="subtle">{{ row.deliveryAddress }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-pill" [attr.data-status]="row.status">{{ row.status }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="handling">
+        <th mat-header-cell *matHeaderCellDef>Obsługa</th>
+        <td mat-cell *matCellDef="let row">
+          @if (row.acceptedBy) {
+            <span class="subtle">Przyjął: {{ row.acceptedBy }}</span>
+          }
+          @if (row.packedBy) {
+            <span class="subtle">Spakował: {{ row.packedBy }} ({{ row.packedOnUtc | date: 'dd.MM HH:mm' }})</span>
+          }
+          @if (row.shippedBy) {
+            <span class="subtle">Wysłał: {{ row.shippedBy }} ({{ row.shippedOnUtc | date: 'dd.MM HH:mm' }})</span>
+          }
+          @if (!row.acceptedBy && !row.packedBy && !row.shippedBy) {
+            <span class="subtle">—</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="carrier">
+        <th mat-header-cell *matHeaderCellDef>Przewoźnik</th>
+        <td mat-cell *matCellDef="let row">
+          @if (row.carrierName) {
+            <strong>{{ row.carrierName }}</strong>
+            <span class="subtle">{{ row.carrierTrackingNumber || 'bez numeru przesyłki' }}</span>
+          } @else {
+            <span class="subtle">—</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalValue">
+        <th mat-header-cell *matHeaderCellDef>Wartość</th>
+        <td mat-cell *matCellDef="let row">{{ row.totalValue | number: '1.2-2' }} zł</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div class="actions">
+            @if (canShip && row.status === 'Spakowane') {
+              <button mat-flat-button type="button" (click)="ship(row)">Przekaż kurierowi</button>
+            }
+            <button mat-button type="button" (click)="details(row)">Szczegóły</button>
+            @if (row.status === 'Spakowane' || row.status === 'Wysłane') {
+              <button mat-button type="button" (click)="printDocument(row)">Dokument</button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          {{ loading() ? 'Ładowanie zamówień...' : 'Brak zamówień w wybranym zakresie.' }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>

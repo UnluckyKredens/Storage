@@ -21,6 +21,12 @@ public class StorefrontOrder
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? AcceptedOnUtc { get; set; }
     public DateTime? CompletedOnUtc { get; set; }
+    public Guid? AcceptedByUserId { get; set; }
+    public Guid? PackedByUserId { get; set; }
+    public Guid? ShippedByUserId { get; set; }
+    public DateTime? ShippedOnUtc { get; set; }
+    public string? CarrierName { get; set; }
+    public string? CarrierTrackingNumber { get; set; }
 
     public Warehouse? AssignedWarehouse { get; set; }
     public ICollection<StorefrontOrderItem> Items { get; set; } = new List<StorefrontOrderItem>();
