@@ -11,4 +11,15 @@ public sealed record ShipmentView(
     DateTime CreatedOnUtc,
     DateTime? ApprovedOnUtc,
     DateTime? ReceivedOnUtc,
-    IReadOnlyList<ShipmentItemView> Items);
+    IReadOnlyList<ShipmentItemView> Items,
+    string? SourceWarehouseAddress = null,
+    string? SourceWarehouseTaxNumber = null,
+    string? DestinationWarehouseAddress = null,
+    string? DestinationWarehouseTaxNumber = null,
+    string? CreatedBy = null,
+    string? ApprovedBy = null,
+    string? PackedBy = null,
+    DateTime? PackedOnUtc = null,
+    string? SentBy = null,
+    DateTime? SentOnUtc = null,
+    string? ReceivedBy = null);

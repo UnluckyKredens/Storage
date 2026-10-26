@@ -110,6 +110,8 @@ public sealed class StorefrontController(
         string? DeliveryAddress,
         string? Notes,
         string AssignedWarehouseName,
+        string? AssignedWarehouseAddress,
+        string? AssignedWarehouseTaxNumber,
         string Status,
         DateTime CreatedOnUtc,
         DateTime? AcceptedOnUtc,
@@ -444,7 +446,8 @@ public sealed class StorefrontController(
                 item.Product.Name, item.Product.Sku, item.Quantity, item.UnitPrice, item.Quantity * item.UnitPrice)).ToArray();
             return new StorefrontOrderHistoryResponse(
                 order.Id, order.Number, order.CustomerName, order.CustomerEmail, order.CustomerPhone, order.DeliveryAddress,
-                order.Notes, order.AssignedWarehouse?.Name ?? "Nieprzypisany", DisplayStatus(order.Status), order.CreatedOnUtc,
+                order.Notes, order.AssignedWarehouse?.Name ?? "Nieprzypisany", order.AssignedWarehouse?.Address,
+                order.AssignedWarehouse?.TaxNumber, DisplayStatus(order.Status), order.CreatedOnUtc,
                 order.AcceptedOnUtc, Name(order.AcceptedByUserId), order.CompletedOnUtc, Name(order.PackedByUserId),
                 order.ShippedOnUtc, Name(order.ShippedByUserId), order.CarrierName, order.CarrierTrackingNumber,
                 items.Sum(item => item.TotalPrice), items);

@@ -13,6 +13,13 @@ export const managementRoutes: Routes = [
   { path: 'items', redirectTo: 'products' },
   { path: 'employees', redirectTo: 'users' },
   { path: 'branches', redirectTo: 'warehouses' },
+  { path: 'inventory', redirectTo: '/main/inventory' },
+  { path: 'stock-movements', redirectTo: '/main/inventory/movements' },
+  { path: 'warehouse-operations', redirectTo: '/main/inventory/operations' },
+  { path: 'shipments', redirectTo: '/main/shipments' },
+  { path: 'purchase-orders', redirectTo: '/main/purchase-orders' },
+  { path: 'storefront-packing', redirectTo: '/main/storefront/packing' },
+  { path: 'storefront-orders', redirectTo: '/main/storefront/orders' },
   {
     path: 'products',
     canActivate: [permissionGuard],
@@ -47,64 +54,6 @@ export const managementRoutes: Routes = [
     data: { permission: 'warehouses.read' },
     loadComponent: () =>
       import('./pages/locations/locations-page.component').then((m) => m.LocationsPageComponent),
-  },
-  {
-    path: 'inventory',
-    canActivate: [permissionGuard],
-    data: { permission: 'inventory.read' },
-    loadComponent: () =>
-      import('./pages/inventory/inventory-page.component').then((m) => m.InventoryPageComponent),
-  },
-  {
-    path: 'stock-movements',
-    canActivate: [permissionGuard],
-    data: { permission: 'inventory.read' },
-    loadComponent: () =>
-      import('./pages/stock-movements/stock-movements-page.component').then(
-        (m) => m.StockMovementsPageComponent,
-      ),
-  },
-  {
-    path: 'warehouse-operations',
-    canActivate: [permissionGuard],
-    data: { permission: 'inventory.read' },
-    loadComponent: () =>
-      import('./pages/warehouse-operations/warehouse-operations-page.component').then(
-        (m) => m.WarehouseOperationsPageComponent,
-      ),
-  },
-  {
-    path: 'shipments',
-    canActivate: [permissionGuard],
-    data: { permission: 'shipments.read' },
-    loadChildren: () => import('./shipments.routes').then((m) => m.shipmentRoutes),
-  },
-  {
-    path: 'purchase-orders',
-    canActivate: [permissionGuard],
-    data: { permission: 'purchase-orders.read' },
-    loadComponent: () =>
-      import('./pages/purchase-orders/purchase-orders-page.component').then(
-        (m) => m.PurchaseOrdersPageComponent,
-      ),
-  },
-  {
-    path: 'storefront-packing',
-    canActivate: [permissionGuard],
-    data: { permission: 'shipments.read' },
-    loadComponent: () =>
-      import('./pages/storefront-packing/storefront-packing-page.component').then(
-        (m) => m.StorefrontPackingPageComponent,
-      ),
-  },
-  {
-    path: 'storefront-orders',
-    canActivate: [permissionGuard],
-    data: { permission: 'shipments.read' },
-    loadComponent: () =>
-      import('./pages/storefront-orders/storefront-orders-page.component').then(
-        (m) => m.StorefrontOrdersPageComponent,
-      ),
   },
   {
     path: 'contractors',

@@ -24,7 +24,7 @@ interface UnitModalData {
     FormInputComponent,
   ],
   templateUrl: './unit-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class UnitModalComponent {
   readonly data = inject<UnitModalData>(MAT_DIALOG_DATA);

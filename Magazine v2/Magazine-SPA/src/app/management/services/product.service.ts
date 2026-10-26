@@ -2,13 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import {
-  Category,
-  Product,
-  ProductPage,
-  SelectOption,
-  UnitOfMeasure,
-} from '../models/management.models';
+import { Category, Product, ProductPage, SelectOption, UnitOfMeasure } from '../models/management.models';
 
 export interface ProductForm {
   name: string;

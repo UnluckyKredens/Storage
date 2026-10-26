@@ -11,6 +11,7 @@ public sealed class GetShipmentByIdentifierQueryHandler(
     IRepository<ShipmentItem> shipmentItemRepository,
     IRepository<Product> productRepository,
     IRepository<Warehouse> warehouseRepository,
+    IRepository<User> userRepository,
     IWarehouseContext warehouseContext) : IQueryHandler<GetShipmentByIdentifierQuery, ShipmentView>
 {
     public async ValueTask<ShipmentView> Handle(
@@ -44,6 +45,10 @@ public sealed class GetShipmentByIdentifierQueryHandler(
         var warehouses = (await warehouseRepository.AllAsync(cancellationToken))
             .ToDictionary(warehouse => warehouse.Id);
 
-        return ShipmentMapper.ToView(shipment, warehouses, products);
+        var userIds = ShipmentMapper.UserIds([shipment]);
+        var users = (await userRepository.FilterByAsync(user => userIds.Contains(user.Id), cancellationToken))
+            .ToDictionary(user => user.Id);
+
+        return ShipmentMapper.ToView(shipment, warehouses, products, users);
     }
 }

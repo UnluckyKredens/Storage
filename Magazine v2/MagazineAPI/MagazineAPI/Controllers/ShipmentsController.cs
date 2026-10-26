@@ -114,6 +114,22 @@ public sealed class ShipmentsController(ISender sender) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{id:guid}/pack")]
+    [HasPermission(PermissionCodes.ShipmentsApprove)]
+    public async Task<IActionResult> Pack(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new PackShipmentCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/dispatch")]
+    [HasPermission(PermissionCodes.ShipmentsApprove)]
+    public async Task<IActionResult> Dispatch(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new DispatchShipmentCommand(id), cancellationToken);
+        return NoContent();
+    }
+
     [HttpPost("{id:guid}/in-transit")]
     [HasPermission(PermissionCodes.ShipmentsApprove)]
     public async Task<IActionResult> MarkInTransit(Guid id, CancellationToken cancellationToken)

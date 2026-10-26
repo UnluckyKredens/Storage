@@ -10,7 +10,7 @@ import { administratorRoleId } from '../../../auth/roles';
 import { AccountService } from '../../../auth/services/account.service';
 import { TableNavigationComponent } from '../../../shared/components/table-navigation-component/table-navigation-component.component';
 import { NotificationService } from '../../../shared/services/notification.service';
-import { PurchaseOrderService } from '../../../management/services/purchase-order.service';
+import { PurchaseOrderService } from '../../../purchase-orders/services/purchase-order.service';
 import { ReplenishmentOrderModalComponent } from '../../components/replenishment-order-modal/replenishment-order-modal.component';
 import { ProductSalesStatsComponent } from '../../components/product-sales-stats/product-sales-stats.component';
 import { WarehouseFlowStatsComponent } from '../../components/warehouse-flow-stats/warehouse-flow-stats.component';
@@ -30,7 +30,7 @@ import { WarehouseDashboardService } from '../../services/warehouse-dashboard.se
   ],
   templateUrl: './warehouse-dashboard-page.component.html',
   styleUrls: [
-    '../../../management/pages/management-page.scss',
+    '../../../shared/styles/management-page.scss',
     './warehouse-dashboard-page.component.scss',
   ],
 })

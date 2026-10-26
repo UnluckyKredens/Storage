@@ -23,7 +23,7 @@ import { LocationService } from '../../services/location.service';
     TableNavigationComponent,
   ],
   templateUrl: './locations-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class LocationsPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(LocationService);

@@ -22,6 +22,9 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
         builder.Property(warehouse => warehouse.Address)
             .HasMaxLength(500);
 
+        builder.Property(warehouse => warehouse.TaxNumber)
+            .HasMaxLength(20);
+
         builder.Property(warehouse => warehouse.Description)
             .HasMaxLength(1000);
 

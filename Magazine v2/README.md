@@ -209,11 +209,11 @@ Poniższa lista pozwala sprawdzić każdą funkcję osobno. Wynik oczekiwany pod
 - [ ] **Anuluj** (przycisk w wierszu) → potwierdzenie w oknie → status „Anulowana", rezerwacja wraca do puli.
 - [ ] Wysyłka do **tego samego magazynu** → **„Magazyn docelowy musi być inny niż źródłowy."**
 - [ ] Ilość większa niż stan → **„Brak wystarczającej ilości dla kodu …"**
-- [ ] **Akceptuj** → status „Wysłana", rezerwacja zamienia się w rozchód ze stanu A. Przycisk „Anuluj" znika.
+- [ ] **Akceptuj** → status „Zaakceptowana", rezerwacja nadal trzyma towar. **Spakuj** → „Spakowana" (od tej chwili dostępne **WZ** i **Naklejka**). **Wyślij** → „Wysłana", rezerwacja zamienia się w rozchód ze stanu A. „Anuluj" działa do momentu wysłania.
 - [ ] **W drodze**, a potem w magazynie **B**: *Przyjmij wysyłkę* (wpisz numer albo zeskanuj), odhacz pozycje → status „Odebrana", towar w `REC-01` magazynu B.
 - [ ] Próba przyjęcia w magazynie A → **„Brak dostępu do magazynu docelowego tej wysyłki."** Przyciski akceptacji i anulowania są widoczne tylko w magazynie źródłowym.
 - [ ] **Historia** wysyłki pokazuje zdarzenia: utworzona, wysłana, w drodze, odebrana (pojawiają się po 2–3 sekundach).
-- [ ] Dla wysyłki w statusie „Wysłana" lub „W drodze" w wierszu są przyciski **WZ** i **Naklejka** (wydruk dokumentu i etykiety).
+- [ ] Dla wysyłki od statusu „Spakowana" (także „Wysłana", „W drodze", „Odebrana") w kolumnie *Dokumenty* są przyciski **WZ** i **Naklejka**, widoczne w każdym widoku wysyłek.
 
 ### F. Prośba o wysyłkę
 
@@ -313,6 +313,19 @@ MagazineAPI/
 ├── MagazineAPIEvent/            zdarzenia i ich nasłuchiwacze (historia wysyłek i stanów)
 └── MagazineAPIInfrastructure/   EF Core, mapowania, migracje, repozytoria, outbox historii
 ```
+
+Panel (`Magazine-SPA/src/app/`) jest podzielony na moduły funkcjonalne, każdy z własnymi stronami, oknami, serwisami, modelami i trasami:
+
+| Katalog | Adres | Zawartość |
+|---|---|---|
+| `inventory/` | `/main/inventory` | stany magazynowe, ruchy (`/movements`), dokumenty PW/RW/MM (`/operations`) |
+| `shipments/` | `/main/shipments` | wysyłki między magazynami: wszystkie, oczekujące, pakowanie i wysyłka |
+| `purchase-orders/` | `/main/purchase-orders` | zamówienia zewnętrzne |
+| `storefront/` | `/main/storefront` | pakowanie (`/packing`) i zamówienia sklepu (`/orders`) |
+| `management/` | `/main/management` | katalog, magazyny, lokalizacje, kontrahenci, użytkownicy, role, audyt |
+| `dashboard/`, `auth/`, `core/`, `shared/` | | dashboard, logowanie, układ strony, wspólne komponenty i style |
+
+Stare adresy `/main/management/shipments` itp. przekierowują na nowe.
 
 - **CQRS:** kontroler wysyła komendę lub zapytanie przez `ISender`, a handler waliduje, zapisuje i publikuje zdarzenia.
 - **Zdarzenia:** `StockMovementRecordedEvent` zapisuje wpis księgi ruchów w tej samej transakcji, a zdarzenia stanów i wysyłek trafiają do bazy historii przez outbox.

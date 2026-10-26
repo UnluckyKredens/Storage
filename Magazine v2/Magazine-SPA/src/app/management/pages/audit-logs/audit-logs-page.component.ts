@@ -13,7 +13,7 @@ import { AuditLogService } from '../../services/audit-log.service';
   selector: 'app-audit-logs-page',
   imports: [DatePipe, MatPaginatorModule, MatSortModule, MatTableModule, TableNavigationComponent],
   templateUrl: './audit-logs-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class AuditLogsPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(AuditLogService);

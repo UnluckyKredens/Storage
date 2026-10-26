@@ -23,7 +23,7 @@ import { WarehouseService } from '../../services/warehouse.service';
     TableNavigationComponent,
   ],
   templateUrl: './warehouses-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class WarehousesPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(WarehouseService);

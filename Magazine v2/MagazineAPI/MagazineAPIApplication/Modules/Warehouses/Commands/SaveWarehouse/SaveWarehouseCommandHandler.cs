@@ -24,6 +24,7 @@ public sealed class SaveWarehouseCommandHandler(
                 Id = Guid.NewGuid(),
                 Name = command.Name.Trim(),
                 Address = command.Address?.Trim(),
+                TaxNumber = string.IsNullOrWhiteSpace(command.TaxNumber) ? null : command.TaxNumber.Trim(),
                 Description = command.Description?.Trim(),
                 IsHub = command.IsHub == true
             };
@@ -38,6 +39,7 @@ public sealed class SaveWarehouseCommandHandler(
             throw new ForbiddenOperationException("Brak dostępu do wybranego magazynu.");
         existing.Name = command.Name.Trim();
         existing.Address = command.Address?.Trim();
+        existing.TaxNumber = string.IsNullOrWhiteSpace(command.TaxNumber) ? null : command.TaxNumber.Trim();
         existing.Description = command.Description?.Trim();
         if (command.IsHub is { } isHub && isHub != existing.IsHub)
         {

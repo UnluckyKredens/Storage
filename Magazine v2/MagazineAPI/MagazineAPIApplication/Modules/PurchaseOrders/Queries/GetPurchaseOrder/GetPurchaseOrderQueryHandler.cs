@@ -12,6 +12,7 @@ public sealed class GetPurchaseOrderQueryHandler(
     IRepository<Product> productRepository,
     IRepository<Warehouse> warehouseRepository,
     IRepository<Contractor> contractorRepository,
+    IRepository<User> userRepository,
     IWarehouseContext warehouseContext) : IQueryHandler<GetPurchaseOrderQuery, PurchaseOrderView>
 {
     public async ValueTask<PurchaseOrderView> Handle(
@@ -37,6 +38,10 @@ public sealed class GetPurchaseOrderQueryHandler(
         var contractors = (await contractorRepository.AllAsync(cancellationToken))
             .ToDictionary(contractor => contractor.Id);
 
-        return PurchaseOrderMapper.ToView(order, warehouses, contractors, products);
+        var userIds = PurchaseOrderMapper.UserIds([order]);
+        var users = (await userRepository.FilterByAsync(user => userIds.Contains(user.Id), cancellationToken))
+            .ToDictionary(user => user.Id);
+
+        return PurchaseOrderMapper.ToView(order, warehouses, contractors, products, users);
     }
 }

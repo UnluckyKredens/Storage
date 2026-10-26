@@ -9,7 +9,8 @@ internal static class PurchaseOrderMapper
         PurchaseOrder order,
         IReadOnlyDictionary<Guid, Warehouse> warehouses,
         IReadOnlyDictionary<Guid, Contractor> contractors,
-        IReadOnlyDictionary<Guid, Product> products)
+        IReadOnlyDictionary<Guid, Product> products,
+        IReadOnlyDictionary<Guid, User> users)
     {
         var warehouse = warehouses.GetValueOrDefault(order.WarehouseId);
         var contractor = contractors.GetValueOrDefault(order.ContractorId);
@@ -45,8 +46,26 @@ internal static class PurchaseOrderMapper
             order.PaperDocumentNumber,
             order.Notes,
             items.Sum(item => item.TotalPrice),
-            items);
+            items,
+            warehouse?.Address,
+            warehouse?.TaxNumber,
+            contractor?.TaxNumber,
+            contractor?.Address,
+            contractor?.Email,
+            contractor?.Phone,
+            UserName(users, order.CreatedByUserId),
+            UserName(users, order.ApprovedByUserId),
+            UserName(users, order.ReceivedByUserId));
     }
+
+    public static Guid[] UserIds(IEnumerable<PurchaseOrder> orders) => orders
+        .SelectMany(order => new[] { order.CreatedByUserId, order.ApprovedByUserId, order.ReceivedByUserId })
+        .OfType<Guid>()
+        .Distinct()
+        .ToArray();
+
+    private static string? UserName(IReadOnlyDictionary<Guid, User> users, Guid? id) =>
+        id is { } key && users.GetValueOrDefault(key) is { } user ? $"{user.FirstName} {user.LastName}".Trim() : null;
 
     private static string DisplayStatus(PurchaseOrderStatus status) => status switch
     {

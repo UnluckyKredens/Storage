@@ -23,7 +23,7 @@ import { CategoryService } from '../../services/category.service';
     TableNavigationComponent,
   ],
   templateUrl: './categories-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class CategoriesPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(CategoryService);

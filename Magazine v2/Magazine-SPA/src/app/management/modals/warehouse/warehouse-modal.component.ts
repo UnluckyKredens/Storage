@@ -30,7 +30,7 @@ interface WarehouseModalData {
     FormCheckboxComponent,
   ],
   templateUrl: './warehouse-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class WarehouseModalComponent {
   readonly data = inject<WarehouseModalData>(MAT_DIALOG_DATA);
@@ -41,6 +41,7 @@ export class WarehouseModalComponent {
   form = {
     name: String(this.data.row?.name ?? ''),
     address: String(this.data.row?.address ?? ''),
+    taxNumber: String(this.data.row?.taxNumber ?? ''),
     description: String(this.data.row?.description ?? ''),
     isHub: Boolean(this.data.row?.isHub),
   };

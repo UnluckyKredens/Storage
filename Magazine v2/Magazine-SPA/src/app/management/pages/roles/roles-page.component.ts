@@ -23,7 +23,7 @@ import { RoleService } from '../../services/role.service';
     TableNavigationComponent,
   ],
   templateUrl: './roles-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class RolesPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(RoleService);

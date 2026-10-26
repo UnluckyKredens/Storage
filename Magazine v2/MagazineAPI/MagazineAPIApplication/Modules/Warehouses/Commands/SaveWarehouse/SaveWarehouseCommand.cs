@@ -7,4 +7,5 @@ public sealed record SaveWarehouseCommand(
     string Name,
     string? Address,
     string? Description,
-    bool? IsHub = null) : ICommand<WarehouseView>;
+    bool? IsHub = null,
+    string? TaxNumber = null) : ICommand<WarehouseView>;

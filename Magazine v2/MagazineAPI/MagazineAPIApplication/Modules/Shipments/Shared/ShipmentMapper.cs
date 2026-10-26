@@ -8,7 +8,8 @@ internal static class ShipmentMapper
     public static ShipmentView ToView(
         Shipment shipment,
         IReadOnlyDictionary<Guid, Warehouse> warehouses,
-        IReadOnlyDictionary<Guid, Product> products)
+        IReadOnlyDictionary<Guid, Product> products,
+        IReadOnlyDictionary<Guid, User> users)
     {
         var source = warehouses.GetValueOrDefault(shipment.SourceWarehouseId);
         var destination = warehouses.GetValueOrDefault(shipment.DestinationWarehouseId);
@@ -37,12 +38,38 @@ internal static class ShipmentMapper
                         item.Barcode,
                         item.Quantity);
                 })
-                .ToArray());
+                .ToArray(),
+            source?.Address,
+            source?.TaxNumber,
+            destination?.Address,
+            destination?.TaxNumber,
+            UserName(users, shipment.CreatedByUserId),
+            UserName(users, shipment.ApprovedByUserId),
+            UserName(users, shipment.PackedByUserId),
+            shipment.PackedOnUtc,
+            UserName(users, shipment.SentByUserId),
+            shipment.SentOnUtc,
+            UserName(users, shipment.ReceivedByUserId));
     }
+
+    public static Guid[] UserIds(IEnumerable<Shipment> shipments) => shipments
+        .SelectMany(shipment => new[]
+        {
+            shipment.CreatedByUserId, shipment.ApprovedByUserId, shipment.PackedByUserId,
+            shipment.SentByUserId, shipment.ReceivedByUserId
+        })
+        .OfType<Guid>()
+        .Distinct()
+        .ToArray();
+
+    internal static string? UserName(IReadOnlyDictionary<Guid, User> users, Guid? id) =>
+        id is { } key && users.GetValueOrDefault(key) is { } user ? $"{user.FirstName} {user.LastName}".Trim() : null;
 
     private static string DisplayStatus(ShipmentStatus status) => status switch
     {
         ShipmentStatus.PendingApproval => "Oczekuje na akceptację",
+        ShipmentStatus.Approved => "Zaakceptowana",
+        ShipmentStatus.Packed => "Spakowana",
         ShipmentStatus.Sent => "Wysłana",
         ShipmentStatus.InTransit => "W drodze",
         ShipmentStatus.Received => "Odebrana",

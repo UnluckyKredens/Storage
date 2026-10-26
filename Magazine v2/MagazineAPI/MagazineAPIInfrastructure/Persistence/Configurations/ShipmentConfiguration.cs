@@ -57,6 +57,16 @@ public class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
             .HasForeignKey(shipment => shipment.ApprovedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(shipment => shipment.PackedByUser)
+            .WithMany()
+            .HasForeignKey(shipment => shipment.PackedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(shipment => shipment.SentByUser)
+            .WithMany()
+            .HasForeignKey(shipment => shipment.SentByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne(shipment => shipment.ReceivedByUser)
             .WithMany(user => user.ReceivedShipments)
             .HasForeignKey(shipment => shipment.ReceivedByUserId)
@@ -66,7 +76,7 @@ public class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
         {
             tableBuilder.HasCheckConstraint(
                 "CK_Shipments_Status",
-                $"[Status] IN ({(int)ShipmentStatus.PendingApproval}, {(int)ShipmentStatus.Sent}, {(int)ShipmentStatus.InTransit}, {(int)ShipmentStatus.Received}, {(int)ShipmentStatus.Cancelled})");
+                $"[Status] IN ({(int)ShipmentStatus.PendingApproval}, {(int)ShipmentStatus.Sent}, {(int)ShipmentStatus.InTransit}, {(int)ShipmentStatus.Received}, {(int)ShipmentStatus.Cancelled}, {(int)ShipmentStatus.Approved}, {(int)ShipmentStatus.Packed})");
             tableBuilder.HasCheckConstraint(
                 "CK_Shipments_DifferentWarehouses",
                 "[SourceWarehouseId] <> [DestinationWarehouseId]");

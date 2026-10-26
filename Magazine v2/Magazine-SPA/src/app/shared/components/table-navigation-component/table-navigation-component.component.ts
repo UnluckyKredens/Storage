@@ -20,6 +20,7 @@ export class TableNavigationComponent {
   @Input() addLabel = 'Dodaj';
   @Input() backLink: string | null = null;
   @Input() showAddButton = true;
+  @Input() showSearch = true;
 
   @Output() readonly searchSubmit = new EventEmitter<string>();
   @Output() readonly add = new EventEmitter<void>();

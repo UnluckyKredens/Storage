@@ -9,5 +9,6 @@ internal static class WarehouseMapper
             item.Name,
             item.Address,
             item.Description,
-            item.IsHub);
+            item.IsHub,
+            item.TaxNumber);
 }

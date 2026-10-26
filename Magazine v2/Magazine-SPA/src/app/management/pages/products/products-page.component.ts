@@ -25,7 +25,7 @@ import { ProductService } from '../../services/product.service';
     TableNavigationComponent,
   ],
   templateUrl: './products-page.component.html',
-  styleUrls: ['../management-page.scss', './products-page.component.scss'],
+  styleUrls: ['../../../shared/styles/management-page.scss', './products-page.component.scss'],
 })
 export class ProductsPageComponent implements OnInit {
   private readonly service = inject(ProductService);

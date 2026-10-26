@@ -15,4 +15,13 @@ public sealed record PurchaseOrderView(
     string? PaperDocumentNumber,
     string? Notes,
     decimal TotalValue,
-    IReadOnlyList<PurchaseOrderItemView> Items);
+    IReadOnlyList<PurchaseOrderItemView> Items,
+    string? WarehouseAddress = null,
+    string? WarehouseTaxNumber = null,
+    string? ContractorTaxNumber = null,
+    string? ContractorAddress = null,
+    string? ContractorEmail = null,
+    string? ContractorPhone = null,
+    string? CreatedBy = null,
+    string? ApprovedBy = null,
+    string? ReceivedBy = null);

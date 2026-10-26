@@ -31,7 +31,7 @@ interface ContractorModalData {
     FormTextareaComponent,
   ],
   templateUrl: './contractor-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class ContractorModalComponent {
   readonly data = inject<ContractorModalData>(MAT_DIALOG_DATA);

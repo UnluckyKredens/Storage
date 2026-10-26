@@ -1,8 +1,9 @@
 <section class="management-page">
   <app-table-navigation-component
-    title="Dashboard magazynu"
+    title="Dashboard"
     backLink="/main/management"
     [showAddButton]="false"
+    [showSearch]="false"
   />
 
   @if (loading()) {
@@ -12,28 +13,31 @@
   @if (dashboard(); as dashboard) {
     <div class="metric-grid">
       <div class="metric">
-        <strong>{{ dashboard.productCount }}</strong>
         <span>Produkty na stanie</span>
+        <strong>{{ dashboard.productCount }}</strong>
       </div>
       <div class="metric">
-        <strong>{{ dashboard.totalQuantity | number: '1.0-3' }}</strong>
         <span>Ilość łącznie</span>
+        <strong>{{ dashboard.totalQuantity | number: '1.0-3' }}</strong>
       </div>
       <div class="metric">
-        <strong>{{ dashboard.reservedQuantity | number: '1.0-3' }}</strong>
         <span>Zarezerwowane</span>
+
+        <strong>{{ dashboard.reservedQuantity | number: '1.0-3' }}</strong>
       </div>
       <div class="metric">
-        <strong>{{ dashboard.availableQuantity | number: '1.0-3' }}</strong>
         <span>Dostępne</span>
+
+        <strong>{{ dashboard.availableQuantity | number: '1.0-3' }}</strong>
       </div>
       <div class="metric">
-        <strong>{{ dashboard.activeReservationCount }}</strong>
         <span>Aktywne rezerwacje</span>
+
+        <strong>{{ dashboard.activeReservationCount }}</strong>
       </div>
       <div class="metric">
-        <strong>{{ dashboard.inTransitShipmentCount }}</strong>
         <span>W drodze</span>
+        <strong>{{ dashboard.inTransitShipmentCount }}</strong>
       </div>
     </div>
 
@@ -45,16 +49,23 @@
     <div class="alerts-head">
       <h2>Alerty magazynowe</h2>
       @if (canOrder && (dashboard.alerts.length > 0 || dashboard.backorders.length > 0)) {
-        <button mat-flat-button type="button" [disabled]="opening()" (click)="createReplenishmentOrder()">
-          {{ opening() ? 'Ładowanie...' : 'Utwórz zamówienie z alertów' }}
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="opening()"
+          (click)="createReplenishmentOrder()"
+        >
+          {{ opening() ? 'Ładowanie...' : 'Utwórz zamówienie' }}
         </button>
       }
     </div>
 
     @if (dashboard.backorders.length > 0) {
       <p class="backorder-note" role="status">
-        Prośby o wysyłkę czekają na towar, którego brakuje w tym magazynie ({{ dashboard.backorders.length }} poz.).
-        Utwórz zamówienie, aby je uzupełnić.
+        Prośby o wysyłkę czekają na towar, którego brakuje w tym magazynie ({{
+          dashboard.backorders.length
+        }}
+        poz.). Utwórz zamówienie, aby je uzupełnić.
       </p>
     }
 

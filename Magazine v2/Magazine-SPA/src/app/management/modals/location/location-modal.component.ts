@@ -28,7 +28,7 @@ interface LocationModalData {
     FormTextareaComponent,
   ],
   templateUrl: './location-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class LocationModalComponent implements OnInit {
   readonly data = inject<LocationModalData>(MAT_DIALOG_DATA);

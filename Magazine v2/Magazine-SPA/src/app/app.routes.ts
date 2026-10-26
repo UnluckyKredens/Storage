@@ -30,7 +30,26 @@ export const routes: Routes = [
       },
       {
         path: 'magazine',
-        redirectTo: 'management/inventory',
+        redirectTo: 'inventory',
+      },
+      {
+        path: 'inventory',
+        loadChildren: () => import('./inventory/inventory.routes').then((m) => m.inventoryRoutes),
+      },
+      {
+        path: 'shipments',
+        canActivate: [permissionGuard],
+        data: { permission: 'shipments.read' },
+        loadChildren: () => import('./shipments/shipments.routes').then((m) => m.shipmentRoutes),
+      },
+      {
+        path: 'purchase-orders',
+        loadChildren: () =>
+          import('./purchase-orders/purchase-orders.routes').then((m) => m.purchaseOrderRoutes),
+      },
+      {
+        path: 'storefront',
+        loadChildren: () => import('./storefront/storefront.routes').then((m) => m.storefrontRoutes),
       },
       {
         path: 'management',

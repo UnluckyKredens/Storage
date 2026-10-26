@@ -23,7 +23,7 @@ import { UnitService } from '../../services/unit.service';
     TableNavigationComponent,
   ],
   templateUrl: './units-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class UnitsPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(UnitService);

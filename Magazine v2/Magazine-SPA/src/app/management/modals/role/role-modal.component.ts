@@ -27,7 +27,7 @@ interface RoleModalData {
     FormSelectComponent,
   ],
   templateUrl: './role-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class RoleModalComponent implements OnInit {
   readonly data = inject<RoleModalData>(MAT_DIALOG_DATA);

@@ -23,7 +23,7 @@ import { ContractorService } from '../../services/contractor.service';
     TableNavigationComponent,
   ],
   templateUrl: './contractors-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class ContractorsPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(ContractorService);

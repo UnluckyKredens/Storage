@@ -65,6 +65,9 @@ public sealed class GetShipmentHistoryQueryHandler(
     {
         "created" => "Utworzono wysyłkę",
         "requested" => "Złożono prośbę",
+        "accepted" => "Zaakceptowano",
+        "packed" => "Spakowano",
+        // "approved" to historyczna nazwa zdarzenia wysłania towaru (zachowana dla istniejących danych).
         "approved" => "Wysłano",
         "in_transit" => "W drodze",
         "received" => "Odebrano",

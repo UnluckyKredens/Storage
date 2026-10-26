@@ -23,7 +23,7 @@ import { PermissionService } from '../../services/permission.service';
     TableNavigationComponent,
   ],
   templateUrl: './permissions-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class PermissionsPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(PermissionService);

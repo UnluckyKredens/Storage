@@ -9,6 +9,8 @@
       <dd>{{ display(data.row?.name) }}</dd>
       <dt>Adres</dt>
       <dd>{{ display(data.row?.address) }}</dd>
+      <dt>NIP</dt>
+      <dd>{{ display(data.row?.taxNumber) }}</dd>
       <dt>Opis</dt>
       <dd>{{ display(data.row?.description) }}</dd>
       <dt>Magazyn przeładunkowy</dt>
@@ -30,6 +32,7 @@
       <div class="fields">
         <app-form-input label="Nazwa" name="name" [(ngModel)]="form.name" required />
         <app-form-input label="Adres" name="address" [(ngModel)]="form.address" />
+        <app-form-input label="NIP" name="taxNumber" [(ngModel)]="form.taxNumber" />
         <app-form-textarea
           class="full-width"
           label="Opis"

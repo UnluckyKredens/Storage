@@ -21,8 +21,8 @@ public sealed class CancelShipmentCommandHandler(IRepository<Shipment> shipments
         if (!warehouse.CanAccess(shipment.SourceWarehouseId))
             throw new ForbiddenOperationException("Brak dostępu do magazynu źródłowego.");
         if (shipment.Status == ShipmentStatus.Cancelled) return true;
-        if (shipment.Status != ShipmentStatus.PendingApproval)
-            throw new CommandValidationException("Anulować można wyłącznie wysyłkę oczekującą na akceptację.");
+        if (shipment.Status is not (ShipmentStatus.PendingApproval or ShipmentStatus.Approved or ShipmentStatus.Packed))
+            throw new CommandValidationException("Anulować można wysyłkę, która nie została jeszcze wysłana.");
         var active = await reservations.FilterByAsync(item => item.SourceType == "Shipment" &&
             item.SourceId == shipment.Id && item.Status == StockReservationStatus.Active, ct);
         foreach (var reservation in active)

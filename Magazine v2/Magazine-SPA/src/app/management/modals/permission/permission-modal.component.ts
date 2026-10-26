@@ -26,7 +26,7 @@ interface PermissionModalData {
     FormTextareaComponent,
   ],
   templateUrl: './permission-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class PermissionModalComponent {
   readonly data = inject<PermissionModalData>(MAT_DIALOG_DATA);

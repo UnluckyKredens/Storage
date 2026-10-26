@@ -5,4 +5,5 @@ public sealed record WarehouseView(
     string Name,
     string? Address,
     string? Description,
-    bool IsHub);
+    bool IsHub,
+    string? TaxNumber = null);

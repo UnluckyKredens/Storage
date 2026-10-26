@@ -23,7 +23,7 @@ import { UserService } from '../../services/user.service';
     TableNavigationComponent,
   ],
   templateUrl: './users-page.component.html',
-  styleUrl: '../management-page.scss',
+  styleUrl: '../../../shared/styles/management-page.scss',
 })
 export class UsersPageComponent implements OnInit, AfterViewInit {
   private readonly service = inject(UserService);

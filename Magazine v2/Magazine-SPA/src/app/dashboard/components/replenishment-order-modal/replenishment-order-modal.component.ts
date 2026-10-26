@@ -5,9 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogHeaderComponent } from '../../../shared/components/dialog-header/dialog-header.component';
-import { PurchaseOrderPageData } from '../../../management/models/management.models';
-import { ShipmentService } from '../../../management/services/shipment.service';
-import { PurchaseOrderService } from '../../../management/services/purchase-order.service';
+import { PurchaseOrderPageData } from '../../../purchase-orders/models/purchase-orders.models';
+import { ShipmentService } from '../../../shipments/services/shipment.service';
+import { PurchaseOrderService } from '../../../purchase-orders/services/purchase-order.service';
 import { WarehouseDashboardAlert, WarehouseDashboardBackorder } from '../../models/dashboard.models';
 
 interface ReplenishmentModalData {
@@ -78,7 +78,7 @@ export class ReplenishmentOrderModalComponent {
     this.service
       .create({
         contractorId: this.contractorId,
-        notes: 'Zamówienie uzupełniające z alertów magazynowych',
+        notes: 'Zamówienie uzupełniające',
         items: this.lines
           .filter((line) => line.quantity > 0)
           .map((line) => ({ productId: line.productId, quantity: line.quantity, unitPrice: line.unitPrice })),

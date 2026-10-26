@@ -27,7 +27,7 @@ interface UserModalData {
     FormSelectComponent,
   ],
   templateUrl: './user-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class UserModalComponent implements OnInit {
   readonly data = inject<UserModalData>(MAT_DIALOG_DATA);

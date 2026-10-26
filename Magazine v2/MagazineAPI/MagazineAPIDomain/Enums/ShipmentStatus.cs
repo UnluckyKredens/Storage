@@ -6,5 +6,7 @@ public enum ShipmentStatus
     Sent = 2,
     InTransit = 3,
     Received = 4,
-    Cancelled = 5
+    Cancelled = 5,
+    Approved = 6,
+    Packed = 7
 }

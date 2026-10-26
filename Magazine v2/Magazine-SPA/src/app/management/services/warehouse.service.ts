@@ -19,7 +19,7 @@ export class WarehouseService {
 
   save(
     id: string | null,
-    form: { name: string; address: string; description: string; isHub?: boolean },
+    form: { name: string; address: string; taxNumber: string; description: string; isHub?: boolean },
   ): Observable<Warehouse> {
     return id
       ? this.http.put<Warehouse>(`${this.apiUrl}/${id}`, form)

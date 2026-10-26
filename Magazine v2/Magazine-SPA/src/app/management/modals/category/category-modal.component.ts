@@ -26,7 +26,7 @@ interface CategoryModalData {
     FormTextareaComponent,
   ],
   templateUrl: './category-modal.component.html',
-  styleUrl: '../management-modal.scss',
+  styleUrl: '../../../shared/styles/management-modal.scss',
 })
 export class CategoryModalComponent {
   readonly data = inject<CategoryModalData>(MAT_DIALOG_DATA);

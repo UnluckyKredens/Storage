@@ -1,9 +1,6 @@
 <section class="flow" aria-labelledby="flow-title">
   <header class="flow-header">
-    <div>
-      <h2 id="flow-title">Przepływ magazynu</h2>
-      <p>Przyjęcia i wydania towaru oraz obieg wysyłek z historii zdarzeń.</p>
-    </div>
+    <h2 id="flow-title">Statystyki magazyny</h2>
     <div class="period" role="group" aria-label="Okres statystyk">
       @for (period of periods; track period) {
         <button
@@ -29,15 +26,15 @@
   @if (stats(); as stats) {
     <div class="kpis">
       <div class="kpi">
-        <strong>{{ stats.inboundQuantity | number: '1.0-3' }}</strong>
+        <strong>{{ stats.inboundQuantity | number: '1.0-3' }} szt.</strong>
         <span>Przyjęto</span>
       </div>
       <div class="kpi">
-        <strong>{{ stats.outboundQuantity | number: '1.0-3' }}</strong>
+        <strong>{{ stats.outboundQuantity | number: '1.0-3' }} szt.</strong>
         <span>Wydano</span>
       </div>
       <div class="kpi">
-        <strong>{{ stats.netChange > 0 ? '+' : '' }}{{ stats.netChange | number: '1.0-3' }}</strong>
+        <strong [style.color]="stats.netChange > 0 ? 'green' : 'red'">{{ stats.netChange > 0 ? '+' : '' }}{{ stats.netChange | number: '1.0-3' }} zł</strong>
         <span>Saldo okresu</span>
       </div>
       <div class="kpi">
@@ -79,8 +76,6 @@
         </div>
       } @else {
         <apx-chart
-          role="img"
-          [attr.aria-label]="'Wykres przyjęć, wydań i salda z ostatnich ' + stats.days + ' dni'"
           [series]="series()"
           [chart]="chart"
           [colors]="colors"

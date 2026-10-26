@@ -30,7 +30,7 @@ interface ProductModalData {
     SearchSelectComponent,
   ],
   templateUrl: './product-modal.component.html',
-  styleUrls: ['../management-modal.scss', './product-modal.component.scss'],
+  styleUrls: ['../../../shared/styles/management-modal.scss', './product-modal.component.scss'],
 })
 export class ProductModalComponent implements OnInit {
   readonly data = inject<ProductModalData>(MAT_DIALOG_DATA);

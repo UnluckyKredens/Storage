@@ -771,6 +771,12 @@ namespace MagazineAPInfrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("PackedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("PackedOnUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid?>("ReceivedByUserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -782,6 +788,12 @@ namespace MagazineAPInfrastructure.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<Guid?>("SentByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("SentOnUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("SourceWarehouseId")
                         .HasColumnType("uniqueidentifier");
@@ -798,7 +810,11 @@ namespace MagazineAPInfrastructure.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
+                    b.HasIndex("PackedByUserId");
+
                     b.HasIndex("ReceivedByUserId");
+
+                    b.HasIndex("SentByUserId");
 
                     b.HasIndex("DestinationWarehouseId", "CreatedOnUtc");
 
@@ -810,7 +826,7 @@ namespace MagazineAPInfrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Shipments_DifferentWarehouses", "[SourceWarehouseId] <> [DestinationWarehouseId]");
 
-                            t.HasCheckConstraint("CK_Shipments_Status", "[Status] IN (1, 2, 3, 4, 5)");
+                            t.HasCheckConstraint("CK_Shipments_Status", "[Status] IN (1, 2, 3, 4, 5, 6, 7)");
                         });
                 });
 
@@ -1309,6 +1325,10 @@ namespace MagazineAPInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("TaxNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Warehouses", (string)null);
@@ -1579,9 +1599,19 @@ namespace MagazineAPInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MagazineAPIDomain.Entities.User", "PackedByUser")
+                        .WithMany()
+                        .HasForeignKey("PackedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("MagazineAPIDomain.Entities.User", "ReceivedByUser")
                         .WithMany("ReceivedShipments")
                         .HasForeignKey("ReceivedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MagazineAPIDomain.Entities.User", "SentByUser")
+                        .WithMany()
+                        .HasForeignKey("SentByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MagazineAPIDomain.Entities.Warehouse", "SourceWarehouse")
@@ -1596,7 +1626,11 @@ namespace MagazineAPInfrastructure.Migrations
 
                     b.Navigation("DestinationWarehouse");
 
+                    b.Navigation("PackedByUser");
+
                     b.Navigation("ReceivedByUser");
+
+                    b.Navigation("SentByUser");
 
                     b.Navigation("SourceWarehouse");
                 });

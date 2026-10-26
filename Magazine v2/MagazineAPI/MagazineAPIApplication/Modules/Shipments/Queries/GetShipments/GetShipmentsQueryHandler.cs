@@ -13,6 +13,7 @@ public sealed class GetShipmentsQueryHandler(
     IRepository<ShipmentItem> shipmentItemRepository,
     IRepository<Product> productRepository,
     IRepository<Warehouse> warehouseRepository,
+    IRepository<User> userRepository,
     IWarehouseContext warehouseContext) : IQueryHandler<GetShipmentsQuery, IReadOnlyList<ShipmentView>>
 {
     public async ValueTask<IReadOnlyList<ShipmentView>> Handle(GetShipmentsQuery query, CancellationToken cancellationToken)
@@ -31,7 +32,9 @@ public sealed class GetShipmentsQueryHandler(
         if (query.ReadyOnly)
         {
             shipmentsQuery = shipmentsQuery
-                .Where(shipment => shipment.Status == ShipmentStatus.Sent ||
+                .Where(shipment => shipment.Status == ShipmentStatus.Approved ||
+                                   shipment.Status == ShipmentStatus.Packed ||
+                                   shipment.Status == ShipmentStatus.Sent ||
                                    shipment.Status == ShipmentStatus.InTransit);
         }
         else if (query.Status is { } status)
@@ -63,11 +66,16 @@ public sealed class GetShipmentsQueryHandler(
             .Where(warehouse => warehouseIds.Contains(warehouse.Id))
             .ToDictionaryAsync(warehouse => warehouse.Id, cancellationToken);
 
+        var userIds = ShipmentMapper.UserIds(shipments);
+        var users = await userRepository.Query()
+            .Where(user => userIds.Contains(user.Id))
+            .ToDictionaryAsync(user => user.Id, cancellationToken);
+
         return shipments
             .Select(shipment =>
             {
                 shipment.Items = items[shipment.Id].ToList();
-                return ShipmentMapper.ToView(shipment, warehouses, products);
+                return ShipmentMapper.ToView(shipment, warehouses, products, users);
             })
             .ToArray();
     }
