@@ -3,114 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Sklep demonstracyjny z częściami komputerowymi, zasilany przez API systemu magazynowego Magazine.">
   <title>Magazine Store – części komputerowe</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-row">
-      <a class="brand" href="./">Magazine <b>Store</b></a>
-      <input class="search" id="searchInput" type="search" placeholder="Szukaj produktu" aria-label="Szukaj produktu" autocomplete="off">
-      <nav class="header-actions" aria-label="Zamówienia">
-        <button class="btn ghost" id="trackingOpen" type="button">Śledź zamówienie</button>
-        <button class="btn primary" id="cartOpen" type="button">Koszyk (<span id="cartCount">0</span>)</button>
-      </nav>
+  <header>
+    <div class="wrap bar">
+      <a class="logo" href="./">magazine<span>store</span></a>
+      <input id="search" type="search" placeholder="Czego szukasz?" aria-label="Szukaj">
+      <button id="openTrack">Zamówienie</button>
+      <button id="openCart">Koszyk <b id="cartCount">0</b></button>
     </div>
   </header>
 
-  <main class="container">
-    <div class="toolbar">
-      <h1>Części komputerowe</h1>
-      <div class="toolbar-controls">
-        <label class="check"><input id="onlyAvailable" type="checkbox" checked> Tylko dostępne</label>
-        <select id="sortSelect" aria-label="Sortowanie">
-          <option value="name">Nazwa A–Z</option>
-          <option value="priceAsc">Cena rosnąco</option>
-          <option value="priceDesc">Cena malejąco</option>
-        </select>
-      </div>
-    </div>
-
-    <p class="status" id="statusMessage" role="alert" hidden></p>
-    <div class="grid" id="productGrid"></div>
+  <main class="wrap">
+    <h1>Części komputerowe</h1>
+    <div id="products" class="grid"></div>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-row">
-      <span>Sklep demonstracyjny systemu magazynowego Magazine.</span>
-      <button class="link-btn" id="settingsOpen" type="button">Ustawienia API</button>
-    </div>
-  </footer>
+  <footer class="wrap">Sklep demonstracyjny systemu magazynowego Magazine</footer>
 
-  <dialog class="drawer" id="cartDrawer" aria-labelledby="cartTitle">
-    <div class="dialog-head">
-      <h2 id="cartTitle">Koszyk</h2>
-      <button class="close-btn" data-close type="button" aria-label="Zamknij">×</button>
-    </div>
-    <div class="drawer-body">
-      <div id="cartItems"></div>
-      <form class="form" id="checkoutForm" autocomplete="on" novalidate>
-        <h3>Dane do zamówienia</h3>
-        <label>Imię i nazwisko *<input name="customerName" required autocomplete="name"></label>
-        <label>E-mail *<input name="customerEmail" type="email" required autocomplete="email"></label>
-        <label>Telefon<input name="customerPhone" type="tel" autocomplete="tel"></label>
-        <label>Adres dostawy<input name="deliveryAddress" autocomplete="street-address"></label>
-        <label>Uwagi<textarea name="notes" rows="2"></textarea></label>
-        <p class="form-error" id="checkoutError" role="alert" hidden></p>
-      </form>
-    </div>
-    <div class="drawer-foot">
-      <div class="total-row"><span>Razem</span><strong id="cartTotal">0,00 zł</strong></div>
-      <button class="btn primary block" id="submitOrder" type="submit" form="checkoutForm">Złóż zamówienie</button>
-    </div>
-  </dialog>
-
-  <dialog class="modal" id="confirmDialog" aria-labelledby="confirmTitle">
-    <div class="dialog-head">
-      <h2 id="confirmTitle">Dziękujemy za zamówienie</h2>
-      <button class="close-btn" data-close type="button" aria-label="Zamknij">×</button>
-    </div>
-    <div class="modal-body">
-      <p>Numer zamówienia: <strong id="confirmNumber"></strong></p>
-      <p class="muted">Zachowaj token śledzenia. Bez niego nie sprawdzisz statusu ani nie anulujesz zamówienia.</p>
-      <div class="token-box">
-        <code id="confirmToken"></code>
-        <button class="btn ghost" id="copyToken" type="button">Kopiuj</button>
-      </div>
-      <button class="btn primary block" id="confirmTrack" type="button">Śledź zamówienie</button>
-    </div>
-  </dialog>
-
-  <dialog class="modal wide" id="trackingDialog" aria-labelledby="trackingTitle">
-    <div class="dialog-head">
-      <h2 id="trackingTitle">Śledzenie zamówienia</h2>
-      <button class="close-btn" data-close type="button" aria-label="Zamknij">×</button>
-    </div>
-    <div class="modal-body">
-      <form class="inline-form" id="trackingForm">
-        <input id="trackingToken" placeholder="Token z potwierdzenia zamówienia" aria-label="Token śledzenia zamówienia" autocomplete="off" spellcheck="false">
-        <button class="btn primary" type="submit">Sprawdź</button>
-      </form>
-      <div id="trackingResult" aria-live="polite"></div>
-    </div>
-  </dialog>
-
-  <dialog class="modal" id="settingsDialog" aria-labelledby="settingsTitle">
-    <div class="dialog-head">
-      <h2 id="settingsTitle">Ustawienia API</h2>
-      <button class="close-btn" data-close type="button" aria-label="Zamknij">×</button>
-    </div>
-    <form class="modal-body form" id="apiForm">
-      <label>Adres serwera API<input id="apiOrigin" type="url" placeholder="https://magazynapi.krdns.pl" required></label>
-      <p class="muted small">Sklep pobiera z tego adresu bibliotekę <code>sw.js</code> i endpointy <code>/api/Storefront</code>.</p>
-      <button class="btn primary block" type="submit">Zapisz i wczytaj ponownie</button>
+  <dialog id="cart">
+    <button class="close" aria-label="Zamknij">×</button>
+    <h2>Koszyk</h2>
+    <div id="cartLines"></div>
+    <form id="checkout">
+      <p class="total">Do zapłaty: <b id="cartTotal"></b></p>
+      <input name="customerName" placeholder="Imię i nazwisko *" required>
+      <input name="customerEmail" type="email" placeholder="E-mail *" required>
+      <input name="customerPhone" type="tel" placeholder="Telefon">
+      <input name="deliveryAddress" placeholder="Adres dostawy">
+      <button class="buy">Zamawiam</button>
     </form>
   </dialog>
 
-  <div class="toast" id="toast" role="status" hidden></div>
+  <dialog id="tracking">
+    <button class="close" aria-label="Zamknij">×</button>
+    <h2>Status zamówienia</h2>
+    <form id="trackForm">
+      <input id="token" placeholder="Token zamówienia" required>
+      <button class="buy">Sprawdź</button>
+    </form>
+    <div id="trackResult"></div>
+  </dialog>
 
-  <script src="./app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
