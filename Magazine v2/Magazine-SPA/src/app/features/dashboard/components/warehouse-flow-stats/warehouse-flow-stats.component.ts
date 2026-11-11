@@ -98,8 +98,6 @@ export class WarehouseFlowStatsComponent {
     yaxis: { lines: { show: true } },
     padding: { left: 8, right: 8 },
   };
-  // Przy krótkim okresie ApexCharts stawia znaczniki co pół dnia i powtarza tę samą datę,
-  // dlatego dla 2–14 dni ustawiamy dokładnie jeden znacznik na dzień.
   readonly xaxis = computed<ApexXAxis>(() => {
     const days = this.stats()?.daily.length ?? 0;
     return {

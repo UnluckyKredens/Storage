@@ -1,5 +1,11 @@
 .local/
+.claude/
+.DS_Store
 **/appsettings.Local.json
 **/bin/
 **/obj/
-
+*.user
+Magazine-SPA/node_modules/
+Magazine-SPA/dist/
+Magazine-SPA/.angular/
+Magazine-SPA/.npm/

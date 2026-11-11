@@ -19,8 +19,4 @@ export class AuthService {
       password,
     });
   }
-
-  isAuthenticated(): Observable<boolean> {
-    return this.http.get<boolean>(`${environment.apiUrl}/Auth/IsAuthenticated`);
-  }
 }

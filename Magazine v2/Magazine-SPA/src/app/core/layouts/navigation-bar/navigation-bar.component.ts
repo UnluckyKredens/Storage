@@ -44,14 +44,12 @@ export class NavigationBarComponent implements OnInit {
 
   nameError = false;
   ngOnInit(): void {
-    // Na wąskim ekranie menu jest poziomym paskiem: po zmianie strony przewijamy go do aktywnej zakładki.
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => setTimeout(() => this.revealActiveLink()));
-    // Pierwsza nawigacja kończy się, zanim pasek powstanie, więc przy starcie przewijamy osobno.
     setTimeout(() => this.revealActiveLink());
     this.account.loadPermissions().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     this.account

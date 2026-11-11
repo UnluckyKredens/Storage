@@ -12,8 +12,6 @@ body {
 button, input { font: inherit; }
 button { cursor: pointer; }
 
-/* Nagłówek */
-
 header { background: #000; color: #fff; }
 
 .bar { display: flex; align-items: center; gap: 16px; height: 72px; }
@@ -49,8 +47,6 @@ header button:hover { color: #ffd200; }
   text-align: center;
 }
 
-/* Lista produktów */
-
 h1 { margin: 24px 0 16px; font-size: 24px; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1px; background: #ddd; border: 1px solid #ddd; }
@@ -82,8 +78,6 @@ h1 { margin: 24px 0 16px; font-size: 24px; }
 .info { padding: 40px; background: #fff; text-align: center; color: #777; }
 
 footer { padding: 32px 16px; color: #777; font-size: 12px; }
-
-/* Okna */
 
 dialog {
   width: min(440px, 100vw);

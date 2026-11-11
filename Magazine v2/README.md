@@ -4,7 +4,7 @@ System magazynowy dla sieci magazynów: katalog przedmiotów, stany i rezerwacje
 zamówienia zewnętrzne od dostawców, sklep internetowy z pakowaniem zamówień, role i uprawnienia, audyt oraz dashboard dla kierownika.
 
 ```
- Sklep (StorefrontDemo, sw.js) ──┐
+ Sklep (StorefrontDemo) ─────────┐
                                  ├──►  API  ASP.NET Core (.NET 10)  ──►  SQL Server: baza główna + baza historii
  Panel pracowników (Angular 21) ─┘     http://localhost:5392              (dwie bazy, przepływ zdarzeń przez outbox)
  http://localhost:4200
@@ -14,7 +14,7 @@ zamówienia zewnętrzne od dostawców, sklep internetowy z pakowaniem zamówień
 |---|---|---|
 | API | `MagazineAPI/` | ASP.NET Core, EF Core, Mediator (CQRS), JWT, SQL Server |
 | Panel | `Magazine-SPA/` | Angular 21, Angular Material, ApexCharts |
-| Sklep demo | `StorefrontDemo/` | czysty HTML/JS na bibliotece `sw.js` serwowanej przez API |
+| Sklep demo | `StorefrontDemo/` | czysty HTML/JS wołający `/api/Storefront` przez `fetch` |
 | Dane testowe | `seeds/` | katalog przedmiotów i scenariusz do przejścia ręcznie |
 
 ---
@@ -104,7 +104,7 @@ py -m http.server 8081
 
 Zamiast Pythona możesz wystawić katalog `StorefrontDemo` jako zwykłą stronę statyczną w IIS.
 
-Sklep: **http://localhost:8081**. Domyślnie łączy się z `https://magazynapi.krdns.pl` (stała `DEFAULT_API_ORIGIN` w `StorefrontDemo/app.js`). Inny serwer, np. lokalny `http://localhost:5392`, ustawisz w „Ustawieniach API” w stopce sklepu; sklep pobiera z niego `sw.js` i endpointy `/api/Storefront`.
+Sklep: **http://localhost:8081**. Łączy się z `https://magazynapi.krdns.pl` (stała `API` w pierwszej linii `StorefrontDemo/app.js`). Żeby użyć lokalnego API, zmień ją na `http://localhost:5392/api/Storefront`.
 
 ### Krok 6. (opcjonalnie) Dane testowe
 
@@ -339,7 +339,7 @@ Reguły: `shared` nie zna `core` ani `features`, `core` nie zna `features`, a mo
 | API nie startuje: tabela już istnieje | baza powstała starym trybem bez migracji. Usuń ją i uruchom API ponownie |
 | Panel pokazuje „Network error" | API nie działa albo `apiUrl` w panelu wskazuje zły adres. CORS nie blokuje, bo dopuszcza wszystko |
 | Panel nie loguje po zmianie portu API | popraw `apiUrl` w `Magazine-SPA/src/environments/environment.development.ts` |
-| Sklep: „Nie udało się połączyć ze sklepem” | API nie działa pod adresem z „Ustawień API” w stopce sklepu (domyślnie `https://magazynapi.krdns.pl`) |
+| Sklep: „Nie udało się wczytać produktów.” | API nie działa pod adresem ze stałej `API` w `StorefrontDemo/app.js` (domyślnie `https://magazynapi.krdns.pl`) |
 | HTTP 429 | przekroczony limit zapytań na minutę, poczekaj minutę |
 | `sqlcmd` zgłasza błąd indeksu (1934) | dodaj flagę `-I` |
 

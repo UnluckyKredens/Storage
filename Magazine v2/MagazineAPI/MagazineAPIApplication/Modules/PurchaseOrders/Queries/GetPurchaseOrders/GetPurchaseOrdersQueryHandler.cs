@@ -26,8 +26,6 @@ public sealed class GetPurchaseOrdersQueryHandler(
         var ordersQuery = orderRepository.Query();
         if (warehouseContext.WarehouseId is { } activeWarehouseId)
             ordersQuery = ordersQuery.Where(order => order.WarehouseId == activeWarehouseId);
-        if (query.Status is { } status)
-            ordersQuery = ordersQuery.Where(order => order.Status == status);
 
         var orders = await ordersQuery
             .OrderByDescending(order => order.CreatedOnUtc)

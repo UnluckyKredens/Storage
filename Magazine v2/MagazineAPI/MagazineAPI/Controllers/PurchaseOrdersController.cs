@@ -1,7 +1,6 @@
 using MagazineAPI.Authorization;
 using MagazineAPIApplication.Modules.PurchaseOrders;
 using MagazineAPIDomain.Authorization;
-using MagazineAPIDomain.Enums;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,24 +24,6 @@ public sealed class PurchaseOrdersController(ISender sender) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<PurchaseOrderView>>> GetAll(CancellationToken cancellationToken)
     {
         return Ok(await sender.Send(new GetPurchaseOrdersQuery(), cancellationToken));
-    }
-
-    [HttpGet("pending")]
-    [HasPermission(PermissionCodes.PurchaseOrdersRead)]
-    public async Task<ActionResult<IReadOnlyList<PurchaseOrderView>>> GetPending(CancellationToken cancellationToken)
-    {
-        return Ok(await sender.Send(
-            new GetPurchaseOrdersQuery(PurchaseOrderStatus.PendingApproval),
-            cancellationToken));
-    }
-
-    [HttpGet("approved")]
-    [HasPermission(PermissionCodes.PurchaseOrdersRead)]
-    public async Task<ActionResult<IReadOnlyList<PurchaseOrderView>>> GetApproved(CancellationToken cancellationToken)
-    {
-        return Ok(await sender.Send(
-            new GetPurchaseOrdersQuery(PurchaseOrderStatus.Approved),
-            cancellationToken));
     }
 
     [HttpGet("{id:guid}")]

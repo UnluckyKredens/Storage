@@ -36,14 +36,6 @@ export class PurchaseOrderService {
     return this.http.get<PurchaseOrder[]>(this.apiUrl);
   }
 
-  getPending(): Observable<PurchaseOrder[]> {
-    return this.http.get<PurchaseOrder[]>(`${this.apiUrl}/pending`);
-  }
-
-  getApproved(): Observable<PurchaseOrder[]> {
-    return this.http.get<PurchaseOrder[]>(`${this.apiUrl}/approved`);
-  }
-
   getPageData(): Observable<PurchaseOrderPageData> {
     return this.http.get<PurchaseOrderPageData>(`${this.apiUrl}/page-data`);
   }

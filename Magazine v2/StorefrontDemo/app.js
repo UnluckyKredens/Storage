@@ -1,8 +1,7 @@
-// Sklep demonstracyjny: lista produktów, koszyk, zamówienie i śledzenie.
 const API = 'https://magazynapi.krdns.pl/api/Storefront';
 
 let products = [];
-let cart = JSON.parse(localStorage.getItem('cart') || '{}'); // { productId: ilość }
+let cart = JSON.parse(localStorage.getItem('cart') || '{}');
 
 const $ = (id) => document.getElementById(id);
 const money = (value) => Number(value).toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' });
@@ -18,8 +17,6 @@ async function api(path, options = {}) {
   return data;
 }
 
-// --- Produkty ---
-
 async function loadProducts() {
   try {
     products = await api('/products');
@@ -33,7 +30,7 @@ function renderProducts() {
   const query = $('search').value.trim().toLowerCase();
   const list = products
     .filter((p) => p.name.toLowerCase().includes(query))
-    .sort((a, b) => (b.availableQuantity > 0) - (a.availableQuantity > 0)); // dostępne na początku
+    .sort((a, b) => (b.availableQuantity > 0) - (a.availableQuantity > 0));
 
   $('products').innerHTML = list.map((p) => `
     <article class="card">
@@ -47,8 +44,6 @@ function renderProducts() {
       <button class="buy" data-id="${p.id}" ${p.availableQuantity > 0 ? '' : 'disabled'}>Do koszyka</button>
     </article>`).join('') || '<p class="info">Brak produktów.</p>';
 }
-
-// --- Koszyk ---
 
 function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
@@ -109,8 +104,6 @@ $('checkout').addEventListener('submit', async (event) => {
   }
 });
 
-// --- Śledzenie ---
-
 async function track(token) {
   try {
     const order = await api(`/orders/${encodeURIComponent(token)}/tracking`);
@@ -141,8 +134,6 @@ $('trackResult').addEventListener('click', async (event) => {
     alert(error.message);
   }
 });
-
-// --- Okna ---
 
 $('openCart').addEventListener('click', () => $('cart').showModal());
 $('openTrack').addEventListener('click', () => $('tracking').showModal());

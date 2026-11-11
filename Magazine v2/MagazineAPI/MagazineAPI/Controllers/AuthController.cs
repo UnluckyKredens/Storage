@@ -15,15 +15,6 @@ namespace MagazineAPI.Controllers;
 [Route("api/[controller]")]
 public class AuthController(ISender sender) : ControllerBase
 {
-
-    [Authorize]
-    [HttpGet("IsAuthenticated")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public ActionResult<bool> IsAuthenticated()
-    {
-        return true;
-    }
     [AllowAnonymous]
     [HttpPost("login")]
     [EnableRateLimiting("login")]

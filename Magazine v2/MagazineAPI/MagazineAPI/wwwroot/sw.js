@@ -1,14 +1,3 @@
-/*
- * sw.js – klient sklepu Magazine (Storefront API).
- *
- *   const store = MagazineStore.create({ apiUrl: 'https://serwer/api/Storefront' });
- *   await store.getProducts();
- *   await store.createOrder({ customerName, customerEmail, items: [{ productId, quantity }] });
- *   await store.getTracking(trackingToken);
- *   await store.cancelOrder(trackingToken);
- *
- * Błędy API są zgłaszane jako MagazineStore.Error z polami message, status i details.
- */
 (function (global) {
   'use strict';
 
